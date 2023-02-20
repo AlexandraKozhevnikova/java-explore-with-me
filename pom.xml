@@ -22,6 +22,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<modules>
+		<module>main-service</module>
+		<module>statistic-service</module>
+	</modules>
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -147,6 +152,7 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
 	<profiles>
 		<profile>
 			<id>check</id>
