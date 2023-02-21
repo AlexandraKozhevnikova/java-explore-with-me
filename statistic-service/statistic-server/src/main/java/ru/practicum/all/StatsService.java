@@ -42,7 +42,7 @@ public class StatsService {
 
         BooleanExpression byUri;
         if (uris == null || uris.isEmpty()) {
-            byUri = Expressions.TRUE;
+            byUri = Expressions.TRUE.isTrue();
         } else {
             byUri = hit.uri.in(uris);
         }

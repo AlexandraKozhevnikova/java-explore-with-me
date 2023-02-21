@@ -14,8 +14,8 @@ public class HitRequest {
     @NotNull
     private String ip;
     @NotNull
-    //@DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 
 
