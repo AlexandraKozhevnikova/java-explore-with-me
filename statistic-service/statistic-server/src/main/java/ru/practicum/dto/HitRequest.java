@@ -1,5 +1,8 @@
 package ru.practicum.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -11,6 +14,8 @@ public class HitRequest {
     @NotNull
     private String ip;
     @NotNull
+    //@DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 
 

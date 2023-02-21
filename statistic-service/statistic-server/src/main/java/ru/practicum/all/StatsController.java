@@ -1,11 +1,18 @@
 package ru.practicum.all;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.dto.HitRequest;
+import ru.practicum.dto.HitResponse;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 public class StatsController {
@@ -18,5 +25,16 @@ public class StatsController {
     @PostMapping(path = "/hit")
     public void createHit(@Valid @RequestBody HitRequest body) {
         service.createHit(body);
+    }
+
+
+    @GetMapping("/stats")
+    public List<HitResponse> getStatistics(
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+        @RequestParam(required = false) List<String> uris,
+        @RequestParam(defaultValue = "false") Boolean unique
+    ) {
+        return service.getStat(start, end, uris, unique);
     }
 }
