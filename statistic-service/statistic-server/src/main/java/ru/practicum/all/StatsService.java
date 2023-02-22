@@ -2,11 +2,12 @@ package ru.practicum.all;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.HitMapper;
+import ru.practicum.mapper.HitMapper;
 import ru.practicum.model.HitEntity;
 import ru.practicum.model.QHitEntity;
 import statisticcommon.HitRequest;
@@ -47,7 +48,12 @@ public class StatsService {
             byUri = hit.uri.in(uris);
         }
 
-        SimpleExpression<?> distinctIpPredicate = unique ? hit.ip.countDistinct() : hit.ip.count();
+        NumberPath<Long> aliasCount = Expressions.numberPath(Long.class, "aliasCount");
+
+        SimpleExpression<?> distinctIpPredicate = unique
+            ? hit.ip.countDistinct().as(aliasCount)
+            : hit.ip.count().as(aliasCount);
+
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
 
         return query
@@ -56,12 +62,13 @@ public class StatsService {
             .where(hit.dateTime.between(start, end))
             .where(byUri)
             .groupBy(hit.app, hit.uri)
+            .orderBy(aliasCount.desc())
             .fetch()
             .stream()
             .map(it -> new HitResponse(
                 it.get(hit.app),
                 it.get(hit.uri),
-                it.get(unique ? hit.ip.countDistinct() : hit.ip.count())
+                it.get(aliasCount)
             ))
             .collect(Collectors.toList());
     }
