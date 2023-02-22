@@ -4,7 +4,7 @@ services:
     build: statistic-service/statistic-server/
     container_name: stats-server
     ports:
-    - "9090:9090"
+      - "9090:9090"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stat_prod
       - POSTGRES_USER=stat
@@ -43,6 +43,6 @@ services:
     ports:
       - "6555:5432"
     environment:
-        - POSTGRES_DB=main_prod
-        - POSTGRES_USER=main
-        - POSTGRES_PASSWORD=main
+      - POSTGRES_DB=main_prod
+      - POSTGRES_USER=main
+      - POSTGRES_PASSWORD=main

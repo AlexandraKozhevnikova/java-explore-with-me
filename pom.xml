@@ -22,6 +22,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mupstruct.version>1.5.3.Final</mupstruct.version>
         <querydsl.version>5.0.0</querydsl.version>
+        <statistic-common.version>0.0.1-SNAPSHOT</statistic-common.version>
+        <statistic-client.version>0.0.1-SNAPSHOT</statistic-client.version>
     </properties>
 
     <modules>
@@ -45,6 +47,16 @@
                 <groupId>com.querydsl</groupId>
                 <artifactId>querydsl-jpa</artifactId>
                 <version>${querydsl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.practicum</groupId>
+                <artifactId>statistic-common</artifactId>
+                <version>${statistic-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.practicum</groupId>
+                <artifactId>statistic-client</artifactId>
+                <version>${statistic-client.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
