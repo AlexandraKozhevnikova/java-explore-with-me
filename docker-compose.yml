@@ -5,7 +5,7 @@ services:
     ports:
     - "9090:9090"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db/stat_prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stat_prod
       - POSTGRES_USER=stat
       - POSTGRES_PASSWORD=stat
 
@@ -13,6 +13,8 @@ services:
     image: postgres:14-alpine
     ports:
       - "6545:5432"
+    volumes:
+      - /var/lib/postgresql/data/
     environment:
       - POSTGRES_DB=stat_prod
       - POSTGRES_USER=stat
