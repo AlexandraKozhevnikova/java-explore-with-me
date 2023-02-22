@@ -22,14 +22,15 @@ public class ControllerTest {
     @Test
     void getStatistics_whenValidRequest_return200() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-            .get("/stats?start={start}&end={end}","2022-09-06 11:00:23", "2032-09-06 11:00:23"))
+                .get("/stats?start={start}&end={end}", "2022-09-06 11:00:23", "2032-09-06 11:00:23"))
             .andDo(print())
             .andExpect(status().isOk());
     }
+
     @Test
     void getStatistics_whenWithoutParams_return400() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-            .get("/stats"))
+                .get("/stats"))
             .andDo(print())
             .andExpect(status().isBadRequest());
     }

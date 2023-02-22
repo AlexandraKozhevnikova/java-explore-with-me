@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import statisticcommon.HitRequest;
 import statisticcommon.HitResponse;
 
-
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;

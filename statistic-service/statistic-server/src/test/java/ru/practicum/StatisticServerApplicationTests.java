@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.client.RestTemplate;
-import ru.practicum.StatisticServerApplication;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,7 +58,7 @@ class StatisticServerApplicationTests {
     }
 
     @Test
-    void getStatistics_whenRequestValid_returnListOfHits() throws URISyntaxException {
+    void getStatistics_whenRequestValid_returnListOfHits() {
         Map<String, String> parameters = Map.of(
             "start", "2022-01-06 11:00:23",
             "end", "2032-09-06 11:00:23"
