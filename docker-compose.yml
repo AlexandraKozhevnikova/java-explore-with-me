@@ -3,7 +3,7 @@ services:
   stats-server:
     build: statistic-service/statistic-server/
     ports:
-      - "9090:9090"
+    - "9090:9090"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db/stat_prod
       - POSTGRES_USER=stat
@@ -18,9 +18,20 @@ services:
       - POSTGRES_USER=stat
       - POSTGRES_PASSWORD=stat
 
-#  ewm-service:
-#    ports:
-#      - "8080:8080"
-#
-#  ewm-db:
-#    image: postgres:14-alpine
+  ewm-service:
+    build: main-service/
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db/main_prod
+      - POSTGRES_USER=main
+      - POSTGRES_PASSWORD=main
+
+  ewm-db:
+    image: postgres:14-alpine
+    ports:
+      - "6555:5432"
+    environment:
+        - POSTGRES_DB=main_prod
+        - POSTGRES_USER=main
+        - POSTGRES_PASSWORD=main
