@@ -8,6 +8,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stat_prod
       - POSTGRES_USER=stat
       - POSTGRES_PASSWORD=stat
+    depends_on:
+      - stats-db
 
   stats-db:
     image: postgres:14-alpine
@@ -28,6 +30,9 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db/main_prod
       - POSTGRES_USER=main
       - POSTGRES_PASSWORD=main
+    depends_on:
+      - stats-server
+      - ewm-db
 
   ewm-db:
     image: postgres:14-alpine
