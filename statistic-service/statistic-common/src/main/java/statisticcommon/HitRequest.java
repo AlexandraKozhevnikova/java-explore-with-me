@@ -1,4 +1,4 @@
-package ru.practicum.dto;
+package statisticcommon;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;

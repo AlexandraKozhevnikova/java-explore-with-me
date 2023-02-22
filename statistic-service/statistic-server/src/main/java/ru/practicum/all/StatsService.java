@@ -7,10 +7,10 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.HitMapper;
-import ru.practicum.dto.HitRequest;
-import ru.practicum.dto.HitResponse;
 import ru.practicum.model.HitEntity;
 import ru.practicum.model.QHitEntity;
+import statisticcommon.HitRequest;
+import statisticcommon.HitResponse;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;

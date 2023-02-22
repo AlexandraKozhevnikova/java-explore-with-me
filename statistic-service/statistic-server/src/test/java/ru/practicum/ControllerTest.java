@@ -1,4 +1,4 @@
-package ru.practicum.statisticserver;
+package ru.practicum;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

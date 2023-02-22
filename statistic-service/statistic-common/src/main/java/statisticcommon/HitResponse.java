@@ -1,4 +1,4 @@
-package ru.practicum.dto;
+package statisticcommon;
 
 public class HitResponse {
     String app;
@@ -38,3 +38,4 @@ public class HitResponse {
         this.hits = hits;
     }
 }
+

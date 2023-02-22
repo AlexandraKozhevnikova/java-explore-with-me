@@ -1,4 +1,4 @@
-package ru.practicum.statisticserver;
+package ru.practicum;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

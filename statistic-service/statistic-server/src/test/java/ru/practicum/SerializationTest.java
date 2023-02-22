@@ -1,4 +1,4 @@
-package ru.practicum.statisticserver;
+package ru.practicum;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
-import ru.practicum.dto.HitRequest;
+import statisticcommon.HitRequest;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
