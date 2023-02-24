@@ -3,15 +3,19 @@ package statisticcommon;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class HitRequest {
     @NotNull
+    @NotBlank
     private String app;
     @NotNull
+    @NotBlank
     private String uri;
     @NotNull
+    @NotBlank
     private String ip;
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

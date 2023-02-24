@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -13,10 +15,11 @@ import java.time.LocalDateTime;
 public class HitEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "hit_id", nullable = false)
     private Long id;
-    @Column(nullable = false, length = 255)
-    private String app;
+    @ManyToOne()
+    @JoinColumn(name = "app_id", nullable = false)
+    private AppEntity app;
     @Column(nullable = false, length = 255)
     private String uri;
     @Column(nullable = false, length = 255)
@@ -33,11 +36,11 @@ public class HitEntity {
         this.id = id;
     }
 
-    public String getApp() {
+    public AppEntity getApp() {
         return app;
     }
 
-    public void setApp(String app) {
+    public void setApp(AppEntity app) {
         this.app = app;
     }
 

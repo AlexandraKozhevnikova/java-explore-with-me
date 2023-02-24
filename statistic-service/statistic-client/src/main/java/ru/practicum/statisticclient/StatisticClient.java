@@ -3,7 +3,11 @@ package ru.practicum.statisticclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 import statisticcommon.HitRequest;
 
 import java.io.IOException;
@@ -15,27 +19,37 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Service
-public class StatisticClient {
-
+@Component
+public class StatisticClient implements InitializingBean {
+    private final ApplicationContext context;
     private final String serverUrl;
     private final ObjectMapper jsonMapper;
     private final HttpResponse.BodyHandler<String> handler;
     private final HttpClient client;
+    public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd+HH:mm:ss");
+    private final String appName;
 
-
-    public StatisticClient(String serverUrl) {
+    @Autowired
+    public StatisticClient(ApplicationContext context, @Value("statistic.server.url") String serverUrl,
+                           @Value("spring.application.name") String app) {
+        this.context = context;
         this.serverUrl = serverUrl;
         this.jsonMapper = new ObjectMapper();
         jsonMapper.registerModule(new JavaTimeModule());
         client = HttpClient.newHttpClient();
         handler = HttpResponse.BodyHandlers.ofString();
+        appName = app;
     }
 
-    public HttpResponse<String> addHit(String app, String uri, String ip, LocalDateTime timestamp)
+    @Override
+    public void afterPropertiesSet() {
+        context.getBean("StatisticClient");
+    }
+
+    public HttpResponse<String> addHit(String uri, String ip, LocalDateTime timestamp)
         throws IOException, InterruptedException {
         HitRequest body = new HitRequest();
-        body.setApp(app);
+        body.setApp(appName);
         body.setUri(uri);
         body.setIp(ip);
         body.setTimestamp(timestamp);
@@ -60,8 +74,6 @@ public class StatisticClient {
             throw new IllegalArgumentException("'start'  and/or 'end' not valid");
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd+HH:mm:ss");
-
         StringBuilder uriBuilder = new StringBuilder(serverUrl + "/stats");
         uriBuilder.append("?start=").append(start.format(formatter));
         uriBuilder.append("&end=").append(end.format(formatter));
@@ -85,7 +97,6 @@ public class StatisticClient {
             .version(HttpClient.Version.HTTP_1_1)
             .header("Accept", "application/json")
             .build();
-
 
         return client.send(request, handler);
     }

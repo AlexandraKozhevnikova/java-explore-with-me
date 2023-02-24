@@ -1,75 +1,54 @@
 package ru.practicum.all;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.core.types.dsl.SimpleExpression;
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mapper.HitMapper;
+import ru.practicum.model.AppEntity;
 import ru.practicum.model.HitEntity;
-import ru.practicum.model.QHitEntity;
 import statisticcommon.HitRequest;
 import statisticcommon.HitResponse;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class StatsService {
-    private final StatsRepository repository;
+    private final StatsRepository hitRepository;
+    private final AppRepository appRepository;
     private final HitMapper mapper;
+    private final CustomStatsRepository customStatsRepository;
+    private final Logger log = LoggerFactory.getLogger(StatsService.class);
 
-    private final EntityManager entityManager;
-
-    public StatsService(StatsRepository repository, HitMapper mapper, EntityManager entityManager) {
-        this.repository = repository;
+    public StatsService(StatsRepository hitRepository, AppRepository appRepository, HitMapper mapper,
+                        CustomStatsRepository customStatsRepository) {
+        this.hitRepository = hitRepository;
+        this.appRepository = appRepository;
         this.mapper = mapper;
-        this.entityManager = entityManager;
+        this.customStatsRepository = customStatsRepository;
     }
 
     @Transactional
     public void createHit(HitRequest body) {
-        HitEntity hit = mapper.entityFromDto(body);
-        repository.save(hit);
+        AppEntity app = createAppIfNotExist(body.getApp());
+        HitEntity hit = mapper.entityFromDto(body, app);
+        hitRepository.save(hit);
+    }
+
+    @Transactional
+    public AppEntity createAppIfNotExist(String name) {
+        Optional<AppEntity> app = Optional.ofNullable(appRepository.getAppEntityByName(name));
+        return app.orElseGet(() -> {
+                log.info("created new app: " + app);
+                return appRepository.save(new AppEntity(name));
+            }
+        );
     }
 
     @Transactional(readOnly = true)
     public List<HitResponse> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        QHitEntity hit = QHitEntity.hitEntity;
-
-        BooleanExpression byUri;
-        if (uris == null || uris.isEmpty()) {
-            byUri = Expressions.TRUE.isTrue();
-        } else {
-            byUri = hit.uri.in(uris);
-        }
-
-        NumberPath<Long> aliasCount = Expressions.numberPath(Long.class, "aliasCount");
-
-        SimpleExpression<?> distinctIpPredicate = unique
-            ? hit.ip.countDistinct().as(aliasCount)
-            : hit.ip.count().as(aliasCount);
-
-        JPAQueryFactory query = new JPAQueryFactory(entityManager);
-
-        return query
-            .select(hit.app, hit.uri, distinctIpPredicate)
-            .from(hit)
-            .where(hit.dateTime.between(start, end))
-            .where(byUri)
-            .groupBy(hit.app, hit.uri)
-            .orderBy(aliasCount.desc())
-            .fetch()
-            .stream()
-            .map(it -> new HitResponse(
-                it.get(hit.app),
-                it.get(hit.uri),
-                it.get(aliasCount)
-            ))
-            .collect(Collectors.toList());
+        return customStatsRepository.getSummaryHits(start, end, uris, unique);
     }
 }

@@ -1,9 +1,9 @@
 package statisticcommon;
 
 public class HitResponse {
-    String app;
-    String uri;
-    Long hits;
+    private String app;
+    private String uri;
+    private Long hits;
 
     public HitResponse() {
     }

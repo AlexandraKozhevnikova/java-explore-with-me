@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import ru.practicum.statisticclient.StatisticClient;
 
 import java.io.IOException;
@@ -13,12 +15,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootTest
+@ComponentScan(basePackages = "package ru.practicum.statisticclient")
 class MainServiceApplicationTests {
-    private StatisticClient client;
+    private final StatisticClient client;
 
-    @BeforeEach
-    void setUp() {
-        client = new StatisticClient("http://localhost:9090");
+    @Autowired
+    public MainServiceApplicationTests(StatisticClient client) {
+        this.client = client;
     }
 
     @Test
@@ -28,7 +31,7 @@ class MainServiceApplicationTests {
     @Test
     @Disabled("Проверка клиента статистики POST. Запускается вручную, подняв сервер статистики")
     void addHit_whenRequestValid_return201() throws IOException, InterruptedException {
-        HttpResponse<String> response = client.addHit("ewm-main-service", "/events/3",
+        HttpResponse<String> response = client.addHit("/events/3",
             "192.163.0.1", LocalDateTime.now());
 
         Assertions.assertEquals(201, response.statusCode());
