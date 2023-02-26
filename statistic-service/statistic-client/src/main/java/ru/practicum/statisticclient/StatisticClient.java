@@ -3,11 +3,6 @@ package ru.practicum.statisticclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import statisticcommon.HitRequest;
 
 import java.io.IOException;
@@ -19,9 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Component
-public class StatisticClient implements InitializingBean {
-    private final ApplicationContext context;
+public class StatisticClient {
     private final String serverUrl;
     private final ObjectMapper jsonMapper;
     private final HttpResponse.BodyHandler<String> handler;
@@ -29,21 +22,13 @@ public class StatisticClient implements InitializingBean {
     public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd+HH:mm:ss");
     private final String appName;
 
-    @Autowired
-    public StatisticClient(ApplicationContext context, @Value("statistic.server.url") String serverUrl,
-                           @Value("spring.application.name") String app) {
-        this.context = context;
+    public StatisticClient(String serverUrl, String app) {
         this.serverUrl = serverUrl;
         this.jsonMapper = new ObjectMapper();
         jsonMapper.registerModule(new JavaTimeModule());
         client = HttpClient.newHttpClient();
         handler = HttpResponse.BodyHandlers.ofString();
         appName = app;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        context.getBean("StatisticClient");
     }
 
     public HttpResponse<String> addHit(String uri, String ip, LocalDateTime timestamp)
@@ -61,7 +46,6 @@ public class StatisticClient implements InitializingBean {
             .header("Content-Type", "application/json")
             .header("Accept", "application/json")
             .build();
-
 
         return client.send(request, handler);
     }
