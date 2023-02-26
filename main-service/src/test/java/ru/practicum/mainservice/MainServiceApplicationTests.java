@@ -1,12 +1,10 @@
 package ru.practicum.mainservice;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import ru.practicum.statisticclient.StatisticClient;
 
 import java.io.IOException;
@@ -15,14 +13,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootTest
-@ComponentScan(basePackages = "package ru.practicum.statisticclient")
 class MainServiceApplicationTests {
-    private final StatisticClient client;
-
     @Autowired
-    public MainServiceApplicationTests(StatisticClient client) {
-        this.client = client;
-    }
+    private StatisticClient client;
 
     @Test
     void contextLoads() {
