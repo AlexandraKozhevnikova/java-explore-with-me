@@ -1,10 +1,15 @@
 package ru.practicum.mainservice;
 
+import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.statisticclient.StatisticClient;
 
 import java.io.IOException;
@@ -12,10 +17,23 @@ import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class MainServiceApplicationTests {
+    private static final String USERS = "/admin/users";
+
     @Autowired
     private StatisticClient client;
+
+    @BeforeAll
+    private static void run() {
+        SpringApplication.run(MainServiceApplication.class);
+    }
 
     @Test
     void contextLoads() {
@@ -45,25 +63,62 @@ class MainServiceApplicationTests {
 
     @Test
     void createUser_whenRequestValidAndUserIsNew_thanReturn201() {
-//todo
+        given()
+            .contentType(ContentType.JSON)
+            .body("{\n" +
+                "  \"email\": \"ivan.petrov@practicummail.ru\",\n" +
+                "  \"name\": \"Иван Петров\"\n" +
+                "}")
+            .when().post(USERS)
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .body("id", is(1))
+            .body("name", is("Иван Петров"))
+            .body("email", is("ivan.petrov@practicummail.ru"));
     }
 
     @Test
-    void createUser_whenUserEmailAlreadyExistInDb_thanReturn() {
-//todo
+    void createUser_whenUserEmailAlreadyExistInDb_thanReturn409() {
+        createUser();
+
+        given()
+            .contentType(ContentType.JSON)
+            .body("{\n" +
+                "  \"email\": \"ivan.petrov@practicummail.ru\",\n" +
+                "  \"name\": \"Иван Петров\"\n" +
+                "}")
+            .when().post(USERS)
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .body("status", is("CONFLICT"))
+            .body("reason", is("Integrity constraint has been violated."))
+            .body("message", is("could not execute statement; SQL [n/a]; constraint [null]; nested exception " +
+                "is org.hibernate.exception.ConstraintViolationException: could not execute statement"))
+            .body("timestamp", notNullValue());
     }
 
     @Test
     void createUser_whenWithoutBody_thanReturn400WithCustomErrorBody() {
-//        mvc.perform(MockMvcRequestBuilders
-//                .post(PATH)
-//                .content(null)
-//                .accept(MediaType.APPLICATION_JSON))
-//            .andDo(print())
-//            .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-//            .andExpect(jsonPath("$.status", is(400)))
-//            .andExpect(jsonPath("$.reason", is("Иван Петров")))
-//            .andExpect(jsonPath("$.message", is("ivan.petrov@practicummail.ru")))
-//            .andExpect(jsonPath("$.timestamp", is("ivan.petrov@practicummail.ru")));
+        given()
+            .contentType(ContentType.JSON)
+            .when().post(USERS)
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .body("status", is("BAD_REQUEST"))
+            .body("reason", is("Incorrectly made request."))
+            .body("message", containsString("Required request body is missing"))
+            .body("timestamp", notNullValue());
+    }
+
+    private void createUser() {
+        given()
+            .contentType(ContentType.JSON)
+            .body("{\n" +
+                "  \"email\": \"ivan.petrov@practicummail.ru\",\n" +
+                "  \"name\": \"Иван Петров\"\n" +
+                "}")
+            .when().post(USERS)
+            .then()
+            .statusCode(HttpStatus.CREATED.value());
     }
 }

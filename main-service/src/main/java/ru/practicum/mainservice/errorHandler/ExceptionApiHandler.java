@@ -2,8 +2,10 @@ package ru.practicum.mainservice.errorHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,7 +20,6 @@ public class ExceptionApiHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<ErrorResponse>> handleValidationException(MethodArgumentNotValidException e) {
-
         List<FieldError> listError = e.getBindingResult().getFieldErrors();
         log.error(e.getMessage(), e);
 
@@ -28,7 +29,7 @@ public class ExceptionApiHandler {
                 listError.stream()
                     .map(it ->
                         new ErrorResponseBuilder()
-                            .setStatus("BAD_REQUEST")
+                            .setStatus(HttpStatus.BAD_REQUEST.name())
                             .setReason("Incorrectly made request.")
                             .setMessage("Field: " + it.getField() +
                                 ". Error: " + it.getDefaultMessage() +
@@ -37,6 +38,36 @@ public class ExceptionApiHandler {
 
                     )
                     .collect(Collectors.toList())
+            );
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
+        DataIntegrityViolationException e) {
+        log.error(e.getMessage(), e);
+
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(new ErrorResponseBuilder()
+                .setStatus(HttpStatus.CONFLICT.name())
+                .setReason("Integrity constraint has been violated.")
+                .setMessage(e.getLocalizedMessage())
+                .createErrorResponse()
+            );
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+        HttpMessageNotReadableException e) {
+        log.error(e.getMessage(), e);
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(new ErrorResponseBuilder()
+                .setStatus(HttpStatus.BAD_REQUEST.name())
+                .setReason("Incorrectly made request.")
+                .setMessage(e.getLocalizedMessage())
+                .createErrorResponse()
             );
     }
 }

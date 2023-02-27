@@ -4,11 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
 import ru.practicum.statisticclient.StatisticClient;
 
 @SpringBootApplication
-@PropertySource("classpath:")
 public class MainServiceApplication {
 
     @Bean
@@ -18,7 +16,6 @@ public class MainServiceApplication {
     ) {
         return new StatisticClient(serverUrl, appName);
     }
-
 
     public static void main(String[] args) {
         SpringApplication.run(MainServiceApplication.class, args);

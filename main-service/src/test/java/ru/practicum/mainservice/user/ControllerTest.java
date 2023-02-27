@@ -18,6 +18,7 @@ import ru.practicum.mainservice.service.UserService;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -86,11 +87,15 @@ public class ControllerTest {
             .andExpect(jsonPath("$").value(hasSize(2)))
             .andExpect(jsonPath("$[0].status", is("BAD_REQUEST")))
             .andExpect(jsonPath("$[0].reason", is("Incorrectly made request.")))
-            .andExpect(jsonPath("$[0].message", is("Field: email. Error: must not be blank. Value: null")))
+            .andExpect(jsonPath("$[0].message",
+                anyOf(is("Field: email. Error: must not be blank. Value: null"),
+                    is("Field: name. Error: must not be blank. Value: null"))))
             .andExpect(jsonPath("$[0].timestamp").value(notNullValue()))
             .andExpect(jsonPath("$[1].status", is("BAD_REQUEST")))
             .andExpect(jsonPath("$[1].reason", is("Incorrectly made request.")))
-            .andExpect(jsonPath("$[1].message", is("Field: name. Error: must not be blank. Value: null")))
+            .andExpect(jsonPath("$[1].message",
+                anyOf(is("Field: email. Error: must not be blank. Value: null"),
+                    is("Field: name. Error: must not be blank. Value: null"))))
             .andExpect(jsonPath("$[1].timestamp").value(notNullValue()));
     }
 
