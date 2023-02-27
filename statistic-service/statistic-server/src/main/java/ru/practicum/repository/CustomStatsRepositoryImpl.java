@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 import ru.practicum.model.QHitEntity;
-import ru.practicum.repository.CustomStatsRepository;
 import statisticcommon.HitResponse;
 
 import java.time.LocalDateTime;
