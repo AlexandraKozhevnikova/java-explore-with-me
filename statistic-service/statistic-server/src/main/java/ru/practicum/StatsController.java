@@ -1,4 +1,4 @@
-package ru.practicum.all;
+package ru.practicum;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;

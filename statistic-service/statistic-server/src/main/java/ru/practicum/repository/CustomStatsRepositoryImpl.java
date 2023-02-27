@@ -1,4 +1,4 @@
-package ru.practicum.all;
+package ru.practicum.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class CustomStatsRepository {
+public class CustomStatsRepositoryImpl implements CustomStatsRepository {
     private final JPAQueryFactory query;
 
-    public CustomStatsRepository(JPAQueryFactory query) {
+    public CustomStatsRepositoryImpl(JPAQueryFactory query) {
         this.query = query;
     }
 
