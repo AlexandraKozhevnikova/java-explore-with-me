@@ -52,4 +52,18 @@ class MainServiceApplicationTests {
     void createUser_whenUserEmailAlreadyExistInDb_thanReturn() {
 //todo
     }
+
+    @Test
+    void createUser_whenWithoutBody_thanReturn400WithCustomErrorBody() {
+//        mvc.perform(MockMvcRequestBuilders
+//                .post(PATH)
+//                .content(null)
+//                .accept(MediaType.APPLICATION_JSON))
+//            .andDo(print())
+//            .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+//            .andExpect(jsonPath("$.status", is(400)))
+//            .andExpect(jsonPath("$.reason", is("Иван Петров")))
+//            .andExpect(jsonPath("$.message", is("ivan.petrov@practicummail.ru")))
+//            .andExpect(jsonPath("$.timestamp", is("ivan.petrov@practicummail.ru")));
+    }
 }
