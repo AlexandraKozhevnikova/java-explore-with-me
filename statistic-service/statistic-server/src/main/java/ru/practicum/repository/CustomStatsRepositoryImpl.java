@@ -1,4 +1,4 @@
-package ru.practicum.all;
+package ru.practicum.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 import ru.practicum.model.QHitEntity;
+import ru.practicum.repository.CustomStatsRepository;
 import statisticcommon.HitResponse;
 
 import java.time.LocalDateTime;
@@ -14,10 +15,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class CustomStatsRepository {
+public class CustomStatsRepositoryImpl implements CustomStatsRepository {
     private final JPAQueryFactory query;
 
-    public CustomStatsRepository(JPAQueryFactory query) {
+    public CustomStatsRepositoryImpl(JPAQueryFactory query) {
         this.query = query;
     }
 

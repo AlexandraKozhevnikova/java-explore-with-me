@@ -8,13 +8,10 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class HitRequest {
-    @NotNull
     @NotBlank
     private String app;
-    @NotNull
     @NotBlank
     private String uri;
-    @NotNull
     @NotBlank
     private String ip;
     @NotNull

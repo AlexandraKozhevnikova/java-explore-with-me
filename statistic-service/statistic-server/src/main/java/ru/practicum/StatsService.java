@@ -1,4 +1,4 @@
-package ru.practicum.all;
+package ru.practicum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.model.AppEntity;
 import ru.practicum.model.HitEntity;
+import ru.practicum.repository.AppRepository;
+import ru.practicum.repository.HitRepository;
 import statisticcommon.HitRequest;
 import statisticcommon.HitResponse;
 
@@ -16,18 +18,15 @@ import java.util.Optional;
 
 @Service
 public class StatsService {
-    private final StatsRepository hitRepository;
+    private final HitRepository hitRepository;
     private final AppRepository appRepository;
     private final HitMapper mapper;
-    private final CustomStatsRepository customStatsRepository;
     private final Logger log = LoggerFactory.getLogger(StatsService.class);
 
-    public StatsService(StatsRepository hitRepository, AppRepository appRepository, HitMapper mapper,
-                        CustomStatsRepository customStatsRepository) {
+    public StatsService(HitRepository hitRepository, AppRepository appRepository, HitMapper mapper) {
         this.hitRepository = hitRepository;
         this.appRepository = appRepository;
         this.mapper = mapper;
-        this.customStatsRepository = customStatsRepository;
     }
 
     @Transactional
@@ -49,6 +48,6 @@ public class StatsService {
 
     @Transactional(readOnly = true)
     public List<HitResponse> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        return customStatsRepository.getSummaryHits(start, end, uris, unique);
+        return hitRepository.getSummaryHits(start, end, uris, unique);
     }
 }
