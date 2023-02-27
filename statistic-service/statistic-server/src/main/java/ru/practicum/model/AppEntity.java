@@ -18,7 +18,7 @@ import java.util.List;
 public class AppEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long app_id;
+    Long appId;
     @Column(name = "title", nullable = false, unique = true)
     String name;
     @OneToMany
@@ -33,12 +33,12 @@ public class AppEntity {
         this.name = name;
     }
 
-    public Long getApp_id() {
-        return app_id;
+    public Long getAppId() {
+        return appId;
     }
 
-    public void setApp_id(Long app_id) {
-        this.app_id = app_id;
+    public void setAppId(Long appId) {
+        this.appId = appId;
     }
 
     public String getName() {
@@ -62,18 +62,18 @@ public class AppEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AppEntity appEntity = (AppEntity) o;
-        return app_id.equals(appEntity.app_id);
+        return appId.equals(appEntity.appId);
     }
 
     @Override
     public int hashCode() {
-        return app_id.hashCode();
+        return appId.hashCode();
     }
 
     @Override
     public String toString() {
         return "AppEntity{" +
-            "app_id=" + app_id +
+            "appId=" + appId +
             ", name='" + name + '\'' +
             '}';
     }
