@@ -24,8 +24,7 @@ public class HitEntity {
     private String uri;
     @Column(nullable = false, length = 255)
     private String ip;
-    @Column(name = "date_time", nullable = false, length = 255
-    )
+    @Column(name = "date_time", nullable = false, length = 255)
     private LocalDateTime dateTime;
 
     public Long getId() {
