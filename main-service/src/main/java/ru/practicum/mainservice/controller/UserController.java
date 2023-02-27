@@ -10,6 +10,8 @@ import ru.practicum.mainservice.dto.NewUserRequest;
 import ru.practicum.mainservice.dto.UserResponse;
 import ru.practicum.mainservice.service.UserService;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/admin/users")
 public class UserController {
@@ -22,7 +24,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse createUser(@RequestBody NewUserRequest userRequest){
+    public UserResponse createUser(@RequestBody @Valid NewUserRequest userRequest) {
         return userService.createUser(userRequest);
     }
 }

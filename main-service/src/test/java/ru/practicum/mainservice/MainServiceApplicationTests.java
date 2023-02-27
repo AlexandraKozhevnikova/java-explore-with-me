@@ -42,4 +42,14 @@ class MainServiceApplicationTests {
 
         Assertions.assertEquals(200, response.statusCode());
     }
+
+    @Test
+    void createUser_whenRequestValidAndUserIsNew_thanReturn201() {
+//todo
+    }
+
+    @Test
+    void createUser_whenUserEmailAlreadyExistInDb_thanReturn() {
+//todo
+    }
 }
