@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.mainservice.controller.UserController;
+import ru.practicum.mainservice.controller.admin.UserController;
 import ru.practicum.mainservice.dto.NewUserRequest;
 import ru.practicum.mainservice.dto.UserResponse;
 import ru.practicum.mainservice.errorHandler.ExceptionApiHandler;
@@ -34,9 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @WebMvcTest
-public class ControllerTest {
+public class UserContrTest {
     public static final String PATH = "http://localhost:8080/admin/users";
     @MockBean
     private UserService userService;

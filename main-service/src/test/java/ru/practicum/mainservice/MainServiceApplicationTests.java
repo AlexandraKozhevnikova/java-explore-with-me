@@ -29,6 +29,8 @@ import static org.hamcrest.Matchers.notNullValue;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class MainServiceApplicationTests {
     private static final String USERS = "/admin/users";
+    private static final String ADMIN_CATEGORY = "/admin/categories";
+
 
     @Autowired
     private StatisticClient client;
@@ -170,6 +172,21 @@ class MainServiceApplicationTests {
             .body("message", containsString("User with id=111 was not found"))
             .body("timestamp", notNullValue());
     }
+
+    @Test
+    void createCategory_whenNameIsNotUnique_thanReturn409(){
+        given()
+            .contentType(ContentType.JSON)
+            .body("{\n" +
+                "  \"name\": \"  Концерты  \"\n" +
+                "}")
+            .when().post(ADMIN_CATEGORY)
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .body("id", is(1))
+            .body("name", is("Концерты"));
+    }
+
 
     private void createUser() {
         given()
