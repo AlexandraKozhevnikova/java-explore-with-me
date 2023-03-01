@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.mainservice.controller.admin.CategoryController;
+import ru.practicum.mainservice.controller.admin.CategoryAdminController;
 import ru.practicum.mainservice.dto.CategoryRequest;
 import ru.practicum.mainservice.dto.CategoryResponse;
 import ru.practicum.mainservice.errorHandler.ExceptionApiHandler;
@@ -29,14 +29,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(CategoryController.class)
+@WebMvcTest(CategoryAdminController.class)
 public class CategoryControllerTest {
 
     public static final String PATH = "http://localhost:8080/admin/categories";
     @MockBean
     private CategoryService categoryService;
     @Autowired
-    private CategoryController categoryController;
+    private CategoryAdminController categoryController;
     @Autowired
     private ExceptionApiHandler handler;
     private MockMvc mvc;

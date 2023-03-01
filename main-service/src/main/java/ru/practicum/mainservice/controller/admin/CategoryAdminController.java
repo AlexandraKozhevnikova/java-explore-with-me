@@ -17,11 +17,11 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/admin/categories")
-public class CategoryController {
+public class CategoryAdminController {
 
     private final CategoryService categoryService;
 
-    public CategoryController(CategoryService categoryService) {
+    public CategoryAdminController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 

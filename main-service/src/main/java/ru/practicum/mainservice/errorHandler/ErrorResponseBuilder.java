@@ -32,9 +32,9 @@ public class ErrorResponseBuilder {
 
     public ErrorResponse createErrorResponse() {
         return new ErrorResponse(
-            Objects.requireNonNullElseGet(
-                timestamp, () -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-            ),
-            status, message, reason);
+                Objects.requireNonNullElseGet(
+                        timestamp, () -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                ),
+                status, message, reason);
     }
 }

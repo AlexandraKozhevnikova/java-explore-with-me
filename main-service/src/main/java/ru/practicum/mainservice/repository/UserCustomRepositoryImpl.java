@@ -28,10 +28,10 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
         JPAQuery<?> query = new JPAQuery(entityManager);
         return query.select(QUserEntity.userEntity)
-            .from(QUserEntity.userEntity)
-            .where(byId)
-            .offset(from)
-            .limit(size)
-            .fetch();
+                .from(QUserEntity.userEntity)
+                .where(byId)
+                .offset(from)
+                .limit(size)
+                .fetch();
     }
 }

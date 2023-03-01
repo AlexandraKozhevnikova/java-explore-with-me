@@ -34,24 +34,24 @@ public class CustomStatsRepositoryImpl implements CustomStatsRepository {
         NumberPath<Long> aliasCount = Expressions.numberPath(Long.class, "aliasCount");
 
         SimpleExpression<?> distinctIpPredicate = unique
-            ? hit.ip.countDistinct().as(aliasCount)
-            : hit.ip.count().as(aliasCount);
+                ? hit.ip.countDistinct().as(aliasCount)
+                : hit.ip.count().as(aliasCount);
 
         return query
-            .select(hit.app.name, hit.uri, distinctIpPredicate)
-            .from(hit)
-            .where(hit.dateTime.between(start, end))
-            .where(byUri)
-            .groupBy(hit.app.name, hit.uri)
-            .orderBy(aliasCount.desc())
-            .fetch()
-            .stream()
-            .map(it -> new HitResponse(
-                it.get(hit.app.name),
-                it.get(hit.uri),
-                it.get(aliasCount)
-            ))
-            .collect(Collectors.toList());
+                .select(hit.app.name, hit.uri, distinctIpPredicate)
+                .from(hit)
+                .where(hit.dateTime.between(start, end))
+                .where(byUri)
+                .groupBy(hit.app.name, hit.uri)
+                .orderBy(aliasCount.desc())
+                .fetch()
+                .stream()
+                .map(it -> new HitResponse(
+                        it.get(hit.app.name),
+                        it.get(hit.uri),
+                        it.get(aliasCount)
+                ))
+                .collect(Collectors.toList());
     }
 
 }

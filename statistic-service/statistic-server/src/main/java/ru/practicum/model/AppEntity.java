@@ -73,8 +73,8 @@ public class AppEntity {
     @Override
     public String toString() {
         return "AppEntity{" +
-            "appId=" + appId +
-            ", name='" + name + '\'' +
-            '}';
+                "appId=" + appId +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

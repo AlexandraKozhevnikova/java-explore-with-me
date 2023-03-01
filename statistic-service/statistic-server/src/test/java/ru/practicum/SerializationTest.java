@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 public class SerializationTest {
     private final JacksonTester<HitRequest> jacksonRequest;
     public static final String REQUEST = "{\"app\":\"ewm-main-service\",\"uri\":\"/events/1\",\"ip\":\"192.163.0.1\"," +
-        "\"timestamp\":\"2022-09-06 11:00:23\"}";
+            "\"timestamp\":\"2022-09-06 11:00:23\"}";
 
     @Autowired
     public SerializationTest(JacksonTester<HitRequest> jacksonRequest) {
@@ -30,7 +30,7 @@ public class SerializationTest {
         request.setUri("/events/1");
         request.setIp("192.163.0.1");
         request.setTimestamp(LocalDateTime.parse("2022-09-06 11:00:23",
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
         JsonContent<HitRequest> result = jacksonRequest.write(request);
 

@@ -33,8 +33,8 @@ class StatisticServerApplicationTests {
     @BeforeEach
     void setUp() {
         restTemplate = new RestTemplateBuilder()
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .build();
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
     }
 
     @Test
@@ -44,14 +44,14 @@ class StatisticServerApplicationTests {
     @Test
     void createHit_whenRequestValid_return201() throws URISyntaxException {
         ResponseEntity<?> response = restTemplate.postForEntity(
-            new URI("http://localhost:9090/hit"),
-            "{\n" +
-                "  \"app\": \"ewm-main-service\",\n" +
-                "  \"uri\": \"/events/1\",\n" +
-                "  \"ip\": \"192.163.0.1\",\n" +
-                "  \"timestamp\": \"2022-09-06 11:00:23\"\n" +
-                "}",
-            Object.class
+                new URI("http://localhost:9090/hit"),
+                "{\n" +
+                        "  \"app\": \"ewm-main-service\",\n" +
+                        "  \"uri\": \"/events/1\",\n" +
+                        "  \"ip\": \"192.163.0.1\",\n" +
+                        "  \"timestamp\": \"2022-09-06 11:00:23\"\n" +
+                        "}",
+                Object.class
         );
         Assertions.assertEquals(201, response.getStatusCodeValue());
         Assertions.assertFalse(response.hasBody());
@@ -60,13 +60,13 @@ class StatisticServerApplicationTests {
     @Test
     void getStatistics_whenRequestValid_returnListOfHits() {
         Map<String, String> parameters = Map.of(
-            "start", "2022-01-06 11:00:23",
-            "end", "2032-09-06 11:00:23"
+                "start", "2022-01-06 11:00:23",
+                "end", "2032-09-06 11:00:23"
         );
         ResponseEntity<List> response = restTemplate.getForEntity(
-            "http://localhost:9090/stats?start={start}&end={end}",
-            List.class,
-            parameters
+                "http://localhost:9090/stats?start={start}&end={end}",
+                List.class,
+                parameters
         );
         Assertions.assertEquals(200, response.getStatusCodeValue());
         Assertions.assertTrue(response.hasBody());

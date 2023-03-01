@@ -40,9 +40,9 @@ public class StatsService {
     public AppEntity createAppIfNotExist(String name) {
         Optional<AppEntity> app = Optional.ofNullable(appRepository.getAppEntityByName(name));
         return app.orElseGet(() -> {
-                log.info("created new app: " + app);
-                return appRepository.save(new AppEntity(name));
-            }
+                    log.info("created new app: " + app);
+                    return appRepository.save(new AppEntity(name));
+                }
         );
     }
 

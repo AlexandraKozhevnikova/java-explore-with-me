@@ -8,7 +8,9 @@ import ru.practicum.mainservice.mapper.CategoryMapper;
 import ru.practicum.mainservice.model.CategoryEntity;
 import ru.practicum.mainservice.repository.CategoryRepository;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
@@ -33,7 +35,6 @@ public class CategoryService {
         categoryRepository.deleteById(catId);
     }
 
-
     @Transactional(readOnly = true)
     public CategoryEntity checkCategoryIsExistAndGet(Long catId) {
         return categoryRepository.findById(catId)
@@ -45,5 +46,16 @@ public class CategoryService {
         CategoryEntity category = checkCategoryIsExistAndGet(catId);
         category.setName(request.getName());
         return categoryMapper.responseFromEntity(category);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getCategories(Integer from, Integer size) {
+       return categoryRepository.getCategories(from, size).stream()
+               .map(categoryMapper::responseFromEntity)
+               .collect(Collectors.toList());
+    }
+
+    public CategoryResponse getCategory(Long catId) {
+        return categoryMapper.responseFromEntity(checkCategoryIsExistAndGet(catId));
     }
 }

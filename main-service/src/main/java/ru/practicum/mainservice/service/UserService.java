@@ -30,8 +30,8 @@ public class UserService {
 
     public List<UserResponse> getUsers(List<Long> ids, Integer from, Integer size) {
         return userRepository.getUsers(ids, from, size).stream()
-            .map(userMapper::responseDtoFromEntity)
-            .collect(Collectors.toList());
+                .map(userMapper::responseDtoFromEntity)
+                .collect(Collectors.toList());
     }
 
     public void deleteUser(Long userId) {
@@ -41,6 +41,6 @@ public class UserService {
 
     public UserEntity checkUserIsExistAndGetById(Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new NoSuchElementException("User with id=" + userId + " was not found"));
+                .orElseThrow(() -> new NoSuchElementException("User with id=" + userId + " was not found"));
     }
 }

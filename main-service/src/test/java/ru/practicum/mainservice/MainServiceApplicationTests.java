@@ -247,7 +247,6 @@ class MainServiceApplicationTests {
                 .body("name", is("Концерты NEW"));
     }
 
-
     private void createUser() {
         given()
                 .contentType(ContentType.JSON)

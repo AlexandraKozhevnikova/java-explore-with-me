@@ -26,65 +26,65 @@ public class ExceptionApiHandler {
         log.error(e.getMessage(), e);
 
         return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(
-                listError.stream()
-                    .map(it ->
-                        new ErrorResponseBuilder()
-                            .setStatus(HttpStatus.BAD_REQUEST.name())
-                            .setReason("Incorrectly made request.")
-                            .setMessage("Field: " + it.getField() +
-                                ". Error: " + it.getDefaultMessage() +
-                                ". Value: " + it.getRejectedValue())
-                            .createErrorResponse()
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        listError.stream()
+                                .map(it ->
+                                        new ErrorResponseBuilder()
+                                                .setStatus(HttpStatus.BAD_REQUEST.name())
+                                                .setReason("Incorrectly made request.")
+                                                .setMessage("Field: " + it.getField() +
+                                                        ". Error: " + it.getDefaultMessage() +
+                                                        ". Value: " + it.getRejectedValue())
+                                                .createErrorResponse()
 
-                    )
-                    .collect(Collectors.toList())
-            );
+                                )
+                                .collect(Collectors.toList())
+                );
     }
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
-        DataIntegrityViolationException e) {
+            DataIntegrityViolationException e) {
         log.error(e.getMessage(), e);
 
         return ResponseEntity
-            .status(HttpStatus.CONFLICT)
-            .body(new ErrorResponseBuilder()
-                .setStatus(HttpStatus.CONFLICT.name())
-                .setReason("Integrity constraint has been violated.")
-                .setMessage(e.getLocalizedMessage())
-                .createErrorResponse()
-            );
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponseBuilder()
+                        .setStatus(HttpStatus.CONFLICT.name())
+                        .setReason("Integrity constraint has been violated.")
+                        .setMessage(e.getLocalizedMessage())
+                        .createErrorResponse()
+                );
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<ErrorResponse> handleValidationRequestException(
-        Exception e) {
+            Exception e) {
         log.error(e.getMessage(), e);
 
         return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(new ErrorResponseBuilder()
-                .setStatus(HttpStatus.BAD_REQUEST.name())
-                .setReason("Incorrectly made request.")
-                .setMessage(e.getLocalizedMessage())
-                .createErrorResponse()
-            );
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseBuilder()
+                        .setStatus(HttpStatus.BAD_REQUEST.name())
+                        .setReason("Incorrectly made request.")
+                        .setMessage(e.getLocalizedMessage())
+                        .createErrorResponse()
+                );
     }
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ErrorResponse> handleNoSuchElementException(
-        NoSuchElementException e) {
+            NoSuchElementException e) {
         log.error(e.getMessage(), e);
 
         return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
-            .body(new ErrorResponseBuilder()
-                .setStatus(HttpStatus.NOT_FOUND.name())
-                .setReason("The required object was not found.")
-                .setMessage(e.getLocalizedMessage())
-                .createErrorResponse()
-            );
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponseBuilder()
+                        .setStatus(HttpStatus.NOT_FOUND.name())
+                        .setReason("The required object was not found.")
+                        .setMessage(e.getLocalizedMessage())
+                        .createErrorResponse()
+                );
     }
 }
