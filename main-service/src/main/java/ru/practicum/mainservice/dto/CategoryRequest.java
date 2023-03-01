@@ -4,7 +4,7 @@ package ru.practicum.mainservice.dto;
 import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
-public class NewCategoryRequest {
+public class CategoryRequest {
     @NotBlank
     private String name;
 
@@ -22,7 +22,7 @@ public class NewCategoryRequest {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        NewCategoryRequest that = (NewCategoryRequest) o;
+        CategoryRequest that = (CategoryRequest) o;
 
         return Objects.equals(name, that.name);
     }

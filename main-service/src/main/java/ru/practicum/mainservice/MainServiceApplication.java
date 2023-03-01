@@ -11,8 +11,8 @@ public class MainServiceApplication {
 
     @Bean
     public StatisticClient getStatisticClient(
-        @Value("${statistic.server.url}") String serverUrl,
-        @Value("${spring.application.name}") String appName
+            @Value("${statistic.server.url}") String serverUrl,
+            @Value("${spring.application.name}") String appName
     ) {
         return new StatisticClient(serverUrl, appName);
     }
