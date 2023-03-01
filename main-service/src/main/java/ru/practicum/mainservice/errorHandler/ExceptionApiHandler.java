@@ -21,7 +21,7 @@ public class ExceptionApiHandler {
     private static final Logger log = LogManager.getLogger(ExceptionApiHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<ErrorResponse>> handleValidationArgumentException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorResponse> handleValidationArgumentException(MethodArgumentNotValidException e) {
         List<FieldError> listError = e.getBindingResult().getFieldErrors();
         log.error(e.getMessage(), e);
 
@@ -39,7 +39,7 @@ public class ExceptionApiHandler {
                                                 .createErrorResponse()
 
                                 )
-                                .collect(Collectors.toList())
+                                .collect(Collectors.toList()).stream().findFirst().get()
                 );
     }
 
