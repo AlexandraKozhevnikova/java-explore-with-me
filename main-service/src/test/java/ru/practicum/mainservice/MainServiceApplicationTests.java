@@ -126,7 +126,6 @@ class MainServiceApplicationTests {
         createUser();
 
         given()
-            .contentType(ContentType.JSON)
             .queryParam("ids", "2")
             .when().get(USERS)
             .then()
@@ -142,7 +141,6 @@ class MainServiceApplicationTests {
         }
 
         given()
-            .contentType(ContentType.JSON)
             .queryParam("from", 2)
             .queryParam("size", 3)
             .when().get(USERS)
@@ -152,6 +150,25 @@ class MainServiceApplicationTests {
             .body("id", is(List.of(3, 4, 5)))
             .body("name", is(List.of("Иван Петров", "Иван Петров", "Иван Петров")))
             .body("email", notNullValue());
+    }
+
+    @Test
+    @Disabled("in progress")
+    void deleteUser_whenExistUserAsInitiatorAndParticipation_thren___() {
+        //проверить поведение связанных сущностей при удалении юзера
+    }
+
+    @Test
+    void deleteUser_whenUserDoesNotExist_thenReturn() {
+        given()
+            .pathParam("userId", 111)
+            .when().delete(USERS + "/{userId}")
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .body("status", is("NOT_FOUND"))
+            .body("reason", is("The required object was not found."))
+            .body("message", containsString("User with id=111 was not found"))
+            .body("timestamp", notNullValue());
     }
 
     private void createUser() {

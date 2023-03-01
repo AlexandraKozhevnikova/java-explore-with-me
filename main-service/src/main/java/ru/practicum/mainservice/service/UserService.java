@@ -8,6 +8,7 @@ import ru.practicum.mainservice.model.UserEntity;
 import ru.practicum.mainservice.repository.UserRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,5 +32,15 @@ public class UserService {
         return userRepository.getUsers(ids, from, size).stream()
             .map(userMapper::responseDtoFromEntity)
             .collect(Collectors.toList());
+    }
+
+    public void deleteUser(Long userId) {
+        checkUserIsExistAndGetById(userId);
+        userRepository.deleteById(userId);
+    }
+
+    public UserEntity checkUserIsExistAndGetById(Long userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new NoSuchElementException("User with id=" + userId + " was not found"));
     }
 }

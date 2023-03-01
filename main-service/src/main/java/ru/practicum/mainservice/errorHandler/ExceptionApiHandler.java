@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -67,6 +68,21 @@ public class ExceptionApiHandler {
             .body(new ErrorResponseBuilder()
                 .setStatus(HttpStatus.BAD_REQUEST.name())
                 .setReason("Incorrectly made request.")
+                .setMessage(e.getLocalizedMessage())
+                .createErrorResponse()
+            );
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<ErrorResponse> handleNoSuchElementException(
+        NoSuchElementException e) {
+        log.error(e.getMessage(), e);
+
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(new ErrorResponseBuilder()
+                .setStatus(HttpStatus.NOT_FOUND.name())
+                .setReason("The required object was not found.")
                 .setMessage(e.getLocalizedMessage())
                 .createErrorResponse()
             );
