@@ -1,6 +1,7 @@
 package ru.practicum.mainservice;
 
 import io.restassured.http.ContentType;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -19,6 +20,8 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -62,12 +65,12 @@ class MainServiceApplicationTests {
     }
 
     @Test
-    void createUser_whenRequestValidAndUserIsNew_thanReturn201() {
+    void createUser_whenRequestValidAndUserIsNew_thanReturn201AndTrimmedValues() {
         given()
             .contentType(ContentType.JSON)
             .body("{\n" +
                 "  \"email\": \"ivan.petrov@practicummail.ru\",\n" +
-                "  \"name\": \"Иван Петров\"\n" +
+                "  \"name\": \" Иван Петров   \"\n" +
                 "}")
             .when().post(USERS)
             .then()
@@ -79,7 +82,15 @@ class MainServiceApplicationTests {
 
     @Test
     void createUser_whenUserEmailAlreadyExistInDb_thanReturn409() {
-        createUser();
+        given()
+            .contentType(ContentType.JSON)
+            .body("{\n" +
+                "  \"email\": \"ivan.petrov@practicummail.ru\",\n" +
+                "  \"name\": \" Иван Петров   \"\n" +
+                "}")
+            .when().post(USERS)
+            .then()
+            .statusCode(HttpStatus.CREATED.value());
 
         given()
             .contentType(ContentType.JSON)
@@ -111,25 +122,48 @@ class MainServiceApplicationTests {
     }
 
     @Test
-    void getUsers_whenNotExistUserByIds_thanReturnEmptyList() throws Exception {
-//trim()
+    void getUsers_whenNotExistUserByIds_thanReturnEmptyList() {
+        createUser();
+
+        given()
+            .contentType(ContentType.JSON)
+            .queryParam("ids", "2")
+            .when().get(USERS)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("$", emptyIterable());
     }
 
     @Test
-    void getUsers_whenUsePagingParams_thanReturnUsersListOnPages() throws Exception {
-//todo
+    void getUsers_whenUsePagingParams_thanReturnUsersListOnPages() {
+        for (int i = 0; i < 11; i++) {
+            createUser();
+            i++;
+        }
+
+        given()
+            .contentType(ContentType.JSON)
+            .queryParam("from", 2)
+            .queryParam("size", 3)
+            .when().get(USERS)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("$", hasSize(3))
+            .body("id", is(List.of(3, 4, 5)))
+            .body("name", is(List.of("Иван Петров", "Иван Петров", "Иван Петров")))
+            .body("email", notNullValue());
     }
 
     private void createUser() {
         given()
             .contentType(ContentType.JSON)
             .body("{\n" +
-                "  \"email\": \"ivan.petrov@practicummail.ru\",\n" +
+                "  \"email\": \"ivan.petrov" + RandomUtils.nextLong() + RandomUtils.nextInt() +
+                "@practicummail.ru\",\n" +
                 "  \"name\": \"Иван Петров\"\n" +
                 "}")
             .when().post(USERS)
             .then()
             .statusCode(HttpStatus.CREATED.value());
     }
-
 }
