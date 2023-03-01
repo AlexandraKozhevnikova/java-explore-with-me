@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ public class ExceptionApiHandler {
     private static final Logger log = LogManager.getLogger(ExceptionApiHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<ErrorResponse>> handleValidationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<List<ErrorResponse>> handleValidationArgumentException(MethodArgumentNotValidException e) {
         List<FieldError> listError = e.getBindingResult().getFieldErrors();
         log.error(e.getMessage(), e);
 
@@ -56,9 +57,9 @@ public class ExceptionApiHandler {
             );
     }
 
-    @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
-        HttpMessageNotReadableException e) {
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<ErrorResponse> handleValidationRequestException(
+        Exception e) {
         log.error(e.getMessage(), e);
 
         return ResponseEntity

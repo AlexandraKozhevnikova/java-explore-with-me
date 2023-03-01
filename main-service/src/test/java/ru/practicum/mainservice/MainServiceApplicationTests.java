@@ -110,6 +110,16 @@ class MainServiceApplicationTests {
             .body("timestamp", notNullValue());
     }
 
+    @Test
+    void getUsers_whenNotExistUserByIds_thanReturnEmptyList() throws Exception {
+//trim()
+    }
+
+    @Test
+    void getUsers_whenUsePagingParams_thanReturnUsersListOnPages() throws Exception {
+//todo
+    }
+
     private void createUser() {
         given()
             .contentType(ContentType.JSON)
@@ -121,4 +131,5 @@ class MainServiceApplicationTests {
             .then()
             .statusCode(HttpStatus.CREATED.value());
     }
+
 }

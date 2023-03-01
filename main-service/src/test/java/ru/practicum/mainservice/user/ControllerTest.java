@@ -17,12 +17,16 @@ import ru.practicum.mainservice.errorHandler.ExceptionApiHandler;
 import ru.practicum.mainservice.service.UserService;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -134,8 +138,86 @@ public class ControllerTest {
             .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
             .andExpect(jsonPath("$[0].status", is("BAD_REQUEST")))
             .andExpect(jsonPath("$[0].reason", is("Incorrectly made request.")))
-            .andExpect(jsonPath("$[0].message", is("Field: name. Error: must not be blank. Value:   ")))
+            .andExpect(jsonPath("$[0].message", is("Field: name. Error: must not be blank. Value: ")))
             .andExpect(jsonPath("$[0].timestamp").value(notNullValue()));
+    }
+
+    @Test
+    void getUsers_whenRequestValidWithAllParams_thanReturnUserList() throws Exception {
+        doReturn(List.of(getUserResponse()))
+            .when(userService).getUsers(anyList(), anyInt(), anyInt());
+
+        mvc.perform(MockMvcRequestBuilders
+                .get(PATH)
+                .param("ids", "1")
+                .param("ids", "2")
+                .param("from", "1")
+                .param("size", "5")
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().is(HttpStatus.OK.value()))
+            .andExpect(jsonPath("$[0].id", is(1)))
+            .andExpect(jsonPath("$[0].name", is("Иван Петров")))
+            .andExpect(jsonPath("$[0].email", is("ivan.petrov@practicummail.ru")));
+
+        verify(userService, times(1))
+            .getUsers(List.of(1L, 2L), 1, 5);
+    }
+
+    @Test
+    void getUsers_whenRequestWithoutParams_thanReturnUserListWithDefaultParams() throws Exception {
+        doReturn(List.of(getUserResponse()))
+            .when(userService).getUsers(any(), anyInt(), anyInt());
+
+        mvc.perform(MockMvcRequestBuilders
+                .get(PATH)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().is(HttpStatus.OK.value()))
+            .andExpect(jsonPath("$[0].id", is(1)))
+            .andExpect(jsonPath("$[0].name", is("Иван Петров")))
+            .andExpect(jsonPath("$[0].email", is("ivan.petrov@practicummail.ru")));
+
+        verify(userService, times(1))
+            .getUsers(null, 0, 10);
+    }
+
+    @Test
+    void getUsers_whenIdsIsEmptyList_thanReturnUserListWithDefaultParams() throws Exception {
+        doReturn(List.of(getUserResponse()))
+            .when(userService).getUsers(anyList(), anyInt(), anyInt());
+
+        mvc.perform(MockMvcRequestBuilders
+                .get(PATH)
+                .param("ids", "")
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().is(HttpStatus.OK.value()))
+            .andExpect(jsonPath("$[0].id", is(1)))
+            .andExpect(jsonPath("$[0].name", is("Иван Петров")))
+            .andExpect(jsonPath("$[0].email", is("ivan.petrov@practicummail.ru")));
+
+        verify(userService, times(1))
+            .getUsers(Collections.EMPTY_LIST, 0, 10);
+    }
+
+    @Test
+    void getUsers_whenParamsHaveOtherType_thanReturn400() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                .get(PATH)
+                .param("ids", "abc")
+                .param("ids", "df")
+                .param("from", "from")
+                .param("size", "size")
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+            .andExpect(jsonPath("$.status", is("BAD_REQUEST")))
+            .andExpect(jsonPath("$.reason", is("Incorrectly made request.")))
+            .andExpect(jsonPath("$.message", is("Failed to convert value of type 'java.lang.String[]'" +
+                " to required type 'java.util.List'; nested exception is java.lang.NumberFormatException: For input " +
+                "string: \"abc\"")))
+            .andExpect(jsonPath("$.timestamp").value(notNullValue()));
     }
 
     private NewUserRequest getNewUserRequest() {
