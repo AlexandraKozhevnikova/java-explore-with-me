@@ -29,6 +29,7 @@ CREATE TABLE event (
     paid BOOLEAN DEFAULT false,
     participant_limit INTEGER DEFAULT 0,
     request_moderation BOOLEAN DEFAULT TRUE,
+    created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT title_length CHECK (char_length(title) >=3),
     CONSTRAINT annotation_length CHECK (char_length(annotation) >=20),

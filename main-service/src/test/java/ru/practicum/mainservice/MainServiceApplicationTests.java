@@ -270,7 +270,17 @@ class MainServiceApplicationTests {
     }
 
     @Test
-    void deleteCategory_withLinkedEvent_return409(){
+    void updateEvent_whenStatusIsWaitingPublication_return200(){
+
+    }
+
+    @Test
+    void updateEvent_whenStatusIsCanceled_return200(){
+
+    }
+
+    @Test
+    void updateEvent_whenStatusIsPublished_return409(){
 
     }
 

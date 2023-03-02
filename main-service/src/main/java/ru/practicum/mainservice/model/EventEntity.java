@@ -1,5 +1,6 @@
 package ru.practicum.mainservice.model;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -46,6 +47,9 @@ public class EventEntity {
     Boolean isPaid;
     @Column(name = "request_moderation")
     Boolean isModerationRequired;
+    @Column(name = "created_on")
+    @CreationTimestamp
+    LocalDateTime createdOn;
 
     public Long getEventId() {
         return eventId;
