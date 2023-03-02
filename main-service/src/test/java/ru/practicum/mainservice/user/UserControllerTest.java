@@ -78,7 +78,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @Disabled("test")
     void createUser_whenBodyIsEmpty_thanReturn() throws Exception {
         mvc.perform(MockMvcRequestBuilders
                         .post(PATH)
@@ -89,23 +88,15 @@ public class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$[0].status", is("BAD_REQUEST")))
-                .andExpect(jsonPath("$[0].reason", is("Incorrectly made request.")))
-                .andExpect(jsonPath("$[0].message",
+                .andExpect(jsonPath("$.status", is("BAD_REQUEST")))
+                .andExpect(jsonPath("$.reason", is("Incorrectly made request.")))
+                .andExpect(jsonPath("$.message",
                         anyOf(is("Field: email. Error: must not be blank. Value: null"),
                                 is("Field: name. Error: must not be blank. Value: null"))))
-                .andExpect(jsonPath("$[0].timestamp").value(notNullValue()))
-                .andExpect(jsonPath("$[1].status", is("BAD_REQUEST")))
-                .andExpect(jsonPath("$[1].reason", is("Incorrectly made request.")))
-                .andExpect(jsonPath("$[1].message",
-                        anyOf(is("Field: email. Error: must not be blank. Value: null"),
-                                is("Field: name. Error: must not be blank. Value: null"))))
-                .andExpect(jsonPath("$[1].timestamp").value(notNullValue()));
+                .andExpect(jsonPath("$.timestamp").value(notNullValue()));
     }
 
     @Test
-    @Disabled("test")
     void createUser_whenEmailIsNotCorrect_thanReturn() throws Exception {
         mvc.perform(MockMvcRequestBuilders
                         .post(PATH)
@@ -118,15 +109,14 @@ public class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$[0].status", is("BAD_REQUEST")))
-                .andExpect(jsonPath("$[0].reason", is("Incorrectly made request.")))
-                .andExpect(jsonPath("$[0].message", is("Field: email. Error: must be a well-formed " +
+                .andExpect(jsonPath("$.status", is("BAD_REQUEST")))
+                .andExpect(jsonPath("$.reason", is("Incorrectly made request.")))
+                .andExpect(jsonPath("$.message", is("Field: email. Error: must be a well-formed " +
                         "email address. Value: ivan.petrov")))
-                .andExpect(jsonPath("$[0].timestamp").value(notNullValue()));
+                .andExpect(jsonPath("$.timestamp").value(notNullValue()));
     }
 
     @Test
-    @Disabled("test")
     void createUser_whenNameIsBlank_thanReturn() throws Exception {
         mvc.perform(MockMvcRequestBuilders
                         .post(PATH)
@@ -139,10 +129,10 @@ public class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$[0].status", is("BAD_REQUEST")))
-                .andExpect(jsonPath("$[0].reason", is("Incorrectly made request.")))
-                .andExpect(jsonPath("$[0].message", is("Field: name. Error: must not be blank. Value: ")))
-                .andExpect(jsonPath("$[0].timestamp").value(notNullValue()));
+                .andExpect(jsonPath("$.status", is("BAD_REQUEST")))
+                .andExpect(jsonPath("$.reason", is("Incorrectly made request.")))
+                .andExpect(jsonPath("$.message", is("Field: name. Error: must not be blank. Value: ")))
+                .andExpect(jsonPath("$.timestamp").value(notNullValue()));
     }
 
     @Test

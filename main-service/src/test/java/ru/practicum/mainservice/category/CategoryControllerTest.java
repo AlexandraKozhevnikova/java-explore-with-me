@@ -79,7 +79,6 @@ public class CategoryControllerTest {
     }
 
     @Test
-    @Disabled("test")
     void createCategory_whenBodyIsEmpty_thanReturn() throws Exception {
         mvc.perform(MockMvcRequestBuilders
                         .post(PATH)
@@ -89,15 +88,14 @@ public class CategoryControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$[0].status", is("BAD_REQUEST")))
-                .andExpect(jsonPath("$[0].reason", is("Incorrectly made request.")))
-                .andExpect(jsonPath("$[0].message", is("Field: name. Error: must not be blank. " +
+                .andExpect(jsonPath("$.status", is("BAD_REQUEST")))
+                .andExpect(jsonPath("$.reason", is("Incorrectly made request.")))
+                .andExpect(jsonPath("$.message", is("Field: name. Error: must not be blank. " +
                         "Value: null")))
-                .andExpect(jsonPath("$[0].timestamp").value(notNullValue()));
+                .andExpect(jsonPath("$.timestamp").value(notNullValue()));
     }
 
     @Test
-    @Disabled("test")
     void createCategory_whenNameIsBlank_thanReturn() throws Exception {
         mvc.perform(MockMvcRequestBuilders
                         .post(PATH)
@@ -109,10 +107,10 @@ public class CategoryControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$[0].status", is("BAD_REQUEST")))
-                .andExpect(jsonPath("$[0].reason", is("Incorrectly made request.")))
-                .andExpect(jsonPath("$[0].message", is("Field: name. Error: must not be blank. Value: ")))
-                .andExpect(jsonPath("$[0].timestamp").value(notNullValue()));
+                .andExpect(jsonPath("$.status", is("BAD_REQUEST")))
+                .andExpect(jsonPath("$.reason", is("Incorrectly made request.")))
+                .andExpect(jsonPath("$.message", is("Field: name. Error: must not be blank. Value: ")))
+                .andExpect(jsonPath("$.timestamp").value(notNullValue()));
     }
 
     @Test

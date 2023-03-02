@@ -35,6 +35,7 @@ public class CategoryAdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(@PathVariable Long catId) {
         categoryService.deleteCategory(catId);
+        //todo удаление с привязанными событиями - 409
     }
 
     @PatchMapping("{catId}")

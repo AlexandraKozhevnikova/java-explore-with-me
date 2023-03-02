@@ -40,6 +40,19 @@ class MainServiceApplicationTests {
         SpringApplication.run(MainServiceApplication.class);
     }
 
+    private void createUser() {
+        given()
+                .contentType(ContentType.JSON)
+                .body("{\n" +
+                        "  \"email\": \"ivan.petrov" + RandomUtils.nextLong() + RandomUtils.nextInt() +
+                        "@practicummail.ru\",\n" +
+                        "  \"name\": \"Иван Петров\"\n" +
+                        "}")
+                .when().post(USERS)
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+    }
+
     @Test
     void contextLoads() {
     }
@@ -155,9 +168,9 @@ class MainServiceApplicationTests {
     }
 
     @Test
-    @Disabled("in progress")
     void deleteUser_whenExistUserAsInitiatorAndParticipation_thren___() {
         //проверить поведение связанных сущностей при удалении юзера
+          //если он инициатор события - делит каскад
     }
 
     @Test
@@ -247,16 +260,19 @@ class MainServiceApplicationTests {
                 .body("name", is("Концерты NEW"));
     }
 
-    private void createUser() {
-        given()
-                .contentType(ContentType.JSON)
-                .body("{\n" +
-                        "  \"email\": \"ivan.petrov" + RandomUtils.nextLong() + RandomUtils.nextInt() +
-                        "@practicummail.ru\",\n" +
-                        "  \"name\": \"Иван Петров\"\n" +
-                        "}")
-                .when().post(USERS)
-                .then()
-                .statusCode(HttpStatus.CREATED.value());
+    @Test
+    void createEvent_whenNameIsLessThan3chars_return400(){
+
     }
+    @Test
+    void createEvent_whenNameIsMoreThan120chars_return400(){
+
+    }
+
+    @Test
+    void deleteCategory_withLinkedEvent_return409(){
+
+    }
+
+
 }
