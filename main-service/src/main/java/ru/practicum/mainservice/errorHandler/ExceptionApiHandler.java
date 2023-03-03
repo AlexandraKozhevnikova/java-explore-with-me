@@ -43,6 +43,21 @@ public class ExceptionApiHandler {
                 );
     }
 
+    @ExceptionHandler(StartTimeEventException.class)
+    public ResponseEntity<ErrorResponse> handleStartTimeEventException(StartTimeEventException e) {
+        log.error(e.getMessage(), e);
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponseBuilder()
+                        .setStatus(HttpStatus.CONFLICT.name())
+                        .setReason("For the requested operation the conditions are not met.")
+                        .setMessage("Field: eventDate. Error: должно содержать дату, которая еще не наступила. " +
+                                "Value: " + e.getValue())
+                        .createErrorResponse()
+                );
+    }
+
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
             DataIntegrityViolationException e) {

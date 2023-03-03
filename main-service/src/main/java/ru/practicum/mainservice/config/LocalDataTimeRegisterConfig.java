@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class LocalDataTimeRegisterConfig {
 
     @Bean
-    public JavaTimeModule JavaTimeModule() {
+    public JavaTimeModule javaTimeModule() {
         JavaTimeModule module = new JavaTimeModule();
         module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
         module.addDeserializer(LocalDateTime.class, new LocalDataTimeDeserializer());

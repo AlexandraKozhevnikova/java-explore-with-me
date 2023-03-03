@@ -261,16 +261,6 @@ class MainServiceApplicationTests {
     }
 
     @Test
-    void createEvent_whenNameIsLessThan3chars_return400() {
-
-    }
-
-    @Test
-    void createEvent_whenNameIsMoreThan120chars_return400() {
-
-    }
-
-    @Test
     void updateEvent_whenStatusIsWaitingPublication_return200() {
 
     }
@@ -284,6 +274,4 @@ class MainServiceApplicationTests {
     void updateEvent_whenStatusIsPublished_return409() {
 
     }
-
-
 }

@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.dto;
+package ru.practicum.mainservice.dto.event;
 
 public class InitiatorDto {
     private Long id;

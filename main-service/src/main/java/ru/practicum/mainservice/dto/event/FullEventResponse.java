@@ -1,5 +1,6 @@
-package ru.practicum.mainservice.dto;
+package ru.practicum.mainservice.dto.event;
 
+import ru.practicum.mainservice.dto.CategoryResponse;
 import ru.practicum.mainservice.model.EventState;
 
 import java.time.LocalDateTime;
@@ -10,22 +11,17 @@ public class FullEventResponse {
     private String annotation;
     private CategoryResponse category;
     //private Integer confirmedRequest; todo
-    //@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    // @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
     private String description;
-    //@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    // @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     private InitiatorDto initiator;
     private LocationDto location;
     private Integer participantLimit;
     private Boolean isPaid;
     private Boolean requestModeration;
-    private LocalDateTime publishedOn; //format
+    private LocalDateTime publishedOn;
     private EventState state;
     //private Long views; todo
-
 
     public InitiatorDto getInitiator() {
         return initiator;

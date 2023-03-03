@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.dto;
+package ru.practicum.mainservice.dto.event;
 
 import ru.practicum.mainservice.validation.StartTime;
 
@@ -21,11 +21,10 @@ public class NewEventRequest {
     @Size(min = 20, max = 7000)
     private String description;
     @NotNull
-    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @StartTime
     private LocalDateTime eventDate;
     @NotNull
-    @Valid //todo нужно ли тут?
+    @Valid
     private LocationDto location;
     private Integer participantLimit;
     private Boolean isPaid;

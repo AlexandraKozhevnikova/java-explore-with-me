@@ -1,8 +1,8 @@
 package ru.practicum.mainservice.service;
 
 import org.springframework.stereotype.Service;
-import ru.practicum.mainservice.dto.FullEventResponse;
-import ru.practicum.mainservice.dto.NewEventRequest;
+import ru.practicum.mainservice.dto.event.FullEventResponse;
+import ru.practicum.mainservice.dto.event.NewEventRequest;
 import ru.practicum.mainservice.mapper.EventMapper;
 import ru.practicum.mainservice.model.CategoryEntity;
 import ru.practicum.mainservice.model.EventEntity;

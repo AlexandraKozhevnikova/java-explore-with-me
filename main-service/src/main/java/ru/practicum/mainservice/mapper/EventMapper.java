@@ -2,9 +2,9 @@ package ru.practicum.mainservice.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.practicum.mainservice.dto.FullEventResponse;
-import ru.practicum.mainservice.dto.NewEventRequest;
-import ru.practicum.mainservice.dto.UpdateEvenRequest;
+import ru.practicum.mainservice.dto.event.FullEventResponse;
+import ru.practicum.mainservice.dto.event.NewEventRequest;
+import ru.practicum.mainservice.dto.event.UpdateEvenRequest;
 import ru.practicum.mainservice.model.CategoryEntity;
 import ru.practicum.mainservice.model.EventEntity;
 import ru.practicum.mainservice.model.UserEntity;
