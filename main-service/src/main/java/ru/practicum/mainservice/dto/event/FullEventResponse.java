@@ -17,7 +17,7 @@ public class FullEventResponse {
     private InitiatorDto initiator;
     private LocationDto location;
     private Integer participantLimit;
-    private Boolean isPaid;
+    private Boolean paid;
     private Boolean requestModeration;
     private LocalDateTime publishedOn;
     private EventState state;
@@ -104,11 +104,11 @@ public class FullEventResponse {
     }
 
     public Boolean getPaid() {
-        return isPaid;
+        return paid;
     }
 
     public void setPaid(Boolean paid) {
-        isPaid = paid;
+        this.paid = paid;
     }
 
     public Boolean getRequestModeration() {
