@@ -6,5 +6,5 @@ import ru.practicum.mainservice.model.CategoryEntity;
 import ru.practicum.mainservice.model.UserEntity;
 
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>, QuerydslPredicateExecutor<UserEntity>,
-CategoryCustomRepository {
+        CategoryCustomRepository {
 }

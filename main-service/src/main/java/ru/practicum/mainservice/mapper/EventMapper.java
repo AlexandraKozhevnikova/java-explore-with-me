@@ -14,14 +14,29 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 @Mapper(componentModel = SPRING)
 public interface EventMapper {
 
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "lon", source = "location.lon")
-    @Mapping(target = "lat", source = "location.lat")
-    @Mapping(target = "initiator", ignore = true)
+    @Mapping(target = "publishedOn", ignore = true)
+    @Mapping(target = "createdOn", ignore = true)
+    @Mapping(target = "state", ignore = true)
     @Mapping(target = "eventId", ignore = true)
-    EventEntity entityFromNewRequest(NewEventRequest request, UserEntity user, CategoryEntity category);
+    @Mapping(target = "moderationRequired", source = "request.requestModeration")
+    @Mapping(target = "lon", source = "request.location.lon")
+    @Mapping(target = "lat", source = "request.location.lat")
+    @Mapping(target = "category", source = "category")
+    @Mapping(target = "initiator", source = "user")
+    EventEntity entityFromNewRequest(
+            NewEventRequest request,
+            UserEntity user,
+            CategoryEntity category
+    );
 
     EventEntity entityFromUpdateRequest(UpdateEvenRequest request);
 
+    @Mapping(target = "location", ignore = true)
+    @Mapping(target = "id", source = "eventId")
+    @Mapping(target = "requestModeration", source = "moderationRequired")
+    @Mapping(target = "location.lon", source = "lon")
+    @Mapping(target = "location.lat", source = "lat")
+    @Mapping(target = "category.id", source = "category.catId")
+    @Mapping(target = "initiator.id", source = "initiator.userId")
     FullEventResponse responseFromEntity(EventEntity entity);
 }

@@ -50,9 +50,9 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public List<CategoryResponse> getCategories(Integer from, Integer size) {
-       return categoryRepository.getCategories(from, size).stream()
-               .map(categoryMapper::responseFromEntity)
-               .collect(Collectors.toList());
+        return categoryRepository.getCategories(from, size).stream()
+                .map(categoryMapper::responseFromEntity)
+                .collect(Collectors.toList());
     }
 
     public CategoryResponse getCategory(Long catId) {

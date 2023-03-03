@@ -19,37 +19,56 @@ import java.time.LocalDateTime;
 public class EventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long eventId;
+    private Long eventId;
     @Column(length = 120, nullable = false)
-    String title;
+    private String title;
     @ManyToOne
     @JoinColumn(name = "cat_id", nullable = false)
-    CategoryEntity category;
+    private CategoryEntity category;
     @Column(nullable = false)
-    EventStatus status;
+    private EventState state;
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne
     @JoinColumn(name = "initiator_id", nullable = false)
-    UserEntity initiator;
+    private UserEntity initiator;
     @Column(length = 2000, nullable = false)
-    String annotation;
+    private String annotation;
     @Column(length = 7000, nullable = false)
-    String description;
+    private String description;
     @Column(name = "event_date", nullable = false)
-    LocalDateTime eventDate;
+    private LocalDateTime eventDate;
     @Column(nullable = false)
-    Double lat;
+    private Double lat;
     @Column(nullable = false)
-    Double lon;
+    private Double lon;
     @Column(name = "participant_limit")
-    Integer participantLimit;
+    private Integer participantLimit;
     @Column(name = "paid")
-    Boolean isPaid;
+    private Boolean isPaid;
     @Column(name = "request_moderation")
-    Boolean isModerationRequired;
+    private Boolean isModerationRequired;
     @Column(name = "created_on")
     @CreationTimestamp
-    LocalDateTime createdOn;
+    private LocalDateTime createdOn;
+    @Column(name = "published_on")
+    private LocalDateTime publishedOn;
+
+
+    public LocalDateTime getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(LocalDateTime createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public LocalDateTime getPublishedOn() {
+        return publishedOn;
+    }
+
+    public void setPublishedOn(LocalDateTime publishedOn) {
+        this.publishedOn = publishedOn;
+    }
 
     public Long getEventId() {
         return eventId;
@@ -75,12 +94,12 @@ public class EventEntity {
         this.category = category;
     }
 
-    public EventStatus getStatus() {
-        return status;
+    public EventState getState() {
+        return state;
     }
 
-    public void setStatus(EventStatus status) {
-        this.status = status;
+    public void setState(EventState state) {
+        this.state = state;
     }
 
     public UserEntity getInitiator() {
@@ -147,7 +166,7 @@ public class EventEntity {
         isPaid = paid;
     }
 
-    public Boolean getModerationRequired() {
+    public Boolean isModerationRequired() {
         return isModerationRequired;
     }
 

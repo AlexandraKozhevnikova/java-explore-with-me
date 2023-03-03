@@ -170,7 +170,7 @@ class MainServiceApplicationTests {
     @Test
     void deleteUser_whenExistUserAsInitiatorAndParticipation_thren___() {
         //проверить поведение связанных сущностей при удалении юзера
-          //если он инициатор события - делит каскад
+        //если он инициатор события - делит каскад
     }
 
     @Test
@@ -261,26 +261,27 @@ class MainServiceApplicationTests {
     }
 
     @Test
-    void createEvent_whenNameIsLessThan3chars_return400(){
-
-    }
-    @Test
-    void createEvent_whenNameIsMoreThan120chars_return400(){
+    void createEvent_whenNameIsLessThan3chars_return400() {
 
     }
 
     @Test
-    void updateEvent_whenStatusIsWaitingPublication_return200(){
+    void createEvent_whenNameIsMoreThan120chars_return400() {
 
     }
 
     @Test
-    void updateEvent_whenStatusIsCanceled_return200(){
+    void updateEvent_whenStatusIsWaitingPublication_return200() {
 
     }
 
     @Test
-    void updateEvent_whenStatusIsPublished_return409(){
+    void updateEvent_whenStatusIsCanceled_return200() {
+
+    }
+
+    @Test
+    void updateEvent_whenStatusIsPublished_return409() {
 
     }
 

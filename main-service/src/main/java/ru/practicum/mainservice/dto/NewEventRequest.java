@@ -1,6 +1,5 @@
 package ru.practicum.mainservice.dto;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.mainservice.validation.StartTime;
 
 import javax.validation.Valid;
@@ -22,8 +21,7 @@ public class NewEventRequest {
     @Size(min = 20, max = 7000)
     private String description;
     @NotNull
-    //@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @StartTime
     private LocalDateTime eventDate;
     @NotNull
@@ -31,7 +29,7 @@ public class NewEventRequest {
     private LocationDto location;
     private Integer participantLimit;
     private Boolean isPaid;
-    private Boolean isModerationRequired;
+    private Boolean requestModeration;
 
     public String getTitle() {
         return title;
@@ -97,11 +95,11 @@ public class NewEventRequest {
         isPaid = paid;
     }
 
-    public Boolean getModerationRequired() {
-        return isModerationRequired;
+    public Boolean getRequestModeration() {
+        return requestModeration;
     }
 
-    public void setModerationRequired(Boolean moderationRequired) {
-        isModerationRequired = moderationRequired;
+    public void setRequestModeration(Boolean requestModeration) {
+        this.requestModeration = requestModeration;
     }
 }

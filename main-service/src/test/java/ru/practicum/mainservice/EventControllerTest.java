@@ -6,11 +6,12 @@ public class EventControllerTest {
 
 
     @Test
-    void createEvent_whenEventDateIsEarlyThan2HoursFromNow_thanReturn400(){
+    void createEvent_whenEventDateIsEarlyThan2HoursFromNow_thanReturn400() {
 
     }
+
     @Test
-    void updateEvent_whenEventDateIsEarlyThan2HoursFromNow_thanReturn400(){
+    void updateEvent_whenEventDateIsEarlyThan2HoursFromNow_thanReturn400() {
 
     }
 }
