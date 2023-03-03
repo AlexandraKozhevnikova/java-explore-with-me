@@ -1,6 +1,8 @@
 package ru.practicum.mainservice.model;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "event")
+@DynamicInsert
 public class EventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,10 +45,13 @@ public class EventEntity {
     @Column(nullable = false)
     private Double lon;
     @Column(name = "participant_limit")
+    @ColumnDefault("0")
     private Integer participantLimit;
     @Column(name = "paid")
+    @ColumnDefault("false")
     private Boolean isPaid;
     @Column(name = "request_moderation")
+    @ColumnDefault("true")
     private Boolean isModerationRequired;
     @Column(name = "created_on")
     @CreationTimestamp

@@ -1,6 +1,7 @@
 package ru.practicum.mainservice.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainservice.dto.NewUserRequest;
 import ru.practicum.mainservice.dto.UserResponse;
 import ru.practicum.mainservice.mapper.UserMapper;
@@ -23,17 +24,20 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
+    @Transactional
     public UserResponse createUser(NewUserRequest userRequest) {
         UserEntity user = userRepository.save(userMapper.entityFromNewUserRequest(userRequest));
         return userMapper.responseDtoFromEntity(user);
     }
 
+    @Transactional(readOnly = true)
     public List<UserResponse> getUsers(List<Long> ids, Integer from, Integer size) {
         return userRepository.getUsers(ids, from, size).stream()
                 .map(userMapper::responseDtoFromEntity)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteUser(Long userId) {
         checkUserIsExistAndGetById(userId);
         userRepository.deleteById(userId);

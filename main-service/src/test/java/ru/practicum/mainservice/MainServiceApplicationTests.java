@@ -24,12 +24,14 @@ import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class MainServiceApplicationTests {
     private static final String USERS = "/admin/users";
     private static final String ADMIN_CATEGORY = "/admin/categories";
+    private static final String PRIVATE_EVENT = "/users/{userId}/events";
 
 
     @Autowired
@@ -49,6 +51,18 @@ class MainServiceApplicationTests {
                         "  \"name\": \"Иван Петров\"\n" +
                         "}")
                 .when().post(USERS)
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+    }
+
+    private void createCategory() {
+        given()
+                .contentType(ContentType.JSON)
+                .body("{\n" +
+                        "  \"name\": \"  Концерты" + RandomUtils.nextInt() +
+                        "  \"\n" +
+                        "}")
+                .when().post(ADMIN_CATEGORY)
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
     }
@@ -258,6 +272,51 @@ class MainServiceApplicationTests {
                 .statusCode(HttpStatus.OK.value())
                 .body("id", is(1))
                 .body("name", is("Концерты NEW"));
+    }
+
+    @Test
+    void createEvent_whenRequestValidWithOnlyRequired_thanReturn201AndDefaultParams() {
+        createUser();
+        createCategory();
+
+        given()
+                .contentType(ContentType.JSON)
+                .body("{\n" +
+                        "  \"annotation\": \"Сплав на байдарках похож на полет.\",\n" +
+                        "  \"category\": 1,\n" +
+                        "  \"description\": \"Сплав  дарит чувство обновления, феерические эмоции, яркие впечатления.\",\n" +
+                        "  \"eventDate\": \"2023-12-31 15:10:05\",\n" +
+                        "  \"location\": {\n" +
+                        "    \"lat\": 55.754167,\n" +
+                        "    \"lon\": 37.62\n" +
+                        "  },\n" +
+                        "  \"title\": \"Сплав на байдарках\" \n" +
+                        "}")
+                .pathParam("userId", 1L)
+                .when().post(PRIVATE_EVENT)
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .body("annotation", is("Сплав на байдарках похож на полет."))
+                .body("category.id", is(1))
+                .body("category.name", containsString("Концерты"))
+                .body("paid", is(true))
+                .body("createdOn", notNullValue())
+                .body("description", is("Сплав  дарит чувство обновления, феерические эмоции, яркие впечатления."))
+                .body("eventDate", is("2023-12-31 15:10:05"))
+                .body("id", is(1))
+                .body("initiator.id", is(1))
+                .body("initiator.name", is("Иван Петров"))
+                .body("location.lat", is(55.754167))
+                .body("location.lon", is(37.62))
+                .body("participantLimit", is(0))
+                .body("publishedOn", nullValue())
+                .body("requestModeration", is(true))
+                .body("title", is("Сплав на байдарках"))
+                // todo  .body("views", is())
+                //   .body("confirmedRequests", is())
+                .body("state", is("PENDING"))
+        ;
+
     }
 
     @Test

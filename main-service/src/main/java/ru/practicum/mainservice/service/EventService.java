@@ -1,6 +1,7 @@
 package ru.practicum.mainservice.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainservice.dto.event.EventShortResponse;
 import ru.practicum.mainservice.dto.event.FullEventResponse;
 import ru.practicum.mainservice.dto.event.NewEventRequest;
@@ -13,6 +14,7 @@ import ru.practicum.mainservice.model.UserEntity;
 import ru.practicum.mainservice.repository.EventRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +33,7 @@ public class EventService {
         this.categoryService = categoryService;
     }
 
+    @Transactional
     public FullEventResponse createEvent(Long userId, NewEventRequest request) {
         UserEntity user = userService.checkUserIsExistAndGetById(userId);
         CategoryEntity category = categoryService.checkCategoryIsExistAndGet(request.getCategory());
@@ -40,6 +43,7 @@ public class EventService {
         return eventMapper.responseFromEntity(event);
     }
 
+    @Transactional(readOnly = true)
     public List<EventShortResponse> getUserEvents(Long userId, Integer from, Integer size) {
         userService.checkUserIsExistAndGetById(userId);
 
@@ -48,5 +52,20 @@ public class EventService {
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public FullEventResponse getUserEventById(Long userId, Long eventId) {
+        userService.checkUserIsExistAndGetById(userId);
+        EventEntity entity = checkEventIsExistAndGet(eventId);
+        if (!entity.getInitiator().getUserId().equals(userId)) {
+            throw new NoSuchElementException("Event with id=" + eventId + " was not found");
+        }
+        return eventMapper.responseFromEntity(entity);
+    }
+
+    public EventEntity checkEventIsExistAndGet(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NoSuchElementException("Event with id=" + eventId + " was not found"));
     }
 }
