@@ -5,15 +5,19 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import ru.practicum.mainservice.model.eventStateMachine.EventState;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,6 +33,7 @@ public class EventEntity {
     @JoinColumn(name = "cat_id", nullable = false)
     private CategoryEntity category;
     @Column(nullable = false)
+    @Enumerated(EnumType.ORDINAL)
     private EventState state;
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne
@@ -41,9 +46,9 @@ public class EventEntity {
     @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
     @Column(nullable = false)
-    private Double lat;
+    private BigDecimal lat;
     @Column(nullable = false)
-    private Double lon;
+    private BigDecimal lon;
     @Column(name = "participant_limit")
     @ColumnDefault("0")
     private Integer participantLimit;
@@ -140,20 +145,24 @@ public class EventEntity {
         this.eventDate = eventDate;
     }
 
-    public Double getLat() {
+    public BigDecimal getLat() {
         return lat;
     }
 
-    public void setLat(Double lat) {
+    public void setLat(BigDecimal lat) {
         this.lat = lat;
     }
 
-    public Double getLon() {
+    public BigDecimal getLon() {
         return lon;
     }
 
-    public void setLon(Double lon) {
+    public void setLon(BigDecimal lon) {
         this.lon = lon;
+    }
+
+    public Boolean getModerationRequired() {
+        return isModerationRequired;
     }
 
     public Integer getParticipantLimit() {

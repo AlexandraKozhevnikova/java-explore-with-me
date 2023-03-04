@@ -1,26 +1,27 @@
 package ru.practicum.mainservice.dto.event;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 public class LocationDto {
     @NotNull
-    private Double lat;
+    private BigDecimal lat;
     @NotNull
-    private Double lon;
+    private BigDecimal lon;
 
-    public Double getLat() {
+    public BigDecimal getLat() {
         return lat;
     }
 
-    public void setLat(Double lat) {
+    public void setLat(BigDecimal lat) {
         this.lat = lat;
     }
 
-    public Double getLon() {
+    public BigDecimal getLon() {
         return lon;
     }
 
-    public void setLon(Double lon) {
+    public void setLon(BigDecimal lon) {
         this.lon = lon;
     }
 }

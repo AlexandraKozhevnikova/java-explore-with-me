@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.model;
+package ru.practicum.mainservice.model.eventStateMachine;
 
 public class StateMachine {
 

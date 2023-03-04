@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.model;
+package ru.practicum.mainservice.model.eventStateMachine;
 
 import ru.practicum.mainservice.errorHandler.IllegalStateEventException;
 
@@ -29,12 +29,12 @@ public enum EventState {
 
     },
     /**
-     * Ожидание публикации. В статус ожидания публикации событие переходит сразу после создания.
+     * 1 Ожидание публикации. В статус ожидания публикации событие переходит сразу после создания.
      */
     PENDING {
         @Override
         public void sentToReview(StateMachine stateMachine) {
-            throw new IllegalStateEventException();
+            // do  nothing
         }
 
         @Override
@@ -53,7 +53,7 @@ public enum EventState {
         }
     },
     /**
-     * Публикация. В это состояние событие переводит администратор.
+     * 2 Публикация. В это состояние событие переводит администратор.
      */
     PUBLISHED {
         @Override
@@ -63,7 +63,7 @@ public enum EventState {
 
         @Override
         public void publishEvent(StateMachine stateMachine) {
-            throw new IllegalStateEventException();
+            // do  nothing
         }
 
         @Override
@@ -77,7 +77,7 @@ public enum EventState {
         }
     },
     /**
-     * Отмена публикации. В это состояние событие переходит в двух случаях.
+     * 3 Отмена публикации. В это состояние событие переходит в двух случаях.
      * Первый — если администратор решил, что его нельзя публиковать.
      * Второй — когда инициатор события решил отменить его на этапе ожидания публикации.
      */
@@ -94,12 +94,12 @@ public enum EventState {
 
         @Override
         public void rejectEvent(StateMachine stateMachine) {
-            throw new IllegalStateEventException();
+            // do  nothing
         }
 
         @Override
         public void cancelReview(StateMachine stateMachine) {
-            throw new IllegalStateEventException();
+            // do  nothing
         }
     };
 

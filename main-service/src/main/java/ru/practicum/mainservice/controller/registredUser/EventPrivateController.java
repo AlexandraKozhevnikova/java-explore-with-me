@@ -2,6 +2,7 @@ package ru.practicum.mainservice.controller.registredUser;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.mainservice.dto.event.EventShortResponse;
 import ru.practicum.mainservice.dto.event.FullEventResponse;
 import ru.practicum.mainservice.dto.event.NewEventRequest;
+import ru.practicum.mainservice.dto.event.UpdateEventRequest;
 import ru.practicum.mainservice.service.EventService;
 
 import javax.validation.Valid;
@@ -46,4 +48,12 @@ public class EventPrivateController {
                                               @PathVariable Long eventId) {
         return eventService.getUserEventById(userId, eventId);
     }
+
+    @PatchMapping("/{eventId}")
+    public FullEventResponse updateUserEvent(@PathVariable Long userId,
+                                             @PathVariable Long eventId,
+                                             @RequestBody UpdateEventRequest request){
+        return eventService.updateUserEvent(userId, eventId, request);
+    }
+
 }

@@ -58,12 +58,12 @@ public class EventControllerTest {
 
 
     @Test
-    void createEvent_whenEventDateIsEarlyThan2HoursFromNow_thanReturn409() throws Exception {
+    void createEvent_whenEventDateIsNull_thanReturn409() throws Exception {
         String requestBody = "{\n" +
                 "  \"annotation\": \"Сплав на байдарках похож на полет.\",\n" +
                 "  \"category\": 2,\n" +
                 "  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n" +
-                "  \"eventDate\": \"2022-12-31 15:10:05\",\n" +
+                "  \"eventDate\": null,\n" +
                 "  \"location\": {\n" +
                 "    \"lat\": 55.754167,\n" +
                 "    \"lon\": 37.62\n" +
@@ -81,12 +81,10 @@ public class EventControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
-                .andExpect(status().is(HttpStatus.CONFLICT.value()))
-                .andExpect(jsonPath("$.status", is("CONFLICT")))
-                .andExpect(jsonPath("$.reason", is("For the requested operation the conditions " +
-                        "are not met.")))
-                .andExpect(jsonPath("$.message", is("Field: eventDate. Error: должно содержать дату, " +
-                        "которая еще не наступила. Value: 2022-12-31T15:10:05")))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.status", is("BAD_REQUEST")))
+                .andExpect(jsonPath("$.reason", is("Incorrectly made request.")))
+                .andExpect(jsonPath("$.message", is("Field: eventDate. Error: must not be null. Value: null")))
                 .andExpect(jsonPath("$.timestamp").value(notNullValue()));
     }
 

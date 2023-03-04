@@ -5,14 +5,19 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainservice.dto.event.EventShortResponse;
 import ru.practicum.mainservice.dto.event.FullEventResponse;
 import ru.practicum.mainservice.dto.event.NewEventRequest;
+import ru.practicum.mainservice.dto.event.UpdateEventRequest;
+import ru.practicum.mainservice.errorHandler.StartTimeEventException;
 import ru.practicum.mainservice.mapper.EventMapper;
 import ru.practicum.mainservice.model.CategoryEntity;
 import ru.practicum.mainservice.model.EventEntity;
 import ru.practicum.mainservice.model.EventShortEntity;
-import ru.practicum.mainservice.model.EventState;
 import ru.practicum.mainservice.model.UserEntity;
+import ru.practicum.mainservice.model.eventStateMachine.EventAction;
+import ru.practicum.mainservice.model.eventStateMachine.EventState;
+import ru.practicum.mainservice.model.eventStateMachine.StateMachine;
 import ru.practicum.mainservice.repository.EventRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -35,10 +40,13 @@ public class EventService {
 
     @Transactional
     public FullEventResponse createEvent(Long userId, NewEventRequest request) {
+        checkEventDateStartTime(request.getEventDate());
         UserEntity user = userService.checkUserIsExistAndGetById(userId);
         CategoryEntity category = categoryService.checkCategoryIsExistAndGet(request.getCategory());
         EventEntity newEventEntity = eventMapper.entityFromNewRequest(request, user, category);
-        newEventEntity.setState(EventState.CREATED);
+        StateMachine machine = new StateMachine(EventState.CREATED);
+        machine.getEventState().sentToReview(machine);
+        newEventEntity.setState(machine.getEventState());
         EventEntity event = eventRepository.save(newEventEntity);
         return eventMapper.responseFromEntity(event);
     }
@@ -58,14 +66,62 @@ public class EventService {
     public FullEventResponse getUserEventById(Long userId, Long eventId) {
         userService.checkUserIsExistAndGetById(userId);
         EventEntity entity = checkEventIsExistAndGet(eventId);
-        if (!entity.getInitiator().getUserId().equals(userId)) {
-            throw new NoSuchElementException("Event with id=" + eventId + " was not found");
-        }
+        checkIsInitiatorEvent(userId, entity);
         return eventMapper.responseFromEntity(entity);
+    }
+
+    @Transactional
+    public FullEventResponse updateUserEvent(Long userId, Long eventId, UpdateEventRequest request) {
+        UserEntity user = userService.checkUserIsExistAndGetById(userId);
+        EventEntity event = checkEventIsExistAndGet(eventId);
+        checkIsInitiatorEvent(userId, event);
+
+        CategoryEntity category = null;
+        if (request.getCategory() != null) {
+            category = categoryService.checkCategoryIsExistAndGet(request.getCategory());
+        }
+
+        EventEntity updateFields = eventMapper.entityFromUpdateRequest(request, category);
+        eventMapper.updateEntity(updateFields, event);
+        checkEventDateStartTime(event.getEventDate());
+
+        if (request.getStateAction() != null) {
+            EventState state = event.getState();
+            StateMachine machine = new StateMachine(state);
+
+            EventAction action = EventAction.valueOf(request.getStateAction());
+            switch (action) {
+                case SEND_TO_REVIEW:
+                    state.sentToReview(machine);
+                    break;
+                case CANCEL_REVIEW:
+                    state.cancelReview(machine);
+                    break;
+                default:
+                    throw new IllegalArgumentException("'state action' " + action + " not avaliable for user");
+            }
+            event.setState(machine.getEventState());
+        }
+
+        ///rule update state
+
+        return eventMapper.responseFromEntity(event);
     }
 
     public EventEntity checkEventIsExistAndGet(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("Event with id=" + eventId + " was not found"));
+    }
+
+    private void checkIsInitiatorEvent(Long userId, EventEntity event) {
+        if (!event.getInitiator().getUserId().equals(userId)) {
+            throw new NoSuchElementException("Event with id=" + event.getEventId() + " was not found");
+        }
+    }
+
+    private void checkEventDateStartTime(LocalDateTime eventDate) {
+        if (eventDate.isBefore(LocalDateTime.now().plusHours(2L))) {
+            throw new StartTimeEventException(eventDate.toString());
+        }
     }
 }

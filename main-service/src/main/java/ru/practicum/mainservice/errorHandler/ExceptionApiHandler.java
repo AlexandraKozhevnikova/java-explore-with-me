@@ -42,9 +42,8 @@ public class ExceptionApiHandler {
                                 .collect(Collectors.toList()).stream().findFirst().get()
                 );
     }
-
-    @ExceptionHandler(StartTimeEventException.class)
-    public ResponseEntity<ErrorResponse> handleStartTimeEventException(StartTimeEventException e) {
+    @ExceptionHandler(value = {StartTimeEventException.class, IllegalStateEventException.class})
+    public ResponseEntity<ErrorResponse> handleStartTimeEventException2(Exception e) {
         log.error(e.getMessage(), e);
 
         return ResponseEntity
@@ -52,8 +51,7 @@ public class ExceptionApiHandler {
                 .body(new ErrorResponseBuilder()
                         .setStatus(HttpStatus.CONFLICT.name())
                         .setReason("For the requested operation the conditions are not met.")
-                        .setMessage("Field: eventDate. Error: должно содержать дату, которая еще не наступила. " +
-                                "Value: " + e.getValue())
+                        .setMessage(e.getMessage())
                         .createErrorResponse()
                 );
     }
@@ -98,6 +96,34 @@ public class ExceptionApiHandler {
                 .body(new ErrorResponseBuilder()
                         .setStatus(HttpStatus.NOT_FOUND.name())
                         .setReason("The required object was not found.")
+                        .setMessage(e.getLocalizedMessage())
+                        .createErrorResponse()
+                );
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
+            IllegalArgumentException e) {
+        log.error(e.getMessage(), e);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseBuilder()
+                        .setStatus(HttpStatus.BAD_REQUEST.name())
+                        .setReason("Значение параметра не отвечает требованиям")
+                        .setMessage(e.getLocalizedMessage())
+                        .createErrorResponse()
+                );
+    }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(
+            Exception e) {
+        log.error(e.getMessage(), e);
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponseBuilder()
+                        .setStatus(HttpStatus.INTERNAL_SERVER_ERROR.name())
+                        .setReason("unhandled exception")
                         .setMessage(e.getLocalizedMessage())
                         .createErrorResponse()
                 );

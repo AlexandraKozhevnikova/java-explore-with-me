@@ -1,34 +1,25 @@
 package ru.practicum.mainservice.dto.event;
 
-import ru.practicum.mainservice.validation.StartTime;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-public class NewEventRequest {
-    @NotBlank
+public class UpdateEventRequest {
     @Size(min = 3, max = 120)
     private String title;
-    @NotBlank
     @Size(min = 20, max = 2000)
     private String annotation;
-    @NotNull
     private Long category;
-    @NotBlank
     @Size(min = 20, max = 7000)
     private String description;
-    @NotNull
-    //@StartTime
     private LocalDateTime eventDate;
-    @NotNull
-    @Valid
     private LocationDto location;
     private Integer participantLimit;
-    private Boolean isPaid;
+    private Boolean paid;
     private Boolean requestModeration;
+    private String stateAction;
 
     public String getTitle() {
         return title;
@@ -87,11 +78,11 @@ public class NewEventRequest {
     }
 
     public Boolean getPaid() {
-        return isPaid;
+        return paid;
     }
 
     public void setPaid(Boolean paid) {
-        isPaid = paid;
+        this.paid = paid;
     }
 
     public Boolean getRequestModeration() {
@@ -100,5 +91,13 @@ public class NewEventRequest {
 
     public void setRequestModeration(Boolean requestModeration) {
         this.requestModeration = requestModeration;
+    }
+
+    public String getStateAction() {
+        return stateAction;
+    }
+
+    public void setStateAction(String stateAction) {
+        this.stateAction = stateAction;
     }
 }

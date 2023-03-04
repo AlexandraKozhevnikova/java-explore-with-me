@@ -1,7 +1,7 @@
 package ru.practicum.mainservice.dto.event;
 
 import ru.practicum.mainservice.dto.CategoryResponse;
-import ru.practicum.mainservice.model.EventState;
+import ru.practicum.mainservice.model.eventStateMachine.EventState;
 
 import java.time.LocalDateTime;
 
