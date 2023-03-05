@@ -58,4 +58,8 @@ public class CategoryService {
     public CategoryResponse getCategory(Long catId) {
         return categoryMapper.responseFromEntity(checkCategoryIsExistAndGet(catId));
     }
+
+    public List<CategoryEntity> checkListCategoryIsExist(List<Long> categoryIds) {
+        return categoryRepository.findAllById(categoryIds);
+    }
 }

@@ -2,12 +2,12 @@ package ru.practicum.mainservice.mapper;
 
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.MapperConfig;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.context.annotation.Bean;
 import ru.practicum.mainservice.dto.event.EventShortResponse;
-import ru.practicum.mainservice.dto.event.FullEventResponse;
+import ru.practicum.mainservice.dto.event.EventFullResponse;
 import ru.practicum.mainservice.dto.event.NewEventRequest;
 import ru.practicum.mainservice.dto.event.UpdateEventRequest;
 import ru.practicum.mainservice.model.CategoryEntity;
@@ -24,11 +24,14 @@ public interface EventMapper {
     @Mapping(target = "createdOn", ignore = true)
     @Mapping(target = "state", ignore = true)
     @Mapping(target = "eventId", ignore = true)
-    @Mapping(target = "moderationRequired", source = "request.requestModeration")
+    @Mapping(target = "moderationRequired", source = "request.requestModeration", defaultValue = "true")
     @Mapping(target = "lon", source = "request.location.lon")
     @Mapping(target = "lat", source = "request.location.lat")
     @Mapping(target = "category", source = "category")
     @Mapping(target = "initiator", source = "user")
+    @Mapping(target = "paid", source = "request.paid", defaultValue = "false")
+    @Mapping(target = "participantLimit", source = "request.participantLimit", defaultValue = "0")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     EventEntity entityFromNewRequest(
             NewEventRequest request,
             UserEntity user,
@@ -56,7 +59,7 @@ public interface EventMapper {
     @Mapping(target = "location.lat", source = "lat")
     @Mapping(target = "category.id", source = "category.catId")
     @Mapping(target = "initiator.id", source = "initiator.userId")
-    FullEventResponse responseFromEntity(EventEntity entity);
+    EventFullResponse responseFromEntity(EventEntity entity);
 
     @Mapping(target = "id", source = "eventId")
     @Mapping(target = "category.id", source = "category.catId")

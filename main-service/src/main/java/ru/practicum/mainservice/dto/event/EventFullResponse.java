@@ -5,7 +5,7 @@ import ru.practicum.mainservice.model.eventStateMachine.EventState;
 
 import java.time.LocalDateTime;
 
-public class FullEventResponse {
+public class EventFullResponse {
     private Long id;
     private String title;
     private String annotation;

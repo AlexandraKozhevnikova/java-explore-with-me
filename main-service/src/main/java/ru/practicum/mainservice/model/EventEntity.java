@@ -54,7 +54,7 @@ public class EventEntity {
     private Integer participantLimit;
     @Column(name = "paid")
     @ColumnDefault("false")
-    private Boolean isPaid;
+    private Boolean isPaid = true;
     @Column(name = "request_moderation")
     @ColumnDefault("true")
     private Boolean isModerationRequired;

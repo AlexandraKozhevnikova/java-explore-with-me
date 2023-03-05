@@ -1,16 +1,20 @@
 package ru.practicum.mainservice.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.mainservice.dto.event.EventFullResponse;
 import ru.practicum.mainservice.dto.event.EventShortResponse;
-import ru.practicum.mainservice.dto.event.FullEventResponse;
 import ru.practicum.mainservice.dto.event.NewEventRequest;
 import ru.practicum.mainservice.dto.event.UpdateEventRequest;
+import ru.practicum.mainservice.errorHandler.IllegalStateEventException;
 import ru.practicum.mainservice.errorHandler.StartTimeEventException;
 import ru.practicum.mainservice.mapper.EventMapper;
 import ru.practicum.mainservice.model.CategoryEntity;
 import ru.practicum.mainservice.model.EventEntity;
 import ru.practicum.mainservice.model.EventShortEntity;
+import ru.practicum.mainservice.model.QEventEntity;
 import ru.practicum.mainservice.model.UserEntity;
 import ru.practicum.mainservice.model.eventStateMachine.EventAction;
 import ru.practicum.mainservice.model.eventStateMachine.EventState;
@@ -20,6 +24,7 @@ import ru.practicum.mainservice.repository.EventRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,8 +44,8 @@ public class EventService {
     }
 
     @Transactional
-    public FullEventResponse createEvent(Long userId, NewEventRequest request) {
-        checkEventDateStartTime(request.getEventDate());
+    public EventFullResponse createEvent(Long userId, NewEventRequest request) {
+        checkEventDateStartTime(request.getEventDate(), 2L);
         UserEntity user = userService.checkUserIsExistAndGetById(userId);
         CategoryEntity category = categoryService.checkCategoryIsExistAndGet(request.getCategory());
         EventEntity newEventEntity = eventMapper.entityFromNewRequest(request, user, category);
@@ -63,7 +68,7 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public FullEventResponse getUserEventById(Long userId, Long eventId) {
+    public EventFullResponse getUserEventById(Long userId, Long eventId) {
         userService.checkUserIsExistAndGetById(userId);
         EventEntity entity = checkEventIsExistAndGet(eventId);
         checkIsInitiatorEvent(userId, entity);
@@ -71,10 +76,12 @@ public class EventService {
     }
 
     @Transactional
-    public FullEventResponse updateUserEvent(Long userId, Long eventId, UpdateEventRequest request) {
-        UserEntity user = userService.checkUserIsExistAndGetById(userId);
+    public EventFullResponse updateUserEvent(Long userId, Long eventId, UpdateEventRequest request) {
+        userService.checkUserIsExistAndGetById(userId);
         EventEntity event = checkEventIsExistAndGet(eventId);
+        checkEventDateStartTime(event.getEventDate(), 2L);
         checkIsInitiatorEvent(userId, event);
+        checkThatEventIsAvailableForUpdate(event);
 
         CategoryEntity category = null;
         if (request.getCategory() != null) {
@@ -83,7 +90,7 @@ public class EventService {
 
         EventEntity updateFields = eventMapper.entityFromUpdateRequest(request, category);
         eventMapper.updateEntity(updateFields, event);
-        checkEventDateStartTime(event.getEventDate());
+        checkEventDateStartTime(event.getEventDate(), 2L);
 
         if (request.getStateAction() != null) {
             EventState state = event.getState();
@@ -98,14 +105,104 @@ public class EventService {
                     state.cancelReview(machine);
                     break;
                 default:
-                    throw new IllegalArgumentException("'state action' " + action + " not avaliable for user");
+                    throw new IllegalArgumentException("'state action' " + action + " not available for user");
             }
             event.setState(machine.getEventState());
         }
 
-        ///rule update state
+        return eventMapper.responseFromEntity(event);
+    }
+
+    @Transactional
+    public EventFullResponse updateUserEventForAdmin(Long eventId, UpdateEventRequest request) {
+        EventEntity event = checkEventIsExistAndGet(eventId);
+        checkEventDateStartTime(event.getEventDate(), 1L);
+        checkThatEventIsAvailableForUpdate(event);
+
+        CategoryEntity category = null;
+        if (request.getCategory() != null) {
+            category = categoryService.checkCategoryIsExistAndGet(request.getCategory());
+        }
+
+        EventEntity updateFields = eventMapper.entityFromUpdateRequest(request, category);
+        eventMapper.updateEntity(updateFields, event);
+        checkEventDateStartTime(event.getEventDate(), 1L);
+
+        if (request.getStateAction() != null) {
+            EventState state = event.getState();
+            StateMachine machine = new StateMachine(state);
+
+            EventAction action = EventAction.valueOf(request.getStateAction());
+            switch (action) {
+                case PUBLISH_EVENT:
+                       state.publishEvent(machine);
+                       event.setPublishedOn(LocalDateTime.now());
+                    break;
+                case REJECT_EVENT:
+                    state.rejectEvent(machine);
+                    break;
+                default:
+                    throw new IllegalArgumentException("'state action' " + action + " not available for admin");
+            }
+            event.setState(machine.getEventState());
+        }
 
         return eventMapper.responseFromEntity(event);
+
+    }
+
+    @Transactional
+    public List<EventFullResponse> getEventsForAdmin(
+            Optional<List<Long>> userIds,
+            Optional<List<String>> states,
+            Optional<List<Long>> categoryIds,
+            Optional<LocalDateTime> rangeStart,
+            Optional<LocalDateTime> rangeEnd,
+            Integer from,
+            Integer size
+    ) {
+
+        QEventEntity event = QEventEntity.eventEntity;
+
+        BooleanExpression byUserIds = Expressions.TRUE.isTrue();
+        if (userIds.isPresent()) {
+            List<UserEntity> users = userService.checkListUsersIsExist(userIds.get());
+            if (!users.isEmpty()) {
+                byUserIds = event.initiator.in(users);
+            }
+        }
+
+        BooleanExpression byStates = Expressions.TRUE.isTrue();
+        if (states.isPresent() && !states.get().isEmpty()) {
+            byStates = event.state.in(states.get().stream()
+                    .map(EventState::valueOf)
+                    .collect(Collectors.toList()));
+        }
+
+        BooleanExpression byCategoryIds = Expressions.TRUE.isTrue();
+        if (categoryIds.isPresent()) {
+            List<CategoryEntity> categories = categoryService.checkListCategoryIsExist(categoryIds.get());
+            if (!categories.isEmpty()) {
+                byCategoryIds = event.category.in(categories);
+            }
+        }
+
+        BooleanExpression byRangeStart = Expressions.TRUE.isTrue();
+        if (rangeStart.isPresent()) {
+            byRangeStart = event.eventDate.before(rangeStart.get()).not();
+        }
+
+        BooleanExpression byRangeEnd = Expressions.TRUE.isTrue();
+        if (rangeEnd.isPresent()) {
+            byRangeEnd = event.eventDate.after(rangeEnd.get()).not();
+        }
+
+        List<EventEntity> entities = eventRepository
+                .getEventsForAdmin(byUserIds, byStates, byCategoryIds, byRangeStart, byRangeEnd, from, size);
+
+        return entities.stream()
+                .map(eventMapper::responseFromEntity)
+                .collect(Collectors.toList());
     }
 
     public EventEntity checkEventIsExistAndGet(Long eventId) {
@@ -119,8 +216,15 @@ public class EventService {
         }
     }
 
-    private void checkEventDateStartTime(LocalDateTime eventDate) {
-        if (eventDate.isBefore(LocalDateTime.now().plusHours(2L))) {
+    private void checkThatEventIsAvailableForUpdate(EventEntity entity) {
+        if (entity.getState() != EventState.PENDING && entity.getState() != EventState.CANCELED) {
+            throw new IllegalStateEventException();
+        }
+    }
+
+
+    private void checkEventDateStartTime(LocalDateTime eventDate,Long lag) {
+        if (eventDate.isBefore(LocalDateTime.now().plusHours(lag))) {
             throw new StartTimeEventException(eventDate.toString());
         }
     }
