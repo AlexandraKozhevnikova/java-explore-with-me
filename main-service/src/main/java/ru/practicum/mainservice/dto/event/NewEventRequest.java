@@ -1,7 +1,5 @@
 package ru.practicum.mainservice.dto.event;
 
-import ru.practicum.mainservice.validation.StartTime;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

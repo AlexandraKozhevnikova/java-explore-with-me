@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.controller.registredUser;
+package ru.practicum.mainservice.controller.registred_user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,7 +52,7 @@ public class EventPrivateController {
     @PatchMapping("/{eventId}")
     public EventFullResponse updateUserEvent(@PathVariable Long userId,
                                              @PathVariable Long eventId,
-                                             @RequestBody UpdateEventRequest request){
+                                             @RequestBody UpdateEventRequest request) {
         return eventService.updateUserEvent(userId, eventId, request);
     }
 

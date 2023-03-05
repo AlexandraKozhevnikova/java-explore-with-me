@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.mainservice.config.LocalDataTimeRegisterConfig;
-import ru.practicum.mainservice.controller.registredUser.EventPrivateController;
+import ru.practicum.mainservice.controller.registred_user.EventPrivateController;
 import ru.practicum.mainservice.errorHandler.ExceptionApiHandler;
 import ru.practicum.mainservice.service.EventService;
 

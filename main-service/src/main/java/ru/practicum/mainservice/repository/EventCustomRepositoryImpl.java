@@ -1,11 +1,9 @@
 package ru.practicum.mainservice.repository;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
-import ru.practicum.mainservice.dto.event.EventFullResponse;
-import ru.practicum.mainservice.dto.event.EventShortResponse;
 import ru.practicum.mainservice.model.EventEntity;
 import ru.practicum.mainservice.model.EventShortEntity;
 import ru.practicum.mainservice.model.QCategoryEntity;
@@ -15,9 +13,7 @@ import ru.practicum.mainservice.model.eventStateMachine.EventState;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EventCustomRepositoryImpl implements EventCustomRepository {
     @PersistenceContext
@@ -66,5 +62,31 @@ public class EventCustomRepositoryImpl implements EventCustomRepository {
                 .fetch();
     }
 
+    @Override
+    public List<EventShortEntity> getPublishedEvent(BooleanExpression byText,
+                                                    BooleanExpression byCategoryIds,
+                                                    BooleanExpression byIsPaid,
+                                                    BooleanExpression byIsOnlyAvailable,
+                                                    BooleanExpression byEventDate,
+                                                    OrderSpecifier<?> orderBy,
+                                                    Integer from,
+                                                    Integer size) {
+        JPAQuery<?> query = new JPAQuery(entityManager);
+        QEventEntity event = QEventEntity.eventEntity;
 
+        return query
+                .select(Projections.constructor(EventShortEntity.class, event.eventId, event.title, event.category,
+                        event.annotation, event.eventDate, event.isPaid, event.initiator))
+                .from(event)
+                .where(byText)
+                .where(event.state.eq(EventState.PUBLISHED))
+                .where(byCategoryIds)
+                .where(byIsPaid)
+                .where(byIsOnlyAvailable)
+                .where(byEventDate)
+                .orderBy(orderBy)
+                .offset(from)
+                .limit(size)
+                .fetch();
+    }
 }

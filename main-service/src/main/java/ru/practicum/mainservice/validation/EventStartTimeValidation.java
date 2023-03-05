@@ -1,7 +1,5 @@
 package ru.practicum.mainservice.validation;
 
-import ru.practicum.mainservice.errorHandler.StartTimeEventException;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDateTime;

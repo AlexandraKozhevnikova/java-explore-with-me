@@ -33,6 +33,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db/main_prod
       - POSTGRES_USER=main
       - POSTGRES_PASSWORD=main
+      - STATISTIC_SERVER_URL=http://stats-server:9090
+
     depends_on:
       - stats-server
       - ewm-db

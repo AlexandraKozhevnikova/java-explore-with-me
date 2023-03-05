@@ -42,6 +42,7 @@ public class ExceptionApiHandler {
                                 .collect(Collectors.toList()).stream().findFirst().get()
                 );
     }
+
     @ExceptionHandler(value = {StartTimeEventException.class, IllegalStateEventException.class})
     public ResponseEntity<ErrorResponse> handleStartTimeEventException2(Exception e) {
         log.error(e.getMessage(), e);
@@ -100,6 +101,7 @@ public class ExceptionApiHandler {
                         .createErrorResponse()
                 );
     }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
             IllegalArgumentException e) {
@@ -114,6 +116,7 @@ public class ExceptionApiHandler {
                         .createErrorResponse()
                 );
     }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(
             Exception e) {

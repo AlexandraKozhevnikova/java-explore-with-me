@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.controller.allUser;
+package ru.practicum.mainservice.controller.all_user;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

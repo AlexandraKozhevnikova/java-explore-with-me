@@ -47,6 +47,7 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id=" + userId + " was not found"));
     }
+
     public List<UserEntity> checkListUsersIsExist(List<Long> userIds) {
         return userRepository.findAllById(userIds);
     }

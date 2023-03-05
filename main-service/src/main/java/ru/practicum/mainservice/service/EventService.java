@@ -1,7 +1,10 @@
 package ru.practicum.mainservice.service;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainservice.dto.event.EventFullResponse;
@@ -20,7 +23,10 @@ import ru.practicum.mainservice.model.eventStateMachine.EventAction;
 import ru.practicum.mainservice.model.eventStateMachine.EventState;
 import ru.practicum.mainservice.model.eventStateMachine.StateMachine;
 import ru.practicum.mainservice.repository.EventRepository;
+import ru.practicum.statisticclient.StatisticClient;
 
+import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -33,14 +39,17 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserService userService;
     private final CategoryService categoryService;
+    private final StatisticClient client;
+    private static final Logger log = LogManager.getLogger(EventService.class);
 
 
     public EventService(EventMapper eventMapper, EventRepository eventRepository, UserService userService,
-                        CategoryService categoryService) {
+                        CategoryService categoryService, StatisticClient client) {
         this.eventMapper = eventMapper;
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.categoryService = categoryService;
+        this.client = client;
     }
 
     @Transactional
@@ -135,8 +144,8 @@ public class EventService {
             EventAction action = EventAction.valueOf(request.getStateAction());
             switch (action) {
                 case PUBLISH_EVENT:
-                       state.publishEvent(machine);
-                       event.setPublishedOn(LocalDateTime.now());
+                    state.publishEvent(machine);
+                    event.setPublishedOn(LocalDateTime.now());
                     break;
                 case REJECT_EVENT:
                     state.rejectEvent(machine);
@@ -179,13 +188,7 @@ public class EventService {
                     .collect(Collectors.toList()));
         }
 
-        BooleanExpression byCategoryIds = Expressions.TRUE.isTrue();
-        if (categoryIds.isPresent()) {
-            List<CategoryEntity> categories = categoryService.checkListCategoryIsExist(categoryIds.get());
-            if (!categories.isEmpty()) {
-                byCategoryIds = event.category.in(categories);
-            }
-        }
+        BooleanExpression byCategoryIds = getPredicateByCategoriesId(categoryIds);
 
         BooleanExpression byRangeStart = Expressions.TRUE.isTrue();
         if (rangeStart.isPresent()) {
@@ -205,6 +208,74 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+    public List<EventShortResponse> getPublishedEvents(
+            Optional<String> text,
+            Optional<List<Long>> categoryIds,
+            Optional<Boolean> isPaid,
+            Optional<Boolean> isOnlyAvailable,
+            Optional<LocalDateTime> rangeStart,
+            Optional<LocalDateTime> rangeEnd,
+            Optional<String> sort,
+            Integer from,
+            Integer size
+    ) throws IOException, InterruptedException {
+        QEventEntity event = QEventEntity.eventEntity;
+
+        BooleanExpression byText = Expressions.TRUE.isTrue();
+        if (text.isPresent()) {
+            byText = event.annotation.containsIgnoreCase(text.get())
+                    .or(event.description.containsIgnoreCase(text.get()));
+        }
+
+        BooleanExpression byCategoryIds = getPredicateByCategoriesId(categoryIds);
+
+        BooleanExpression byIsPaid = Expressions.TRUE.isTrue();
+        if (isPaid.isPresent()) {
+            byIsPaid = event.isPaid.eq(isPaid.get());
+        }
+
+        OrderSpecifier<?> orderBy = QEventEntity.eventEntity.eventId.asc();
+        if (sort.isPresent()) {
+            switch (sort.get()) {
+                case "VIEWS":
+                    orderBy = QEventEntity.eventEntity.eventId.desc(); //todo
+                    break;
+                case "EVENT_DATE":
+                    orderBy = QEventEntity.eventEntity.eventDate.desc();
+                    break;
+                default:
+                    throw new IllegalArgumentException("sort " + sort + "does not available.");
+
+            }
+        }
+
+        BooleanExpression byIsOnlyAvailable = Expressions.TRUE.isTrue();
+        if (isOnlyAvailable.isPresent()) {
+            //todo есть ли модерация, лимит  и количество апрувов
+        }
+
+        BooleanExpression byEventDate = getPredicateByEventDate(rangeStart, rangeEnd);
+
+        List<EventShortEntity> events = eventRepository.getPublishedEvent(
+                byText,
+                byCategoryIds,
+                byIsPaid,
+                byIsOnlyAvailable,
+                byEventDate,
+                orderBy,
+                from,
+                size);
+
+        HttpResponse<String> response = client.addHit("/events",
+                "из метода", LocalDateTime.now()); //todo подумать над аспектами и может в контроллер
+        log.info("Вызов сервиса статистики POST /hit  , response : " + response);
+
+        return events.stream()
+                .map(eventMapper::shortResponseFromShortEntity)
+                .collect(Collectors.toList());
+    }
+
+
     public EventEntity checkEventIsExistAndGet(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("Event with id=" + eventId + " was not found"));
@@ -223,9 +294,38 @@ public class EventService {
     }
 
 
-    private void checkEventDateStartTime(LocalDateTime eventDate,Long lag) {
+    private void checkEventDateStartTime(LocalDateTime eventDate, Long lag) {
         if (eventDate.isBefore(LocalDateTime.now().plusHours(lag))) {
             throw new StartTimeEventException(eventDate.toString());
+        }
+    }
+
+    private BooleanExpression getPredicateByCategoriesId(Optional<List<Long>> categoryIds) {
+        BooleanExpression byCategoryIds = Expressions.TRUE.isTrue();
+        if (categoryIds.isPresent()) {
+            List<CategoryEntity> categories = categoryService.checkListCategoryIsExist(categoryIds.get());
+            if (!categories.isEmpty()) {
+                byCategoryIds = QEventEntity.eventEntity.category.in(categories);
+            }
+        }
+        return byCategoryIds;
+    }
+
+
+    private BooleanExpression getPredicateByEventDate(Optional<LocalDateTime> rangeStart,
+                                                      Optional<LocalDateTime> rangeEnd) {
+
+        if (rangeStart.isPresent() && rangeEnd.isPresent()) {
+            return QEventEntity.eventEntity.eventDate.between(rangeStart.get(), rangeEnd.get());
+
+        } else if (rangeStart.isEmpty() && rangeEnd.isEmpty()) {
+            return QEventEntity.eventEntity.eventDate.after(LocalDateTime.now());
+        }
+
+        if (rangeStart.isPresent()) {
+            return QEventEntity.eventEntity.eventDate.before(rangeStart.get()).not();
+        } else {
+            return QEventEntity.eventEntity.eventDate.after(rangeEnd.get()).not();
         }
     }
 }

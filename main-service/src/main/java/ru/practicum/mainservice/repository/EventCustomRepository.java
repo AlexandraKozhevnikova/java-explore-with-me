@@ -1,12 +1,10 @@
 package ru.practicum.mainservice.repository;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import ru.practicum.mainservice.dto.event.EventFullResponse;
-import ru.practicum.mainservice.dto.event.EventShortResponse;
 import ru.practicum.mainservice.model.EventEntity;
 import ru.practicum.mainservice.model.EventShortEntity;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventCustomRepository {
@@ -20,4 +18,13 @@ public interface EventCustomRepository {
                                         BooleanExpression byRangeEnd,
                                         Integer from,
                                         Integer size);
+
+    List<EventShortEntity> getPublishedEvent(BooleanExpression byText,
+                                             BooleanExpression byCategoryIds,
+                                             BooleanExpression byIsPaid,
+                                             BooleanExpression byIsOnlyAvailable,
+                                             BooleanExpression byEventDate,
+                                             OrderSpecifier<?> orderBy,
+                                             Integer from,
+                                             Integer size);
 }
