@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.main_service.dto.CategoryResponse;
 import ru.practicum.main_service.service.CategoryService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -21,8 +23,8 @@ public class CategoryPublicController {
     }
 
     @GetMapping
-    public List<CategoryResponse> getCategories(@RequestParam(defaultValue = "0") Integer from,
-                                                @RequestParam(defaultValue = "10") Integer size) {
+    public List<CategoryResponse> getCategories(@RequestParam(defaultValue = "0") @Positive Integer from,
+                                                @RequestParam(defaultValue = "10") @PositiveOrZero Integer size) {
         return categoryService.getCategories(from, size);
     }
 

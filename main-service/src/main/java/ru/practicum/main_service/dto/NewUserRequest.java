@@ -2,13 +2,16 @@ package ru.practicum.main_service.dto;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Objects;
 
 public class NewUserRequest {
     @NotBlank
+    @Size(max = 255)
     private String name;
     @NotBlank
     @Email
+    @Size(max = 255)
     private String email;
 
     public String getName() {

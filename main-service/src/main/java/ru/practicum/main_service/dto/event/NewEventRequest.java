@@ -3,6 +3,7 @@ package ru.practicum.main_service.dto.event;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -19,13 +20,14 @@ public class NewEventRequest {
     @Size(min = 20, max = 7000)
     private String description;
     @NotNull
-    //@StartTime
     private LocalDateTime eventDate;
     @NotNull
     @Valid
     private LocationDto location;
+    @PositiveOrZero
     private Integer participantLimit;
     private Boolean isPaid;
+
     private Boolean requestModeration;
 
     public String getTitle() {

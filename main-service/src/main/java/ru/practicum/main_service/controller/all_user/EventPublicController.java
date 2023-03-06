@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.main_service.dto.event.EventShortResponse;
 import ru.practicum.main_service.service.EventService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,14 +27,14 @@ public class EventPublicController {
     @GetMapping
     public List<EventShortResponse> getEvents(
             @RequestParam Optional<String> text,
-            @RequestParam(name = "categories") Optional<List<Long>> categoryIds,
+            @RequestParam(name = "categories", defaultValue = "") List<Long> categoryIds,
             @RequestParam(name = "paid") Optional<Boolean> isPaid,
-            @RequestParam(name = "onlyAvailable") Optional<Boolean> isOnlyAvailable,
+            @RequestParam(name = "onlyAvailable", defaultValue = "false") Boolean isOnlyAvailable,
             @RequestParam(name = "rangeStart") Optional<LocalDateTime> rangeStart,
             @RequestParam(name = "rangeEnd") Optional<LocalDateTime> rangeEnd,
-            @RequestParam Optional<String> sort,
-            @RequestParam(defaultValue = "0") Integer from,
-            @RequestParam(defaultValue = "10") Integer size
+            @RequestParam(defaultValue = "EVENT_DATE") String sort,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10") @Positive Integer size
     ) throws IOException, InterruptedException {
         return eventService.getPublishedEvents(text, categoryIds, isPaid, isOnlyAvailable, rangeStart, rangeEnd,
                 sort, from, size);

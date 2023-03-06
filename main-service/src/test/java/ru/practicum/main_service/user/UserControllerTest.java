@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.main_service.UserController;
+import ru.practicum.main_service.controller.admin.UserController;
 import ru.practicum.main_service.dto.NewUserRequest;
 import ru.practicum.main_service.dto.UserResponse;
 import ru.practicum.main_service.errorHandler.ExceptionApiHandler;

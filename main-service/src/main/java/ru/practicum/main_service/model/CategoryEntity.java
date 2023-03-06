@@ -7,16 +7,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "category", uniqueConstraints = @UniqueConstraint(columnNames = "title"))
+@Table(name = "category")
 public class CategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long catId;
-    @Column(name = "title", nullable = false)
-    String name;
+    private Long catId;
+    @Column(name = "title", nullable = false, unique = true)
+    private String name;
 
     public Long getCatId() {
         return catId;

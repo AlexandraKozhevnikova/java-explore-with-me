@@ -17,6 +17,8 @@ import ru.practicum.main_service.dto.event.UpdateEventRequest;
 import ru.practicum.main_service.service.EventService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -38,8 +40,8 @@ public class EventPrivateController {
 
     @GetMapping
     public List<EventShortResponse> getUserEvents(@PathVariable Long userId,
-                                                  @RequestParam(defaultValue = "0") Integer from,
-                                                  @RequestParam(defaultValue = "10") Integer size) {
+                                                  @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                                  @RequestParam(defaultValue = "10") @Positive Integer size) {
         return eventService.getUserEvents(userId, from, size);
     }
 
@@ -52,7 +54,7 @@ public class EventPrivateController {
     @PatchMapping("/{eventId}")
     public EventFullResponse updateUserEvent(@PathVariable Long userId,
                                              @PathVariable Long eventId,
-                                             @RequestBody UpdateEventRequest request) {
+                                             @RequestBody @Valid UpdateEventRequest request) {
         return eventService.updateUserEvent(userId, eventId, request);
     }
 

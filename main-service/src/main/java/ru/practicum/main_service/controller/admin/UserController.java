@@ -1,6 +1,7 @@
-package ru.practicum.main_service;
+package ru.practicum.main_service.controller.admin;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +16,11 @@ import ru.practicum.main_service.dto.UserResponse;
 import ru.practicum.main_service.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/admin/users")
 public class UserController {
@@ -35,8 +39,8 @@ public class UserController {
 
     @GetMapping
     public List<UserResponse> getUsers(@RequestParam(required = false) List<Long> ids,
-                                       @RequestParam(defaultValue = "0") Integer from,
-                                       @RequestParam(defaultValue = "10") Integer size) {
+                                       @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                       @RequestParam(defaultValue = "10") @Positive Integer size) {
         return userService.getUsers(ids, from, size);
     }
 

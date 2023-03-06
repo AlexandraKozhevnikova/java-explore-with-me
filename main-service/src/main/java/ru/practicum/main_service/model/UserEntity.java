@@ -13,11 +13,11 @@ import javax.persistence.Table;
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long userId;
+    private Long userId;
     @Column(name = "title", nullable = false)
-    String name;
+    private String name;
     @Column(nullable = false, unique = true)
-    String email;
+    private String email;
 
     public Long getUserId() {
         return userId;

@@ -162,9 +162,9 @@ public class EventService {
 
     @Transactional
     public List<EventFullResponse> getEventsForAdmin(
-            Optional<List<Long>> userIds,
-            Optional<List<String>> states,
-            Optional<List<Long>> categoryIds,
+            List<Long> userIds,
+            List<String> states,
+            List<Long> categoryIds,
             Optional<LocalDateTime> rangeStart,
             Optional<LocalDateTime> rangeEnd,
             Integer from,
@@ -174,16 +174,14 @@ public class EventService {
         QEventEntity event = QEventEntity.eventEntity;
 
         BooleanExpression byUserIds = Expressions.TRUE.isTrue();
-        if (userIds.isPresent()) {
-            List<UserEntity> users = userService.checkListUsersIsExist(userIds.get());
-            if (!users.isEmpty()) {
-                byUserIds = event.initiator.in(users);
-            }
+        if (!userIds.isEmpty()) {
+            byUserIds = event.initiator.userId.in(userIds);
         }
 
+
         BooleanExpression byStates = Expressions.TRUE.isTrue();
-        if (states.isPresent() && !states.get().isEmpty()) {
-            byStates = event.state.in(states.get().stream()
+        if (!states.isEmpty()) {
+            byStates = event.state.in(states.stream()
                     .map(EventState::valueOf)
                     .collect(Collectors.toList()));
         }
@@ -210,12 +208,12 @@ public class EventService {
 
     public List<EventShortResponse> getPublishedEvents(
             Optional<String> text,
-            Optional<List<Long>> categoryIds,
+            List<Long> categoryIds,
             Optional<Boolean> isPaid,
-            Optional<Boolean> isOnlyAvailable,
+            Boolean isOnlyAvailable,
             Optional<LocalDateTime> rangeStart,
             Optional<LocalDateTime> rangeEnd,
-            Optional<String> sort,
+            String sort,
             Integer from,
             Integer size
     ) throws IOException, InterruptedException {
@@ -234,25 +232,20 @@ public class EventService {
             byIsPaid = event.isPaid.eq(isPaid.get());
         }
 
-        OrderSpecifier<?> orderBy = QEventEntity.eventEntity.eventId.asc();
-        if (sort.isPresent()) {
-            switch (sort.get()) {
-                case "VIEWS":
-                    orderBy = QEventEntity.eventEntity.eventId.desc(); //todo
-                    break;
-                case "EVENT_DATE":
-                    orderBy = QEventEntity.eventEntity.eventDate.desc();
-                    break;
-                default:
-                    throw new IllegalArgumentException("sort " + sort + "does not available.");
+        OrderSpecifier<?> orderBy;
+        switch (sort) {
+            case "VIEWS":
+                orderBy = QEventEntity.eventEntity.eventId.desc(); //todo переделать на просмотры
+                break;
+            case "EVENT_DATE":
+                orderBy = QEventEntity.eventEntity.eventDate.desc();
+                break;
+            default:
+                throw new IllegalArgumentException("sort " + sort + "does not available.");
 
-            }
         }
 
-        BooleanExpression byIsOnlyAvailable = Expressions.TRUE.isTrue();
-        if (isOnlyAvailable.isPresent()) {
-            //todo есть ли модерация, лимит  и количество апрувов
-        }
+        BooleanExpression byIsOnlyAvailable = Expressions.TRUE.isTrue();//todo есть ли модерация, лимит  и количество апрувов
 
         BooleanExpression byEventDate = getPredicateByEventDate(rangeStart, rangeEnd);
 
@@ -269,7 +262,7 @@ public class EventService {
         log.info("Вызов сервиса статистики POST /hit");
         HttpResponse<String> response = client.addHit("/events",
                 "из метода", LocalDateTime.now()); //todo подумать над аспектами и может в контроллер
-        log.info(" response : " + response);
+        log.info(" response : {}", response);
 
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)
@@ -301,13 +294,11 @@ public class EventService {
         }
     }
 
-    private BooleanExpression getPredicateByCategoriesId(Optional<List<Long>> categoryIds) {
+    private BooleanExpression getPredicateByCategoriesId(List<Long> categoryIds) {
         BooleanExpression byCategoryIds = Expressions.TRUE.isTrue();
-        if (categoryIds.isPresent()) {
-            List<CategoryEntity> categories = categoryService.checkListCategoryIsExist(categoryIds.get());
-            if (!categories.isEmpty()) {
-                byCategoryIds = QEventEntity.eventEntity.category.in(categories);
-            }
+
+        if (!categoryIds.isEmpty()) {
+            byCategoryIds = QEventEntity.eventEntity.category.catId.in(categoryIds);
         }
         return byCategoryIds;
     }

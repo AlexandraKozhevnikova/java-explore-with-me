@@ -51,7 +51,7 @@ public class StatisticClient {
                 .header("Accept", "application/json")
                 .build();
 
-        log.info("sent request: " + request);
+        log.info("sent request: {}", request);
 
         return client.send(request, handler);
     }

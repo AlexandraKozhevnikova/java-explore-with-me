@@ -2,10 +2,12 @@ package ru.practicum.main_service.dto;
 
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Objects;
 
 public class CategoryRequest {
     @NotBlank
+    @Size(max = 255)
     private String name;
 
     public String getName() {

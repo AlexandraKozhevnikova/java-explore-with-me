@@ -1,5 +1,6 @@
 package ru.practicum.main_service.dto.event;
 
+import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -13,6 +14,7 @@ public class UpdateEventRequest {
     private String description;
     private LocalDateTime eventDate;
     private LocationDto location;
+    @PositiveOrZero
     private Integer participantLimit;
     private Boolean paid;
     private Boolean requestModeration;
