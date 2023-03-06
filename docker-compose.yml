@@ -2,7 +2,7 @@ version: '3.1'
 services:
   stats-server:
     build: statistic-service/statistic-server/
-    container_name: stats-server
+    container_name: stats-server-container
     ports:
       - "9090:9090"
     environment:
@@ -13,7 +13,7 @@ services:
       - stats-db
 
   stats-db:
-    container_name: stats-db
+    container_name: stats-db-container
     image: postgres:14-alpine
     ports:
       - "6545:5432"
@@ -26,7 +26,7 @@ services:
 
   ewm-service:
     build: main-service/
-    container_name: emv-service
+    container_name: emv-service-container
     ports:
       - "8080:8080"
     environment:
@@ -41,7 +41,7 @@ services:
 
   ewm-db:
     image: postgres:14-alpine
-    container_name: ewm-db
+    container_name: ewm-db-container
     ports:
       - "6555:5432"
     environment:
