@@ -266,9 +266,10 @@ public class EventService {
                 from,
                 size);
 
+        log.info("Вызов сервиса статистики POST /hit");
         HttpResponse<String> response = client.addHit("/events",
                 "из метода", LocalDateTime.now()); //todo подумать над аспектами и может в контроллер
-        log.info("Вызов сервиса статистики POST /hit  , response : " + response);
+        log.info(" response : " + response);
 
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)

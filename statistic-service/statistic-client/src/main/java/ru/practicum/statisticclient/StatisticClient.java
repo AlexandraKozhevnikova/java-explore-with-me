@@ -3,6 +3,8 @@ package ru.practicum.statisticclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import statisticcommon.HitRequest;
 
 import java.io.IOException;
@@ -21,6 +23,8 @@ public class StatisticClient {
     private final HttpClient client;
     public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd+HH:mm:ss");
     private final String appName;
+    private static final Logger log = LogManager.getLogger(StatisticClient.class);
+
 
     public StatisticClient(String serverUrl, String app) {
         this.serverUrl = serverUrl;
@@ -46,6 +50,8 @@ public class StatisticClient {
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .build();
+
+        log.info("sent request: " + request);
 
         return client.send(request, handler);
     }

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
+import java.util.Properties;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
@@ -31,6 +32,8 @@ class MainServiceApplicationTests {
 
     @BeforeAll
     private static void run() {
+        Properties props = System.getProperties();
+        props.setProperty("STATISTIC_SERVER_URL", "http://localhost:9090");
         SpringApplication.run(MainServiceApplication.class);
     }
 

@@ -11,8 +11,7 @@ public class MainServiceApplication {
 
     @Bean
     public StatisticClient getStatisticClient(
-            // значение по умолчанию для локального запуска MainServiceApplicationTests
-            @Value("#{systemProperties['statistic.server.url'] ?: 'http://localhost:9090'}")
+            @Value("${statistic.server.url}")
             String serverUrl,
             @Value("${spring.application.name}") String appName
     ) {
