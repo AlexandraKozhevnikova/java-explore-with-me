@@ -25,6 +25,7 @@ import ru.practicum.main_service.model.eventStateMachine.StateMachine;
 import ru.practicum.main_service.repository.EventRepository;
 import ru.practicum.statisticclient.StatisticClient;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
@@ -160,7 +161,7 @@ public class EventService {
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<EventFullResponse> getEventsForAdmin(
             List<Long> userIds,
             List<String> states,
@@ -206,6 +207,7 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<EventShortResponse> getPublishedEvents(
             Optional<String> text,
             List<Long> categoryIds,
@@ -215,7 +217,8 @@ public class EventService {
             Optional<LocalDateTime> rangeEnd,
             String sort,
             Integer from,
-            Integer size
+            Integer size,
+            HttpServletRequest req
     ) throws IOException, InterruptedException {
         QEventEntity event = QEventEntity.eventEntity;
 
@@ -259,14 +262,30 @@ public class EventService {
                 from,
                 size);
 
-        log.info("Вызов сервиса статистики POST /hit");
-        HttpResponse<String> response = client.addHit("/events",
-                "из метода", LocalDateTime.now()); //todo подумать над аспектами и может в контроллер
-        log.info(" response : {}", response);
+        log.info("Вызов сервиса статистики POST /hit with {}, {}, {}", req.getRequestURI(),
+                req.getRemoteAddr(), LocalDateTime.now());
+        HttpResponse<String> response = client.addHit(req.getRequestURI(), req.getRemoteAddr(), LocalDateTime.now());
+        log.info("POST /hit response : {}", response);
 
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public EventFullResponse getPublishedEventById(Long eventId, HttpServletRequest req)
+            throws IOException, InterruptedException {
+        EventEntity event = checkEventIsExistAndGet(eventId);
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new NoSuchElementException("Event with id=" + eventId + " was not found");
+        }
+
+        log.info("Вызов сервиса статистики POST /hit with {}, {}, {}", req.getRequestURI(),
+                req.getRemoteAddr(), LocalDateTime.now());
+        HttpResponse<String> response = client.addHit(req.getRequestURI(), req.getRemoteAddr(), LocalDateTime.now());
+        log.info("POST /hit response : {}", response);
+
+        return eventMapper.responseFromEntity(checkEventIsExistAndGet(eventId));
     }
 
 

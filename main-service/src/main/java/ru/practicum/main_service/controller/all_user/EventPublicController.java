@@ -1,12 +1,15 @@
 package ru.practicum.main_service.controller.all_user;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.main_service.dto.event.EventFullResponse;
 import ru.practicum.main_service.dto.event.EventShortResponse;
 import ru.practicum.main_service.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.io.IOException;
@@ -25,7 +28,7 @@ public class EventPublicController {
     }
 
     @GetMapping
-    public List<EventShortResponse> getEvents(
+    public List<EventShortResponse> getPublishedEvents(
             @RequestParam Optional<String> text,
             @RequestParam(name = "categories", defaultValue = "") List<Long> categoryIds,
             @RequestParam(name = "paid") Optional<Boolean> isPaid,
@@ -34,15 +37,16 @@ public class EventPublicController {
             @RequestParam(name = "rangeEnd") Optional<LocalDateTime> rangeEnd,
             @RequestParam(defaultValue = "EVENT_DATE") String sort,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "10") @Positive Integer size
+            @RequestParam(defaultValue = "10") @Positive Integer size,
+            HttpServletRequest req
     ) throws IOException, InterruptedException {
         return eventService.getPublishedEvents(text, categoryIds, isPaid, isOnlyAvailable, rangeStart, rangeEnd,
-                sort, from, size);
+                sort, from, size, req);
     }
 
-//    @GetMapping("/{eventId}")
-//    public EventFullResponse getEventById(@PathVariable Long userId,
-//                                          @PathVariable Long eventId) {
-//        return eventService.getEventById(userId, eventId);
-//    }
+    @GetMapping("/{id}")
+    public EventFullResponse getPublishedEventById(@PathVariable(name = "id") Long eventId, HttpServletRequest req)
+            throws IOException, InterruptedException {
+        return eventService.getPublishedEventById(eventId, req);
+    }
 }
