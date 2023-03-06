@@ -44,10 +44,7 @@ public class EventService {
 
 
     public EventService(EventMapper eventMapper, EventRepository eventRepository, UserService userService,
-                        CategoryService categoryService
-            ,
-                        StatisticClient client
-                        ) {
+                        CategoryService categoryService, StatisticClient client) {
         this.eventMapper = eventMapper;
         this.eventRepository = eventRepository;
         this.userService = userService;
