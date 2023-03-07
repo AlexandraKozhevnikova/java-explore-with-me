@@ -28,14 +28,13 @@ import ru.practicum.statisticclient.StatisticClient;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -247,10 +246,15 @@ public class EventService {
 
         List<EventShortEntity> events = eventRepository.getPublishedEvent(booleanBuilder, orderBy, from, size);
 
+
         log.info("Вызов сервиса статистики POST /hit with {}, {}, {}", req.getRequestURI(),
                 req.getRemoteAddr(), LocalDateTime.now());
-        HttpResponse<String> response = client.addHit(req.getRequestURI(), req.getRemoteAddr(), LocalDateTime.now());
-        log.info("POST /hit response : {}", response);
+        try {
+            HttpResponse<String> response = client.addHit(req.getRequestURI(), req.getRemoteAddr(), LocalDateTime.now());
+            log.info("POST /hit response : {}", response);
+        } catch (ConnectException e) {
+            log.error("ConnectException - {}", e.getMessage(), e);
+        }
 
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)
@@ -267,8 +271,12 @@ public class EventService {
 
         log.info("Вызов сервиса статистики POST /hit with {}, {}, {}", req.getRequestURI(),
                 req.getRemoteAddr(), LocalDateTime.now());
-        HttpResponse<String> response = client.addHit(req.getRequestURI(), req.getRemoteAddr(), LocalDateTime.now());
-        log.info("POST /hit response : {}", response);
+        try {
+            HttpResponse<String> response = client.addHit(req.getRequestURI(), req.getRemoteAddr(), LocalDateTime.now());
+            log.info("POST /hit response : {}", response);
+        } catch (ConnectException e) {
+            log.error("ConnectException - {}", e.getMessage(), e);
+        }
 
         return eventMapper.responseFromEntity(checkEventIsExistAndGet(eventId));
     }
@@ -277,6 +285,7 @@ public class EventService {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("Event with id=" + eventId + " was not found"));
     }
+
     public List<EventEntity> checkListEventsIsExistAndGet(Collection<Long> eventIds) {
         return eventRepository.findAllById(eventIds);
     }

@@ -3,6 +3,7 @@ package ru.practicum.main_service.errorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -87,9 +88,9 @@ public class ExceptionApiHandler {
                 );
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
+    @ExceptionHandler(value = {NoSuchElementException.class, EmptyResultDataAccessException.class})
     public ResponseEntity<ErrorResponse> handleNoSuchElementException(
-            NoSuchElementException e) {
+            Exception e) {
         log.error(e.getMessage(), e);
 
         return ResponseEntity

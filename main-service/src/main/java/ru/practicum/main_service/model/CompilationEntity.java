@@ -11,9 +11,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "compilation")
@@ -65,6 +63,7 @@ public class CompilationEntity {
     public void setEvents(List<EventEntity> events) {
         this.events = events;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
