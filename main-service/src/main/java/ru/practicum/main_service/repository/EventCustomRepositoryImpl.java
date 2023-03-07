@@ -59,7 +59,7 @@ public class EventCustomRepositoryImpl implements EventCustomRepository {
                 .select(event)
                 .from(event)
                 .where(booleanBuilder)
-                .leftJoin(QUserEntity.userEntity)
+                .leftJoin(QUserEntity.userEntity) //todo
                 .on(event.initiator.userId.eq(QUserEntity.userEntity.userId))
                 .leftJoin(QCategoryEntity.categoryEntity)
                 .on(event.category.catId.eq(QCategoryEntity.categoryEntity.catId))

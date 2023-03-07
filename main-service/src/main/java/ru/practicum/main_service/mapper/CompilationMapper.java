@@ -22,6 +22,8 @@ public interface CompilationMapper {
     CompilationResponse responseFromEntity(CompilationEntity save);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "events", ignore = true)
+    @Mapping(target = "compilationId", ignore = true)
     CompilationEntity updateCompilationEntity(CompilationEntity updatedFields,
                                               @MappingTarget CompilationEntity savedCompilationEntity);
 }

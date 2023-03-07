@@ -16,7 +16,7 @@ import ru.practicum.main_service.model.UserEntity;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
-@Mapper(componentModel = SPRING)
+@Mapper(componentModel = SPRING, uses = CategoryMapper.class)
 public interface EventMapper {
 
     @Mapping(target = "publishedOn", ignore = true)
@@ -66,7 +66,6 @@ public interface EventMapper {
     EventShortResponse shortResponseFromShortEntity(EventShortEntity entity);
 
     @Mapping(target = "id", source = "eventId")
-    @Mapping(target = "category.id", source = "category.catId")
-    @Mapping(target = "initiator.id", source = "initiator.userId")
+        // @Mapping(target = "initiator.id", source = "initiator.userId")
     EventShortResponse shortResponseFromFullEntity(EventEntity entity);
 }

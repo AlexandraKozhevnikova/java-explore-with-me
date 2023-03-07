@@ -1,6 +1,8 @@
 package ru.practicum.main_service.model;
 
 
+import com.querydsl.core.annotations.QueryInit;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,6 +27,7 @@ public class CompilationEntity {
     @Column(name = "pinned")
     private Boolean isPinned;
     @ManyToMany
+    @QueryInit("compilation_event")
     @JoinTable(name = "compilation_event",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")

@@ -15,6 +15,7 @@ import ru.practicum.main_service.service.EventService;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +40,8 @@ public class EventAdminController {
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size
     ) {
-        return eventService.getEventsForAdmin(userIds, states, categoryIds, rangeStart, rangeEnd, from, size);
+        return eventService.getEventsWithFilters(Collections.EMPTY_LIST, userIds, states, categoryIds, rangeStart,
+                rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")

@@ -165,7 +165,8 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventFullResponse> getEventsForAdmin(
+    public List<EventFullResponse> getEventsWithFilters(
+            List<Long> eventIds,
             List<Long> userIds,
             List<String> states,
             List<Long> categoryIds,
@@ -177,6 +178,10 @@ public class EventService {
         QEventEntity event = QEventEntity.eventEntity;
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
+        if (!eventIds.isEmpty()) {
+            booleanBuilder.and(event.eventId.in(eventIds));
+
+        }
         if (!userIds.isEmpty()) {
             booleanBuilder.and(event.initiator.userId.in(userIds));
         }
@@ -189,7 +194,7 @@ public class EventService {
         }
 
         if (!categoryIds.isEmpty()) {
-            booleanBuilder.and(QEventEntity.eventEntity.category.catId.in(categoryIds));
+            booleanBuilder.and(event.category.catId.in(categoryIds));
         }
 
         rangeStart.ifPresent(localDateTime -> booleanBuilder.and(event.eventDate.before(localDateTime).not()));

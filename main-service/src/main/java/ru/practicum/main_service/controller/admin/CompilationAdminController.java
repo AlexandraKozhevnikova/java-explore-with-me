@@ -26,6 +26,7 @@ public class CompilationAdminController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public CompilationResponse createCompilation(@RequestBody @Valid CompilationRequest request) {
         return compilationService.createCompilation(request);
     }
