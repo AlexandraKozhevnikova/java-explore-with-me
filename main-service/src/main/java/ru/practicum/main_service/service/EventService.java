@@ -1,5 +1,6 @@
 package ru.practicum.main_service.service;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -171,36 +172,29 @@ public class EventService {
             Integer from,
             Integer size
     ) {
-
         QEventEntity event = QEventEntity.eventEntity;
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
 
-        BooleanExpression byUserIds = Expressions.TRUE.isTrue();
         if (!userIds.isEmpty()) {
-            byUserIds = event.initiator.userId.in(userIds);
+            booleanBuilder.and(event.initiator.userId.in(userIds));
         }
 
-
-        BooleanExpression byStates = Expressions.TRUE.isTrue();
         if (!states.isEmpty()) {
-            byStates = event.state.in(states.stream()
+            booleanBuilder.and(event.state.in(states.stream()
                     .map(EventState::valueOf)
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList()))
+            );
         }
 
-        BooleanExpression byCategoryIds = getPredicateByCategoriesId(categoryIds);
-
-        BooleanExpression byRangeStart = Expressions.TRUE.isTrue();
-        if (rangeStart.isPresent()) {
-            byRangeStart = event.eventDate.before(rangeStart.get()).not();
+        if (!categoryIds.isEmpty()) {
+            booleanBuilder.and(QEventEntity.eventEntity.category.catId.in(categoryIds));
         }
 
-        BooleanExpression byRangeEnd = Expressions.TRUE.isTrue();
-        if (rangeEnd.isPresent()) {
-            byRangeEnd = event.eventDate.after(rangeEnd.get()).not();
-        }
+        rangeStart.ifPresent(localDateTime -> booleanBuilder.and(event.eventDate.before(localDateTime).not()));
+        rangeEnd.ifPresent(localDateTime -> booleanBuilder.and(event.eventDate.after(localDateTime).not()));
 
         List<EventEntity> entities = eventRepository
-                .getEventsForAdmin(byUserIds, byStates, byCategoryIds, byRangeStart, byRangeEnd, from, size);
+                .getEventsForAdmin(booleanBuilder, from, size);
 
         return entities.stream()
                 .map(eventMapper::responseFromEntity)
@@ -221,46 +215,34 @@ public class EventService {
             HttpServletRequest req
     ) throws IOException, InterruptedException {
         QEventEntity event = QEventEntity.eventEntity;
+        BooleanBuilder booleanBuilder = new BooleanBuilder(event.state.eq(EventState.PUBLISHED));
 
-        BooleanExpression byText = Expressions.TRUE.isTrue();
-        if (text.isPresent()) {
-            byText = event.annotation.containsIgnoreCase(text.get())
-                    .or(event.description.containsIgnoreCase(text.get()));
+        text.ifPresent(string -> booleanBuilder.and(event.annotation.containsIgnoreCase(string)
+                .or(event.description.containsIgnoreCase(string))));
+
+        if (!categoryIds.isEmpty()) {
+            booleanBuilder.and(event.category.catId.in(categoryIds));
         }
 
-        BooleanExpression byCategoryIds = getPredicateByCategoriesId(categoryIds);
-
-        BooleanExpression byIsPaid = Expressions.TRUE.isTrue();
-        if (isPaid.isPresent()) {
-            byIsPaid = event.isPaid.eq(isPaid.get());
-        }
+        isPaid.ifPresent(aBoolean -> booleanBuilder.and(event.isPaid.eq(aBoolean)));
 
         OrderSpecifier<?> orderBy;
         switch (sort) {
             case "VIEWS":
-                orderBy = QEventEntity.eventEntity.eventId.desc(); //todo переделать на просмотры
+                orderBy = event.eventId.desc(); //todo переделать на просмотры
                 break;
             case "EVENT_DATE":
-                orderBy = QEventEntity.eventEntity.eventDate.desc();
+                orderBy = event.eventDate.desc();
                 break;
             default:
                 throw new IllegalArgumentException("sort " + sort + "does not available.");
-
         }
 
         BooleanExpression byIsOnlyAvailable = Expressions.TRUE.isTrue();//todo есть ли модерация, лимит  и количество апрувов
 
-        BooleanExpression byEventDate = getPredicateByEventDate(rangeStart, rangeEnd);
+        booleanBuilder.and(getPredicateByEventDate(rangeStart, rangeEnd));
 
-        List<EventShortEntity> events = eventRepository.getPublishedEvent(
-                byText,
-                byCategoryIds,
-                byIsPaid,
-                byIsOnlyAvailable,
-                byEventDate,
-                orderBy,
-                from,
-                size);
+        List<EventShortEntity> events = eventRepository.getPublishedEvent(booleanBuilder, orderBy, from, size);
 
         log.info("Вызов сервиса статистики POST /hit with {}, {}, {}", req.getRequestURI(),
                 req.getRemoteAddr(), LocalDateTime.now());
@@ -288,7 +270,6 @@ public class EventService {
         return eventMapper.responseFromEntity(checkEventIsExistAndGet(eventId));
     }
 
-
     public EventEntity checkEventIsExistAndGet(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("Event with id=" + eventId + " was not found"));
@@ -306,22 +287,11 @@ public class EventService {
         }
     }
 
-
     private void checkEventDateStartTime(LocalDateTime eventDate, Long lag) {
         if (eventDate.isBefore(LocalDateTime.now().plusHours(lag))) {
             throw new StartTimeEventException(eventDate.toString());
         }
     }
-
-    private BooleanExpression getPredicateByCategoriesId(List<Long> categoryIds) {
-        BooleanExpression byCategoryIds = Expressions.TRUE.isTrue();
-
-        if (!categoryIds.isEmpty()) {
-            byCategoryIds = QEventEntity.eventEntity.category.catId.in(categoryIds);
-        }
-        return byCategoryIds;
-    }
-
 
     private BooleanExpression getPredicateByEventDate(Optional<LocalDateTime> rangeStart,
                                                       Optional<LocalDateTime> rangeEnd) {
