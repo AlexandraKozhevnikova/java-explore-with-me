@@ -64,4 +64,9 @@ public interface EventMapper {
     @Mapping(target = "category.id", source = "category.catId")
     @Mapping(target = "initiator.id", source = "initiator.userId")
     EventShortResponse shortResponseFromShortEntity(EventShortEntity entity);
+
+    @Mapping(target = "id", source = "eventId")
+    @Mapping(target = "category.id", source = "category.catId")
+    @Mapping(target = "initiator.id", source = "initiator.userId")
+    EventShortResponse shortResponseFromFullEntity(EventEntity entity);
 }

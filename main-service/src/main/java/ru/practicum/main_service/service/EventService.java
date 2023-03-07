@@ -30,9 +30,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -273,6 +276,9 @@ public class EventService {
     public EventEntity checkEventIsExistAndGet(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("Event with id=" + eventId + " was not found"));
+    }
+    public List<EventEntity> checkListEventsIsExistAndGet(Collection<Long> eventIds) {
+        return eventRepository.findAllById(eventIds);
     }
 
     private void checkIsInitiatorEvent(Long userId, EventEntity event) {

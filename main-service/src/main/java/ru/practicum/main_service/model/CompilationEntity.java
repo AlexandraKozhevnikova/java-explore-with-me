@@ -10,7 +10,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -29,7 +31,7 @@ public class CompilationEntity {
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
-    private Set<EventEntity> events = new HashSet<>();
+    private List<EventEntity> events = new ArrayList<>();
 
     public Long getCompilationId() {
         return compilationId;
@@ -55,6 +57,14 @@ public class CompilationEntity {
         isPinned = pinned;
     }
 
+
+    public List<EventEntity> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<EventEntity> events) {
+        this.events = events;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -68,13 +78,5 @@ public class CompilationEntity {
     @Override
     public int hashCode() {
         return compilationId.hashCode();
-    }
-
-    public Set<EventEntity> getEvents() {
-        return events;
-    }
-
-    public void setEvents(Set<EventEntity> events) {
-        this.events = events;
     }
 }
