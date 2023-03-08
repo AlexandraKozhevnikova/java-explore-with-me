@@ -149,9 +149,16 @@ class MainServiceApplicationTests {
     }
 
     @Test
-    void deleteUser_whenExistUserAsInitiatorAndParticipation_thren___() {
-        //проверить поведение связанных сущностей при удалении юзера
-        //если он инициатор события - делит каскад
+    void deleteUser_whenExistUserAsInitiatorAndParticipation_thenReturn204AndDeleteEvent() {
+        createUser();
+        createCategory();
+        createEvent();
+
+        given().pathParam("userId", 1)
+                .when()
+                .delete(USERS + "/{userId}")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
     }
 
     @Test
@@ -226,6 +233,19 @@ class MainServiceApplicationTests {
                 .statusCode(HttpStatus.OK.value())
                 .body("id", is(1))
                 .body("name", is("Концерты NEW"));
+    }
+
+    @Test
+    void deleteCategory_whenEventIsLinked_thenReturn409() {
+        createUser();
+        createCategory();
+        createEvent();
+
+        given()
+                .when()
+                .delete(ADMIN_CATEGORY + "/{catId}", 1)
+                .then()
+                .statusCode(HttpStatus.CONFLICT.value());
     }
 
     @Test

@@ -1,7 +1,6 @@
 package ru.practicum.main_service.dto.event;
 
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 
 public class LocationDto {
     @NotNull
