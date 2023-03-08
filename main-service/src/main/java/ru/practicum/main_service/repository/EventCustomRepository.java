@@ -5,6 +5,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import ru.practicum.main_service.model.EventEntity;
 import ru.practicum.main_service.model.EventShortEntity;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface EventCustomRepository {
@@ -17,5 +18,7 @@ public interface EventCustomRepository {
                                              Integer size);
 
     List<EventEntity> getEventsForAdmin(BooleanBuilder booleanBuilder, Integer from, Integer size);
+
+    List<EventEntity> getListEvents(Collection<Long> eventIds);
 }
 

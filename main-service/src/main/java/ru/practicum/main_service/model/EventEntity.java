@@ -47,9 +47,9 @@ public class EventEntity {
     @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
     @Column(nullable = false)
-    private BigDecimal lat;
+    private Double lat;
     @Column(nullable = false)
-    private BigDecimal lon;
+    private Double lon;
     @Column(name = "participant_limit")
     @ColumnDefault("0")
     private Integer participantLimit;
@@ -146,19 +146,19 @@ public class EventEntity {
         this.eventDate = eventDate;
     }
 
-    public BigDecimal getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public void setLat(BigDecimal lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 
-    public BigDecimal getLon() {
+    public Double getLon() {
         return lon;
     }
 
-    public void setLon(BigDecimal lon) {
+    public void setLon(Double lon) {
         this.lon = lon;
     }
 

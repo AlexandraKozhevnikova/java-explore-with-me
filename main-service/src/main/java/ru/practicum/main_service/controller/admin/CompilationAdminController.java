@@ -42,6 +42,4 @@ public class CompilationAdminController {
                                                  @RequestBody CompilationRequest request) {
         return compilationService.updateCompilation(compId, request);
     }
-
-
 }

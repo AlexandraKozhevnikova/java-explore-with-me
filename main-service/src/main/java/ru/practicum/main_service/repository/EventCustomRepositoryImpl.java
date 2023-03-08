@@ -12,6 +12,7 @@ import ru.practicum.main_service.model.QUserEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.Collection;
 import java.util.List;
 
 public class EventCustomRepositoryImpl implements EventCustomRepository {
@@ -59,12 +60,28 @@ public class EventCustomRepositoryImpl implements EventCustomRepository {
                 .select(event)
                 .from(event)
                 .where(booleanBuilder)
-                .leftJoin(QUserEntity.userEntity) //todo
-                .on(event.initiator.userId.eq(QUserEntity.userEntity.userId))
-                .leftJoin(QCategoryEntity.categoryEntity)
-                .on(event.category.catId.eq(QCategoryEntity.categoryEntity.catId))
+                .leftJoin(event.initiator, QUserEntity.userEntity)
+                .fetchJoin()
+                .leftJoin(event.category, QCategoryEntity.categoryEntity)
+                .fetchJoin()
                 .offset(from)
                 .limit(size)
+                .fetch();
+    }
+
+    @Override
+    public List<EventEntity> getListEvents(Collection<Long> eventIds) {
+        JPAQuery<?> query = new JPAQuery(entityManager);
+        QEventEntity event = QEventEntity.eventEntity;
+
+        return query
+                .select(event)
+                .from(event)
+                .where(event.eventId.in(eventIds))
+                .leftJoin(event.initiator, QUserEntity.userEntity)
+                .fetchJoin()
+                .leftJoin(event.category, QCategoryEntity.categoryEntity)
+                .fetchJoin()
                 .fetch();
     }
 }

@@ -5,23 +5,23 @@ import java.math.BigDecimal;
 
 public class LocationDto {
     @NotNull
-    private BigDecimal lat;
+    private Double lat;
     @NotNull
-    private BigDecimal lon;
+    private Double lon;
 
-    public BigDecimal getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public void setLat(BigDecimal lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 
-    public BigDecimal getLon() {
+    public Double getLon() {
         return lon;
     }
 
-    public void setLon(BigDecimal lon) {
+    public void setLon(Double lon) {
         this.lon = lon;
     }
 }

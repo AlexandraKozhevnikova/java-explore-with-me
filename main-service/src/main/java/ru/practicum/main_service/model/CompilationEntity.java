@@ -11,9 +11,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "compilation")
@@ -24,7 +25,7 @@ public class CompilationEntity {
     private Long compilationId;
     @Column(nullable = false, unique = true)
     private String title;
-    @Column(name = "pinned")
+    @Column(name = "pinned", nullable = false)
     private Boolean isPinned;
     @ManyToMany
     @QueryInit("compilation_event")
@@ -32,7 +33,7 @@ public class CompilationEntity {
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
-    private List<EventEntity> events = new ArrayList<>();
+    private Set<EventEntity> events = new HashSet<>();
 
     public Long getCompilationId() {
         return compilationId;
@@ -58,12 +59,11 @@ public class CompilationEntity {
         isPinned = pinned;
     }
 
-
-    public List<EventEntity> getEvents() {
+    public Set<EventEntity> getEvents() {
         return events;
     }
 
-    public void setEvents(List<EventEntity> events) {
+    public void setEvents(Set<EventEntity> events) {
         this.events = events;
     }
 
@@ -80,5 +80,11 @@ public class CompilationEntity {
     @Override
     public int hashCode() {
         return compilationId.hashCode();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (isPinned == null)
+            isPinned = false;
     }
 }

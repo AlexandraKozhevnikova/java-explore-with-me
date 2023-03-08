@@ -12,6 +12,8 @@ import ru.practicum.main_service.model.EventEntity;
 import ru.practicum.main_service.model.QCompilationEntity;
 import ru.practicum.main_service.repository.CompilationRepository;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -36,19 +38,18 @@ public class CompilationService {
     public CompilationResponse createCompilation(CompilationRequest request) {
         CompilationEntity compilationNewEntity = compilationMapper.entityFromRequest(request);
 
-        List<EventEntity> events;
+        Set<EventEntity> events;
         if (!request.getEvents().isEmpty()) {
-            events = eventService.checkListEventsIsExistAndGet(request.getEvents());
+            events = new HashSet<>(eventService.checkListEventsIsExistAndGet(request.getEvents()));
             if (events.isEmpty()) {
                 throw new NoSuchElementException("event " + request.getEvents() + " does not exist.");
             }
             compilationNewEntity.setEvents(events);
         }
-
-        CompilationEntity savedEntity = compilationRepository.save(compilationNewEntity);
-        return compilationMapper.responseFromEntity(savedEntity);
+        return compilationMapper.responseFromEntity(compilationRepository.save(compilationNewEntity));
     }
 
+    @Transactional
     public void deleteCompilation(Long compilationId) {
         try {
             compilationRepository.deleteById(compilationId);
@@ -59,20 +60,37 @@ public class CompilationService {
 
     @Transactional
     public CompilationResponse updateCompilation(Long compId, CompilationRequest request) {
-        checkCompilationIsExistAndGetBasic(compId);
-        CompilationEntity savedCompilationEntity = compilationRepository.getEnrichedCompilation(compId);
+        CompilationEntity savedCompilationEntity = checkCompilationIsExistAndGetBasic(compId);
+
+        if (request.getEvents() != null) {
+            if (!request.getEvents().isEmpty()) {
+                savedCompilationEntity = compilationRepository.getEnrichedCompilation(compId);
+
+                if (!request.getEvents().equals(savedCompilationEntity.getEvents().stream()
+                        .map(EventEntity::getEventId)
+                        .collect(Collectors.toList()))) {
+
+                    Set<EventEntity> actualEvents = new HashSet<>(eventService
+                            .checkListEventsIsExistAndGet(request.getEvents()));
+
+                    if (actualEvents.isEmpty()) {
+                        throw new NoSuchElementException("event(s) " + request.getEvents() + " does not exist.");
+                    }
+
+                    if (!savedCompilationEntity.getEvents().equals(actualEvents)) {
+                        Set<EventEntity> existEvents = savedCompilationEntity.getEvents();
+                        existEvents.removeIf(it -> !actualEvents.contains(it));
+                        existEvents.addAll(actualEvents);
+                    }
+                }
+            } else {
+                savedCompilationEntity.setEvents(Collections.EMPTY_SET);
+            }
+        }
+
         CompilationEntity updatedFields = compilationMapper.entityFromRequest(request);
 
         compilationMapper.updateCompilationEntity(updatedFields, savedCompilationEntity);
-
-        if (!request.getEvents().isEmpty()) {
-            List<EventEntity> events = eventService.checkListEventsIsExistAndGet(request.getEvents());
-            if (events.isEmpty()) {
-                throw new NoSuchElementException("event " + request.getEvents() + " does not exist.");
-            }
-
-            savedCompilationEntity.setEvents(events);
-        }
 
         return compilationMapper.responseFromEntity(savedCompilationEntity);
     }

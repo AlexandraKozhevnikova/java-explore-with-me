@@ -2,15 +2,14 @@ package ru.practicum.main_service.dto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 public class CompilationRequest {
     @NotBlank
     @Size(max = 120)
     private String title;
-    private Boolean pinned = false;
-    private Set<Long> events = new HashSet<>();
+    private Boolean pinned;
+    private List<Long> events;
 
     public String getTitle() {
         return title;
@@ -28,11 +27,11 @@ public class CompilationRequest {
         this.pinned = pinned;
     }
 
-    public Set<Long> getEvents() {
+    public List<Long> getEvents() {
         return events;
     }
 
-    public void setEvents(Set<Long> events) {
+    public void setEvents(List<Long> events) {
         this.events = events;
     }
 }

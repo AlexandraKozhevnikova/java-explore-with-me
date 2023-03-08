@@ -292,7 +292,7 @@ public class EventService {
     }
 
     public List<EventEntity> checkListEventsIsExistAndGet(Collection<Long> eventIds) {
-        return eventRepository.findAllById(eventIds);
+        return eventRepository.getListEvents(eventIds);
     }
 
     private void checkIsInitiatorEvent(Long userId, EventEntity event) {
