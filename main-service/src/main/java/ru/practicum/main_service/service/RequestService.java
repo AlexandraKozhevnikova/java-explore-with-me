@@ -91,6 +91,17 @@ public class RequestService {
                 .orElseThrow(() -> new NoSuchElementException("request with id=" + requestId + " does not exist."));
     }
 
+    public List<RequestResponse> getRequestsForEvent(Long userId, Long eventId) {
+        userService.checkUserIsExistAndGetById(userId);
+        EventEntity event = eventService.checkEventIsExistAndGet(eventId);
+        eventService.checkUserIsInitiatorEvent(userId, event);
+
+        return requestRepository.findAll(QRequestEntity.requestEntity.event.eventId.eq(eventId))
+                .stream()
+                .map(requestMapper::responseFromEntity)
+                .collect(Collectors.toList());
+    }
+
     private void checkEventIsAvailableForAddParticipant(EventEntity event) {
         if (event.getState() != EventState.PUBLISHED) {
             throw new IllegalArgumentException("Event is not PUBLISHED");
@@ -112,4 +123,5 @@ public class RequestService {
             throw new IllegalArgumentException("Initiator can not be participant.");
         }
     }
+
 }

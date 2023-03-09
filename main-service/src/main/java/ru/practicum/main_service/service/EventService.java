@@ -84,7 +84,7 @@ public class EventService {
     public EventFullResponse getUserEventById(Long userId, Long eventId) {
         userService.checkUserIsExistAndGetById(userId);
         EventEntity entity = checkEventIsExistAndGet(eventId);
-        checkIsInitiatorEvent(userId, entity);
+        checkUserIsInitiatorEvent(userId, entity);
         return eventMapper.responseFromEntity(entity);
     }
 
@@ -93,7 +93,7 @@ public class EventService {
         userService.checkUserIsExistAndGetById(userId);
         EventEntity event = checkEventIsExistAndGet(eventId);
         checkEventDateStartTime(event.getEventDate(), 2L);
-        checkIsInitiatorEvent(userId, event);
+        checkUserIsInitiatorEvent(userId, event);
         checkThatEventIsAvailableForUpdate(event);
 
         CategoryEntity category = null;
@@ -295,7 +295,7 @@ public class EventService {
         return eventRepository.getListEvents(eventIds);
     }
 
-    private void checkIsInitiatorEvent(Long userId, EventEntity event) {
+    public void checkUserIsInitiatorEvent(Long userId, EventEntity event) {
         if (!event.getInitiator().getUserId().equals(userId)) {
             throw new NoSuchElementException("Event with id=" + event.getEventId() + " was not found");
         }

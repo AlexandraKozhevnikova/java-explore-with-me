@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.main_service.dto.RequestResponse;
 import ru.practicum.main_service.service.RequestService;
 
-import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController

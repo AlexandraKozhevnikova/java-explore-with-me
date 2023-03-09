@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.main_service.dto.RequestResponse;
 import ru.practicum.main_service.dto.event.EventFullResponse;
 import ru.practicum.main_service.dto.event.EventShortResponse;
 import ru.practicum.main_service.dto.event.NewEventRequest;
 import ru.practicum.main_service.dto.event.UpdateEventRequest;
 import ru.practicum.main_service.service.EventService;
+import ru.practicum.main_service.service.RequestService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -27,8 +29,11 @@ public class EventPrivateController {
 
     private final EventService eventService;
 
-    public EventPrivateController(EventService eventService) {
+    private final RequestService requestService;
+
+    public EventPrivateController(EventService eventService, RequestService requestService) {
         this.eventService = eventService;
+        this.requestService = requestService;
     }
 
     @PostMapping
@@ -56,6 +61,12 @@ public class EventPrivateController {
                                              @PathVariable Long eventId,
                                              @RequestBody @Valid UpdateEventRequest request) {
         return eventService.updateUserEvent(userId, eventId, request);
+    }
+
+    @GetMapping("/{eventId}/requests")
+    public List<RequestResponse> getRequestsForEvent(@PathVariable Long userId,
+                                                     @PathVariable Long eventId){
+        return requestService.getRequestsForEvent(userId, eventId);
     }
 
 }
