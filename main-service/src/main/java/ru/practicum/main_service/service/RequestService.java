@@ -13,7 +13,9 @@ import ru.practicum.main_service.model.UserEntity;
 import ru.practicum.main_service.model.eventStateMachine.EventState;
 import ru.practicum.main_service.repository.RequestRepository;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class RequestService {
@@ -63,6 +65,13 @@ public class RequestService {
         return request;
     }
 
+    public List<RequestResponse> getUserRequests(Long userId) {
+        userService.checkUserIsExistAndGetById(userId);
+        return requestRepository.findAll(QRequestEntity.requestEntity.participant.userId.eq(userId))
+                .stream()
+                .map(requestMapper::responseFromEntity)
+                .collect(Collectors.toList());
+    }
 
     private void checkEventIsAvailableForAddParticipant(EventEntity event) {
         if (event.getState() != EventState.PUBLISHED) {
@@ -85,6 +94,5 @@ public class RequestService {
             throw new IllegalArgumentException("Initiator can not be participant.");
         }
     }
-
 
 }
