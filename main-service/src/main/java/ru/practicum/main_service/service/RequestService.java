@@ -126,6 +126,10 @@ public class RequestService {
                 .peek(it -> it.setState(body.getStatus()))
                 .collect(Collectors.groupingBy(RequestEntity::getState));
 
+        if (requests.isEmpty()) {
+            throw new IllegalArgumentException("Nothing to update.");
+        }
+
         requestRepository.saveAll(requests.get(body.getStatus()));
 
         if (body.getStatus() == RequestState.CONFIRMED) {
