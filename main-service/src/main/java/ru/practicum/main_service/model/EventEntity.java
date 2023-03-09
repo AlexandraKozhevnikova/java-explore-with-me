@@ -63,6 +63,16 @@ public class EventEntity {
     private LocalDateTime createdOn;
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
+//    @Formula()
+//    private Long participantCount;
+//
+//    public Long getParticipantCount() {
+//        return participantCount;
+//    }
+//
+//    public void setParticipantCount(Long participantCount) {
+//        this.participantCount = participantCount;
+//    }
 
 
     public LocalDateTime getCreatedOn() {

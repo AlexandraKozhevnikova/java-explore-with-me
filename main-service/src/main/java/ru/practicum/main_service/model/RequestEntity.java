@@ -1,7 +1,6 @@
 package ru.practicum.main_service.model;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.mapstruct.Builder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,12 +17,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "request",
-        uniqueConstraints=
-        @UniqueConstraint(columnNames={"event_id", "participant_id", "state"}))
+        uniqueConstraints =
+        @UniqueConstraint(columnNames = {"event_id", "participant_id", "state"}))
 public class RequestEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "participant_id")
+    @Column(name = "request_id")
     private Long requestId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id", nullable = false)

@@ -109,10 +109,10 @@ public class ExceptionApiHandler {
         log.error(e.getMessage(), e);
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponseBuilder()
-                        .setStatus(HttpStatus.BAD_REQUEST.name())
-                        .setReason("Значение параметра не отвечает требованиям")
+                        .setStatus(HttpStatus.CONFLICT.name())
+                        .setReason("Значение параметра не отвечает бизнес требованиям")
                         .setMessage(e.getLocalizedMessage())
                         .createErrorResponse()
                 );
