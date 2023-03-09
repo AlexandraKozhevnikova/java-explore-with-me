@@ -9,12 +9,20 @@ public class EventShortResponse {
     private String title;
     private String annotation;
     private CategoryResponse category;
-    //private Integer confirmedRequest; todo
+    private Long confirmedRequest;
     private LocalDateTime eventDate;
     private InitiatorDto initiator;
     private Boolean paid;
     //private Long views; todo
 
+
+    public Long getConfirmedRequest() {
+        return confirmedRequest;
+    }
+
+    public void setConfirmedRequest(Long confirmedRequest) {
+        this.confirmedRequest = confirmedRequest;
+    }
 
     public Long getId() {
         return id;

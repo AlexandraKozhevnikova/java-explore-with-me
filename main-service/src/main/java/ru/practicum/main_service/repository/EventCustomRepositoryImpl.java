@@ -8,6 +8,7 @@ import ru.practicum.main_service.model.EventEntity;
 import ru.practicum.main_service.model.EventShortEntity;
 import ru.practicum.main_service.model.QCategoryEntity;
 import ru.practicum.main_service.model.QEventEntity;
+import ru.practicum.main_service.model.QRequestEntity;
 import ru.practicum.main_service.model.QUserEntity;
 
 import javax.persistence.EntityManager;
@@ -44,7 +45,11 @@ public class EventCustomRepositoryImpl implements EventCustomRepository {
                 .select(Projections.constructor(EventShortEntity.class, event.eventId, event.title, event.category,
                         event.annotation, event.eventDate, event.isPaid, event.initiator))
                 .from(event)
+                .leftJoin(QRequestEntity.requestEntity)
+                .on(event.eventId.eq(QRequestEntity.requestEntity.event.eventId))
+                .fetchJoin()
                 .where(booleanBuilder)
+                .distinct()
                 .orderBy(orderBy)
                 .offset(from)
                 .limit(size)

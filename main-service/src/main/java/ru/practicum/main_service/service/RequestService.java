@@ -1,5 +1,6 @@
 package ru.practicum.main_service.service;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import ru.practicum.main_service.model.UserEntity;
 import ru.practicum.main_service.model.eventStateMachine.EventState;
 import ru.practicum.main_service.repository.RequestRepository;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +31,8 @@ public class RequestService {
     private final UserService userService;
     private final EventService eventService;
 
-    public RequestService(RequestMapper requestMapper, RequestRepository requestRepository, UserService userService,
-                          EventService eventService) {
+    public RequestService(RequestMapper requestMapper, RequestRepository requestRepository,
+                          @Lazy UserService userService, EventService eventService) {
         this.requestMapper = requestMapper;
         this.requestRepository = requestRepository;
         this.userService = userService;
@@ -153,6 +155,15 @@ public class RequestService {
         return response;
     }
 
+    @Transactional(readOnly = true)
+    public Map<Long, Long> getCountRequestsByListEventIds(Collection<Long> eventIds) {
+        return requestRepository.findAll(
+                        QRequestEntity.requestEntity.event.eventId.in(eventIds)
+                                .and(QRequestEntity.requestEntity.state.eq(RequestState.CONFIRMED)))
+                .stream()
+                .collect(Collectors.groupingBy(request -> request.getEvent().getEventId(), Collectors.counting()));
+    }
+
     private void checkEventIsAvailableForAddParticipant(EventEntity event) {
         if (event.getState() != EventState.PUBLISHED) {
             throw new IllegalArgumentException("Event is not PUBLISHED");
@@ -164,7 +175,7 @@ public class RequestService {
         }
     }
 
-    private long getParticipantCountForEvent(Long eventId) {
+    public long getParticipantCountForEvent(Long eventId) {
         return requestRepository.count(QRequestEntity.requestEntity.event.eventId.eq(eventId)
                 .and(QRequestEntity.requestEntity.state.eq(RequestState.CONFIRMED)));
     }

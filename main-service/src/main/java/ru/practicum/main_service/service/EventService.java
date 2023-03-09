@@ -3,9 +3,10 @@ package ru.practicum.main_service.service;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_service.dto.event.EventFullResponse;
@@ -19,6 +20,8 @@ import ru.practicum.main_service.model.CategoryEntity;
 import ru.practicum.main_service.model.EventEntity;
 import ru.practicum.main_service.model.EventShortEntity;
 import ru.practicum.main_service.model.QEventEntity;
+import ru.practicum.main_service.model.QRequestEntity;
+import ru.practicum.main_service.model.RequestState;
 import ru.practicum.main_service.model.UserEntity;
 import ru.practicum.main_service.model.eventStateMachine.EventAction;
 import ru.practicum.main_service.model.eventStateMachine.EventState;
@@ -33,6 +36,7 @@ import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,16 +47,18 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserService userService;
     private final CategoryService categoryService;
+    private final RequestService requestService;
     private final StatisticClient client;
     private static final Logger log = LogManager.getLogger(EventService.class);
 
 
     public EventService(EventMapper eventMapper, EventRepository eventRepository, UserService userService,
-                        CategoryService categoryService, StatisticClient client) {
+                        CategoryService categoryService, @Lazy RequestService requestService, StatisticClient client) {
         this.eventMapper = eventMapper;
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.categoryService = categoryService;
+        this.requestService = requestService;
         this.client = client;
     }
 
@@ -75,8 +81,15 @@ public class EventService {
 
         List<EventShortEntity> events = eventRepository.getUserEvents(userId, from, size);
 
+        Map<Long, Long> requests = requestService.getCountRequestsByListEventIds(
+                events.stream()
+                        .map(EventShortEntity::getEventId)
+                        .collect(Collectors.toList())
+        );
+
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)
+                .peek(it -> it.setConfirmedRequest(requests.getOrDefault(it.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
@@ -85,7 +98,9 @@ public class EventService {
         userService.checkUserIsExistAndGetById(userId);
         EventEntity entity = checkEventIsExistAndGet(eventId);
         checkUserIsEventInitiator(userId, entity);
-        return eventMapper.responseFromEntity(entity);
+        EventFullResponse response = eventMapper.responseFromEntity(entity);
+        response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        return response;
     }
 
     @Transactional
@@ -123,7 +138,9 @@ public class EventService {
             event.setState(machine.getEventState());
         }
 
-        return eventMapper.responseFromEntity(event);
+        EventFullResponse response = eventMapper.responseFromEntity(event);
+        response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        return response;
     }
 
     @Transactional
@@ -160,8 +177,9 @@ public class EventService {
             event.setState(machine.getEventState());
         }
 
-        return eventMapper.responseFromEntity(event);
-
+        EventFullResponse response = eventMapper.responseFromEntity(event);
+        response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -200,11 +218,18 @@ public class EventService {
         rangeStart.ifPresent(localDateTime -> booleanBuilder.and(event.eventDate.before(localDateTime).not()));
         rangeEnd.ifPresent(localDateTime -> booleanBuilder.and(event.eventDate.after(localDateTime).not()));
 
-        List<EventEntity> entities = eventRepository
+        List<EventEntity> events = eventRepository
                 .getEventsForAdmin(booleanBuilder, from, size);
 
-        return entities.stream()
+        Map<Long, Long> requests = requestService.getCountRequestsByListEventIds(
+                events.stream()
+                        .map(EventEntity::getEventId)
+                        .collect(Collectors.toList())
+        );
+
+        return events.stream()
                 .map(eventMapper::responseFromEntity)
+                .peek(it -> it.setConfirmedRequest(requests.getOrDefault(it.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
@@ -245,7 +270,19 @@ public class EventService {
                 throw new IllegalArgumentException("sort " + sort + "does not available.");
         }
 
-        BooleanExpression byIsOnlyAvailable = Expressions.TRUE.isTrue();//todo есть ли модерация, лимит  и количество апрувов
+
+        if (isOnlyAvailable) {
+            booleanBuilder.and(event.participantLimit.eq(0)
+                    .or(event.participantLimit.gt(JPAExpressions
+                                    .select(QRequestEntity.requestEntity.countDistinct())
+                                            .from(QRequestEntity.requestEntity)
+                                            .where(QRequestEntity.requestEntity.state.eq(RequestState.CONFIRMED)
+                                                            .and(QRequestEntity.requestEntity.event.eventId.eq(event.eventId))
+                                            )
+                            )
+                    )
+            );
+        }
 
         booleanBuilder.and(getPredicateByEventDate(rangeStart, rangeEnd));
 
@@ -261,8 +298,15 @@ public class EventService {
             log.error("ConnectException - {}", e.getMessage(), e);
         }
 
+        Map<Long, Long> requests = requestService.getCountRequestsByListEventIds(
+                events.stream()
+                        .map(EventShortEntity::getEventId)
+                        .collect(Collectors.toList())
+        );
+
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)
+                .peek(it -> it.setConfirmedRequest(requests.getOrDefault(it.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
@@ -283,7 +327,9 @@ public class EventService {
             log.error("ConnectException - {}", e.getMessage(), e);
         }
 
-        return eventMapper.responseFromEntity(checkEventIsExistAndGet(eventId));
+        EventFullResponse response = eventMapper.responseFromEntity(event);
+        response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        return response;
     }
 
     public EventEntity checkEventIsExistAndGet(Long eventId) {

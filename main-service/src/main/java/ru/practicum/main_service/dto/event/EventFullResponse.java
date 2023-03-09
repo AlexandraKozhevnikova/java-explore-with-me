@@ -10,7 +10,7 @@ public class EventFullResponse {
     private String title;
     private String annotation;
     private CategoryResponse category;
-    //private Integer confirmedRequest; todo
+    private Long confirmedRequest;
     private LocalDateTime createdOn;
     private String description;
     private LocalDateTime eventDate;
@@ -22,6 +22,15 @@ public class EventFullResponse {
     private LocalDateTime publishedOn;
     private EventState state;
     //private Long views; todo
+
+
+    public Long getConfirmedRequest() {
+        return confirmedRequest;
+    }
+
+    public void setConfirmedRequest(Long confirmedRequest) {
+        this.confirmedRequest = confirmedRequest;
+    }
 
     public InitiatorDto getInitiator() {
         return initiator;
