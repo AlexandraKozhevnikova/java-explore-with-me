@@ -3,6 +3,8 @@ package ru.practicum.main_service.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.main_service.dto.RequestBulkUpdateRequest;
+import ru.practicum.main_service.dto.RequestBulkUpdateResponse;
 import ru.practicum.main_service.dto.RequestResponse;
 import ru.practicum.main_service.mapper.RequestMapper;
 import ru.practicum.main_service.model.EventEntity;
@@ -13,7 +15,9 @@ import ru.practicum.main_service.model.UserEntity;
 import ru.practicum.main_service.model.eventStateMachine.EventState;
 import ru.practicum.main_service.repository.RequestRepository;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -91,15 +95,44 @@ public class RequestService {
                 .orElseThrow(() -> new NoSuchElementException("request with id=" + requestId + " does not exist."));
     }
 
+    @Transactional(readOnly = true)
     public List<RequestResponse> getRequestsForEvent(Long userId, Long eventId) {
         userService.checkUserIsExistAndGetById(userId);
         EventEntity event = eventService.checkEventIsExistAndGet(eventId);
-        eventService.checkUserIsInitiatorEvent(userId, event);
+        eventService.checkUserIsEventInitiator(userId, event);
 
         return requestRepository.findAll(QRequestEntity.requestEntity.event.eventId.eq(eventId))
                 .stream()
                 .map(requestMapper::responseFromEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public RequestBulkUpdateResponse approveRequestOfEvent(Long userId, Long eventId, RequestBulkUpdateRequest body) {
+        userService.checkUserIsExistAndGetById(userId);
+        EventEntity event = eventService.checkEventIsExistAndGet(eventId);
+        eventService.checkUserIsEventInitiator(userId, event);
+
+        Map<RequestState, List<RequestEntity>> requests = requestRepository.findAllById(body.getRequestIds())
+                .stream()
+                .filter(it -> it.getState().equals(RequestState.PENDING))
+                .peek(it -> it.setState(body.getStatus()))
+                .collect(Collectors.groupingBy(RequestEntity::getState));
+
+        // requestRepository.saveAll(requests);
+
+        RequestBulkUpdateResponse response = new RequestBulkUpdateResponse();
+
+        response.setConfirmedRequests(requests.computeIfAbsent(RequestState.CONFIRMED, l -> Collections.emptyList())
+                .stream()
+                .map(requestMapper::responseFromEntity)
+                .collect(Collectors.toList()));
+        response.setRejectedRequests(requests.computeIfAbsent(RequestState.REJECTED, l -> Collections.emptyList())
+                .stream()
+                .map(requestMapper::responseFromEntity)
+                .collect(Collectors.toList()));
+
+        return response;
     }
 
     private void checkEventIsAvailableForAddParticipant(EventEntity event) {
@@ -123,5 +156,4 @@ public class RequestService {
             throw new IllegalArgumentException("Initiator can not be participant.");
         }
     }
-
 }

@@ -29,13 +29,13 @@ public class RequestPrivateController {
     }
 
     @GetMapping
-    public List<RequestResponse> getUserRequest(@PathVariable Long userId){
+    public List<RequestResponse> getUserRequest(@PathVariable Long userId) {
         return service.getUserRequests(userId);
     }
 
     @PatchMapping("/{requestId}/cancel")
     public RequestResponse cancelUserRequest(@PathVariable Long userId,
-                                             @PathVariable Long requestId){
+                                             @PathVariable Long requestId) {
         return service.cancelUserRequest(userId, requestId);
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.main_service.dto.RequestBulkUpdateRequest;
+import ru.practicum.main_service.dto.RequestBulkUpdateResponse;
 import ru.practicum.main_service.dto.RequestResponse;
 import ru.practicum.main_service.dto.event.EventFullResponse;
 import ru.practicum.main_service.dto.event.EventShortResponse;
@@ -65,8 +67,15 @@ public class EventPrivateController {
 
     @GetMapping("/{eventId}/requests")
     public List<RequestResponse> getRequestsForEvent(@PathVariable Long userId,
-                                                     @PathVariable Long eventId){
+                                                     @PathVariable Long eventId) {
         return requestService.getRequestsForEvent(userId, eventId);
+    }
+
+    @PatchMapping("/{eventId}/requests")
+    public RequestBulkUpdateResponse approveRequests(@PathVariable Long userId,
+                                                     @PathVariable Long eventId,
+                                                     @RequestBody @Valid RequestBulkUpdateRequest body) {
+        return requestService.approveRequestOfEvent(userId, eventId, body);
     }
 
 }

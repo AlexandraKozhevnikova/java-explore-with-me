@@ -18,6 +18,7 @@ import ru.practicum.main_service.config.LocalDataTimeRegisterConfig;
 import ru.practicum.main_service.controller.registred_user.EventPrivateController;
 import ru.practicum.main_service.errorHandler.ExceptionApiHandler;
 import ru.practicum.main_service.service.EventService;
+import ru.practicum.main_service.service.RequestService;
 
 import java.nio.charset.StandardCharsets;
 
@@ -40,6 +41,8 @@ public class EventControllerTest {
     ObjectMapper jsonMapper;
     @MockBean
     EventService eventService;
+    @MockBean
+    RequestService requestService;
     @Autowired
     JavaTimeModule module;
 
