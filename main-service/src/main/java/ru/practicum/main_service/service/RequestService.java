@@ -38,39 +38,57 @@ public class RequestService {
         UserEntity user = userService.checkUserIsExistAndGetById(userId);
         EventEntity event = eventService.checkEventIsExistAndGet(eventId);
 
-        checkThanInitiatorIsNotParticipant(user, event);
+        checkThatInitiatorIsNotParticipant(user, event);
         checkEventIsAvailableForAddParticipant(event);
 
         RequestEntity request = new RequestEntity();
         request.setParticipant(user);
         request.setEvent(event);
-        request.setState(RequestState.PENDING); //if event moderation
+        request.setState(RequestState.PENDING);
 
-        request = requestRepository.save(request); //сохр ли
+        request = requestRepository.save(request);
 
         if (!event.getModerationRequired() || event.getParticipantLimit() == 0) {
             request = autoConfirm(request.getRequestId());
-        } //обновляется ли
+        }
 
-        return requestMapper.responseFromEntity(request);  //отдапется ли и сохран
+        return requestMapper.responseFromEntity(request);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public RequestEntity autoConfirm(Long requestId) {
-        RequestEntity request = requestRepository.findById(requestId)
-                .orElseThrow(() -> new NoSuchElementException("request with id=" + requestId + " does not exist."));
+        RequestEntity request = checkRequestIsExistAndGet(requestId);
 
         checkEventIsAvailableForAddParticipant(request.getEvent());
         request.setState(RequestState.CONFIRMED);
         return request;
     }
 
+    @Transactional(readOnly = true)
     public List<RequestResponse> getUserRequests(Long userId) {
         userService.checkUserIsExistAndGetById(userId);
         return requestRepository.findAll(QRequestEntity.requestEntity.participant.userId.eq(userId))
                 .stream()
                 .map(requestMapper::responseFromEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public RequestResponse cancelUserRequest(Long userId, Long requestId) {
+        userService.checkUserIsExistAndGetById(userId);
+        RequestEntity request = checkRequestIsExistAndGet(requestId);
+        if (!request.getParticipant().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("User is not participant.");
+        }
+        if (request.getState() != RequestState.REJECTED) {
+            request.setState(RequestState.REJECTED);
+        }
+        return requestMapper.responseFromEntity(request);
+    }
+
+    public RequestEntity checkRequestIsExistAndGet(Long requestId) {
+        return requestRepository.findById(requestId)
+                .orElseThrow(() -> new NoSuchElementException("request with id=" + requestId + " does not exist."));
     }
 
     private void checkEventIsAvailableForAddParticipant(EventEntity event) {
@@ -89,10 +107,9 @@ public class RequestService {
                 .and(QRequestEntity.requestEntity.state.eq(RequestState.CONFIRMED)));
     }
 
-    private void checkThanInitiatorIsNotParticipant(UserEntity user, EventEntity event) {
+    private void checkThatInitiatorIsNotParticipant(UserEntity user, EventEntity event) {
         if (event.getInitiator().equals(user)) {
             throw new IllegalArgumentException("Initiator can not be participant.");
         }
     }
-
 }
