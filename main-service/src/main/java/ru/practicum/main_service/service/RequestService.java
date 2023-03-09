@@ -84,8 +84,8 @@ public class RequestService {
         if (!request.getParticipant().getUserId().equals(userId)) {
             throw new IllegalArgumentException("User is not participant.");
         }
-        if (request.getState() != RequestState.REJECTED) {
-            request.setState(RequestState.REJECTED);
+        if (request.getState() != RequestState.REJECTED && request.getState() != RequestState.CANCELED) {
+            request.setState(RequestState.CANCELED);
         }
         return requestMapper.responseFromEntity(request);
     }
@@ -113,13 +113,27 @@ public class RequestService {
         EventEntity event = eventService.checkEventIsExistAndGet(eventId);
         eventService.checkUserIsEventInitiator(userId, event);
 
+        if (body.getStatus() == RequestState.CONFIRMED) {
+            if (event.getParticipantLimit() != 0
+                    && event.getParticipantLimit() < getParticipantCountForEvent(event.getEventId())) {
+                throw new IllegalArgumentException("Event has not enough free places.");
+            }
+        }
+
         Map<RequestState, List<RequestEntity>> requests = requestRepository.findAllById(body.getRequestIds())
                 .stream()
                 .filter(it -> it.getState().equals(RequestState.PENDING))
                 .peek(it -> it.setState(body.getStatus()))
                 .collect(Collectors.groupingBy(RequestEntity::getState));
 
-        // requestRepository.saveAll(requests);
+        requestRepository.saveAll(requests.get(body.getStatus()));
+
+        if (body.getStatus() == RequestState.CONFIRMED) {
+            if (event.getParticipantLimit() != 0
+                    && event.getParticipantLimit() < getParticipantCountForEvent(event.getEventId())) {
+                throw new IllegalArgumentException("Event has not enough free places.");
+            }
+        }
 
         RequestBulkUpdateResponse response = new RequestBulkUpdateResponse();
 
