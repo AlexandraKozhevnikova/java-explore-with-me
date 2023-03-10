@@ -50,15 +50,16 @@ public class StatsService {
     public List<HitResponse> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         List<HitResponse> response = hitRepository.getSummaryHits(start, end, uris, unique);
 
-        uris.stream()
-                .filter(it -> !response
-                        .stream()
-                        .map(HitResponse::getUri)
-                        .collect(Collectors.toList())
-                        .contains(it)
-                )
-                .forEach(it -> response.add(new HitResponse("unknownAppName", it, 0L)));
-
+        if (uris != null && !uris.isEmpty()) {
+            uris.stream()
+                    .filter(it -> !response
+                            .stream()
+                            .map(HitResponse::getUri)
+                            .collect(Collectors.toList())
+                            .contains(it)
+                    )
+                    .forEach(it -> response.add(new HitResponse("unknownAppName", it, 0L)));
+        }
         return response;
     }
 }
