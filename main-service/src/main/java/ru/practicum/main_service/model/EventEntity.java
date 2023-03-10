@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -63,7 +64,27 @@ public class EventEntity {
     private LocalDateTime createdOn;
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
+    @Column(name = "total")
+    private BigDecimal amount;
+    @JoinColumn(name="currency_id")
+    @ManyToOne
+    private CurrencyEntity currency;
 
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public CurrencyEntity getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(CurrencyEntity currency) {
+        this.currency = currency;
+    }
 
     public LocalDateTime getCreatedOn() {
         return createdOn;

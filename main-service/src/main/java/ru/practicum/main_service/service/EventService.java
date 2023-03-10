@@ -339,6 +339,7 @@ public class EventService {
 
     public void checkUserIsEventInitiator(Long userId, EventEntity event) {
         if (!event.getInitiator().getUserId().equals(userId)) {
+            log.warn("user id = {} is not initiator event id = {}", userId, event.getInitiator().getUserId() );
             throw new NoSuchElementException("Event with id=" + event.getEventId() + " was not found");
         }
     }
