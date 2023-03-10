@@ -277,7 +277,7 @@ class MainServiceApplicationTests {
                 .body("requestModeration", is(true))
                 .body("title", is("Сплав на байдарках"))
                 .body("views", is(0))
-                .body("confirmedRequest", is(0))
+                .body("confirmedRequests", is(0))
                 .body("state", is("PENDING"));
     }
 
@@ -327,7 +327,7 @@ class MainServiceApplicationTests {
                 .body("requestModeration", is(false))
                 .body("title", is("Сап прогулки по рекам и каналам"))
                 .body("views", is(0))
-                .body("confirmedRequest", is(0))
+                .body("confirmedRequests", is(0))
                 .body("state", is("CANCELED"));
 
     }
@@ -375,7 +375,7 @@ class MainServiceApplicationTests {
                 .body("requestModeration", is(false))
                 .body("title", is("Сап прогулки по рекам и каналам"))
                 .body("views", is(0))
-                .body("confirmedRequest", is(0))
+                .body("confirmedRequests", is(0))
                 .body("state", is("PENDING"));
     }
 

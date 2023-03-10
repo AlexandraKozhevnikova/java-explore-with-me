@@ -58,16 +58,19 @@ public interface EventMapper {
     @Mapping(target = "location.lat", source = "lat")
     @Mapping(target = "category.id", source = "category.catId")
     @Mapping(target = "initiator.id", source = "initiator.userId")
-    @Mapping(target = "confirmedRequest", constant = "0L")
+    @Mapping(target = "confirmedRequests", constant = "0L")
     @Mapping(target = "views", constant = "0L")
     EventFullResponse responseFromEntity(EventEntity entity);
 
+    @Mapping(target = "views", ignore = true)
+    @Mapping(target = "confirmedRequests", ignore = true)
     @Mapping(target = "id", source = "eventId")
     @Mapping(target = "category.id", source = "category.catId")
     @Mapping(target = "initiator.id", source = "initiator.userId")
     EventShortResponse shortResponseFromShortEntity(EventShortEntity entity);
 
+    @Mapping(target = "confirmedRequests", ignore = true)
     @Mapping(target = "id", source = "eventId")
-        // @Mapping(target = "initiator.id", source = "initiator.userId")
+    @Mapping(target = "views", ignore = true)
     EventShortResponse shortResponseFromFullEntity(EventEntity entity);
 }

@@ -96,7 +96,7 @@ public class EventService {
 
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)
-                .peek(it -> it.setConfirmedRequest(requests.getOrDefault(it.getId(), 0L)))
+                .peek(it -> it.setConfirmedRequests(requests.getOrDefault(it.getId(), 0L)))
                 .peek(it -> it.setViews(views.getOrDefault("/events/" + it.getId(), 0L)))
                 .collect(Collectors.toList());
     }
@@ -109,7 +109,7 @@ public class EventService {
         checkUserIsEventInitiator(userId, event);
         EventFullResponse response = eventMapper.responseFromEntity(event);
         //подготовка ответа
-        response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        response.setConfirmedRequests(requestService.getParticipantCountForEvent(eventId));
         response.setViews(getHits(List.of(event)).getOrDefault("/events/" + event.getEventId(), 0L));
         return response;
     }
@@ -150,7 +150,7 @@ public class EventService {
         }
         //подготовка ответа
         EventFullResponse response = eventMapper.responseFromEntity(event);
-        response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        response.setConfirmedRequests(requestService.getParticipantCountForEvent(eventId));
         response.setViews(getHits(List.of(event)).getOrDefault("/events/" + event.getEventId(), 0L));
         return response;
     }
@@ -190,7 +190,7 @@ public class EventService {
         }
         //подготовка ответа
         EventFullResponse response = eventMapper.responseFromEntity(event);
-        response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        response.setConfirmedRequests(requestService.getParticipantCountForEvent(eventId));
         response.setViews(getHits(List.of(event)).getOrDefault("/events/" + event.getEventId(), 0L));
         return response;
     }
@@ -238,7 +238,7 @@ public class EventService {
         Map<String, Long> views = getHits(events);
         return events.stream()
                 .map(eventMapper::responseFromEntity)
-                .peek(it -> it.setConfirmedRequest(requests.getOrDefault(it.getId(), 0L)))
+                .peek(it -> it.setConfirmedRequests(requests.getOrDefault(it.getId(), 0L)))
                 .peek(it -> it.setViews(views.getOrDefault("/events/" + it.getId(), 0L)))
                 .collect(Collectors.toList());
     }
@@ -299,7 +299,7 @@ public class EventService {
         Boolean finalHasNeedSortByViews = hasNeedSortByViews;
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)
-                .peek(it -> it.setConfirmedRequest(requests.getOrDefault(it.getId(), 0L)))
+                .peek(it -> it.setConfirmedRequests(requests.getOrDefault(it.getId(), 0L)))
                 .peek(it -> it.setViews(views.getOrDefault("/events/" + it.getId(), 0L)))
                 .sorted((k1, k2) -> {
                             if (finalHasNeedSortByViews) {
@@ -321,7 +321,7 @@ public class EventService {
         }
         //логика
         EventFullResponse response = eventMapper.responseFromEntity(event);
-        response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        response.setConfirmedRequests(requestService.getParticipantCountForEvent(eventId));
         response.setViews(getHits(List.of(event)).getOrDefault("/events/" + event.getEventId(), 0L));
         //отправка статистики
         sendHits(req);

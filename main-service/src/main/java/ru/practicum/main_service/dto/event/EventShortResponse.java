@@ -9,7 +9,7 @@ public class EventShortResponse {
     private String title;
     private String annotation;
     private CategoryResponse category;
-    private Long confirmedRequest;
+    private Long confirmedRequests;
     private LocalDateTime eventDate;
     private InitiatorDto initiator;
     private Boolean paid;
@@ -25,12 +25,12 @@ public class EventShortResponse {
     private Long views;
 
 
-    public Long getConfirmedRequest() {
-        return confirmedRequest;
+    public Long getConfirmedRequests() {
+        return confirmedRequests;
     }
 
-    public void setConfirmedRequest(Long confirmedRequest) {
-        this.confirmedRequest = confirmedRequest;
+    public void setConfirmedRequests(Long confirmedRequests) {
+        this.confirmedRequests = confirmedRequests;
     }
 
     public Long getId() {

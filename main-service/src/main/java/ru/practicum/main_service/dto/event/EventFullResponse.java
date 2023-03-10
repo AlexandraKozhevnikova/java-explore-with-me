@@ -10,7 +10,7 @@ public class EventFullResponse {
     private String title;
     private String annotation;
     private CategoryResponse category;
-    private Long confirmedRequest;
+    private Long confirmedRequests;
     private LocalDateTime createdOn;
     private String description;
     private LocalDateTime eventDate;
@@ -32,12 +32,12 @@ public class EventFullResponse {
         this.views = views;
     }
 
-    public Long getConfirmedRequest() {
-        return confirmedRequest;
+    public Long getConfirmedRequests() {
+        return confirmedRequests;
     }
 
-    public void setConfirmedRequest(Long confirmedRequest) {
-        this.confirmedRequest = confirmedRequest;
+    public void setConfirmedRequests(Long confirmedRequests) {
+        this.confirmedRequests = confirmedRequests;
     }
 
     public InitiatorDto getInitiator() {
