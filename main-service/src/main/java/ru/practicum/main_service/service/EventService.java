@@ -1,5 +1,6 @@
 package ru.practicum.main_service.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -28,13 +29,15 @@ import ru.practicum.main_service.model.eventStateMachine.EventState;
 import ru.practicum.main_service.model.eventStateMachine.StateMachine;
 import ru.practicum.main_service.repository.EventRepository;
 import ru.practicum.statisticclient.StatisticClient;
+import statisticcommon.HitResponse;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.net.ConnectException;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -48,74 +51,82 @@ public class EventService {
     private final UserService userService;
     private final CategoryService categoryService;
     private final RequestService requestService;
-    private final StatisticClient client;
+    private final StatisticClient statisticClient;
+    private final ObjectMapper mapper;
     private static final Logger log = LogManager.getLogger(EventService.class);
 
 
     public EventService(EventMapper eventMapper, EventRepository eventRepository, UserService userService,
-                        CategoryService categoryService, @Lazy RequestService requestService, StatisticClient client) {
+                        CategoryService categoryService, @Lazy RequestService requestService, StatisticClient client,
+                        ObjectMapper mapper) {
         this.eventMapper = eventMapper;
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.categoryService = categoryService;
         this.requestService = requestService;
-        this.client = client;
+        this.statisticClient = client;
+        this.mapper = mapper;
     }
 
     @Transactional
     public EventFullResponse createEvent(Long userId, NewEventRequest request) {
+        //проверки
         checkEventDateStartTime(request.getEventDate(), 2L);
         UserEntity user = userService.checkUserIsExistAndGetById(userId);
         CategoryEntity category = categoryService.checkCategoryIsExistAndGet(request.getCategory());
+        //логика
         EventEntity newEventEntity = eventMapper.entityFromNewRequest(request, user, category);
         StateMachine machine = new StateMachine(EventState.CREATED);
         machine.getEventState().sentToReview(machine);
         newEventEntity.setState(machine.getEventState());
+        //подготовка ответа
         EventEntity event = eventRepository.save(newEventEntity);
         return eventMapper.responseFromEntity(event);
     }
 
     @Transactional(readOnly = true)
     public List<EventShortResponse> getUserEvents(Long userId, Integer from, Integer size) {
+        //проверки
         userService.checkUserIsExistAndGetById(userId);
-
+        //логика
         List<EventShortEntity> events = eventRepository.getUserEvents(userId, from, size);
-
-        Map<Long, Long> requests = requestService.getCountRequestsByListEventIds(
-                events.stream()
-                        .map(EventShortEntity::getEventId)
-                        .collect(Collectors.toList())
-        );
+        //подготовка ответа
+        Map<Long, Long> requests = requestService.getCountRequestsByListEvents(events);
+        Map<String, Long> views = getHits(events);
 
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)
                 .peek(it -> it.setConfirmedRequest(requests.getOrDefault(it.getId(), 0L)))
+                .peek(it -> it.setViews(views.getOrDefault("/events/" + it.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public EventFullResponse getUserEventById(Long userId, Long eventId) {
+        // проверки и логика
         userService.checkUserIsExistAndGetById(userId);
-        EventEntity entity = checkEventIsExistAndGet(eventId);
-        checkUserIsEventInitiator(userId, entity);
-        EventFullResponse response = eventMapper.responseFromEntity(entity);
+        EventEntity event = checkEventIsExistAndGet(eventId);
+        checkUserIsEventInitiator(userId, event);
+        EventFullResponse response = eventMapper.responseFromEntity(event);
+        //подготовка ответа
         response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        response.setViews(getHits(List.of(event)).getOrDefault("/events/" + event.getEventId(), 0L));
         return response;
     }
 
     @Transactional
     public EventFullResponse updateUserEvent(Long userId, Long eventId, UpdateEventRequest request) {
+        //проверки
         userService.checkUserIsExistAndGetById(userId);
         EventEntity event = checkEventIsExistAndGet(eventId);
         checkEventDateStartTime(event.getEventDate(), 2L);
         checkUserIsEventInitiator(userId, event);
         checkThatEventIsAvailableForUpdate(event);
-
         CategoryEntity category = null;
         if (request.getCategory() != null) {
             category = categoryService.checkCategoryIsExistAndGet(request.getCategory());
         }
-
+        //логика
         EventEntity updateFields = eventMapper.entityFromUpdateRequest(request, category);
         eventMapper.updateEntity(updateFields, event);
         checkEventDateStartTime(event.getEventDate(), 2L);
@@ -137,23 +148,24 @@ public class EventService {
             }
             event.setState(machine.getEventState());
         }
-
+        //подготовка ответа
         EventFullResponse response = eventMapper.responseFromEntity(event);
         response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        response.setViews(getHits(List.of(event)).getOrDefault("/events/" + event.getEventId(), 0L));
         return response;
     }
 
     @Transactional
     public EventFullResponse updateUserEventForAdmin(Long eventId, UpdateEventRequest request) {
+        //проверки
         EventEntity event = checkEventIsExistAndGet(eventId);
         checkEventDateStartTime(event.getEventDate(), 1L);
         checkThatEventIsAvailableForUpdate(event);
-
         CategoryEntity category = null;
         if (request.getCategory() != null) {
             category = categoryService.checkCategoryIsExistAndGet(request.getCategory());
         }
-
+        //логика
         EventEntity updateFields = eventMapper.entityFromUpdateRequest(request, category);
         eventMapper.updateEntity(updateFields, event);
         checkEventDateStartTime(event.getEventDate(), 1L);
@@ -176,9 +188,10 @@ public class EventService {
             }
             event.setState(machine.getEventState());
         }
-
+        //подготовка ответа
         EventFullResponse response = eventMapper.responseFromEntity(event);
         response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        response.setViews(getHits(List.of(event)).getOrDefault("/events/" + event.getEventId(), 0L));
         return response;
     }
 
@@ -220,32 +233,22 @@ public class EventService {
 
         List<EventEntity> events = eventRepository
                 .getEventsForAdmin(booleanBuilder, from, size);
-
-        Map<Long, Long> requests = requestService.getCountRequestsByListEventIds(
-                events.stream()
-                        .map(EventEntity::getEventId)
-                        .collect(Collectors.toList())
-        );
-
+        //подготовка ответа
+        Map<Long, Long> requests = requestService.getCountRequestsByListEvents(events);
+        Map<String, Long> views = getHits(events);
         return events.stream()
                 .map(eventMapper::responseFromEntity)
                 .peek(it -> it.setConfirmedRequest(requests.getOrDefault(it.getId(), 0L)))
+                .peek(it -> it.setViews(views.getOrDefault("/events/" + it.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<EventShortResponse> getPublishedEvents(
-            Optional<String> text,
-            List<Long> categoryIds,
-            Optional<Boolean> isPaid,
-            Boolean isOnlyAvailable,
-            Optional<LocalDateTime> rangeStart,
-            Optional<LocalDateTime> rangeEnd,
-            String sort,
-            Integer from,
-            Integer size,
-            HttpServletRequest req
-    ) throws IOException, InterruptedException {
+            Optional<String> text, List<Long> categoryIds, Optional<Boolean> isPaid, Boolean isOnlyAvailable,
+            Optional<LocalDateTime> rangeStart, Optional<LocalDateTime> rangeEnd, String sort,
+            Integer from, Integer size, HttpServletRequest req
+    ) {
         QEventEntity event = QEventEntity.eventEntity;
         BooleanBuilder booleanBuilder = new BooleanBuilder(event.state.eq(EventState.PUBLISHED));
 
@@ -258,27 +261,28 @@ public class EventService {
 
         isPaid.ifPresent(aBoolean -> booleanBuilder.and(event.isPaid.eq(aBoolean)));
 
-        OrderSpecifier<?> orderBy;
+        OrderSpecifier<?> orderBy = event.eventDate.desc();
+
+        Boolean hasNeedSortByViews = false;
         switch (sort) {
             case "VIEWS":
-                orderBy = event.eventId.desc(); //todo переделать на просмотры
+                hasNeedSortByViews = true;
                 break;
             case "EVENT_DATE":
                 orderBy = event.eventDate.desc();
                 break;
             default:
-                throw new IllegalArgumentException("sort " + sort + "does not available.");
+                throw new IllegalArgumentException("sort " + sort + " does not available.");
         }
-
 
         if (isOnlyAvailable) {
             booleanBuilder.and(event.participantLimit.eq(0)
                     .or(event.participantLimit.gt(JPAExpressions
                                     .select(QRequestEntity.requestEntity.countDistinct())
-                                            .from(QRequestEntity.requestEntity)
-                                            .where(QRequestEntity.requestEntity.state.eq(RequestState.CONFIRMED)
-                                                            .and(QRequestEntity.requestEntity.event.eventId.eq(event.eventId))
-                                            )
+                                    .from(QRequestEntity.requestEntity)
+                                    .where(QRequestEntity.requestEntity.state.eq(RequestState.CONFIRMED)
+                                            .and(QRequestEntity.requestEntity.event.eventId.eq(event.eventId))
+                                    )
                             )
                     )
             );
@@ -287,48 +291,40 @@ public class EventService {
         booleanBuilder.and(getPredicateByEventDate(rangeStart, rangeEnd));
 
         List<EventShortEntity> events = eventRepository.getPublishedEvent(booleanBuilder, orderBy, from, size);
-
-
-        log.info("Вызов сервиса статистики POST /hit with {}, {}, {}", req.getRequestURI(),
-                req.getRemoteAddr(), LocalDateTime.now());
-        try {
-            HttpResponse<String> response = client.addHit(req.getRequestURI(), req.getRemoteAddr(), LocalDateTime.now());
-            log.info("POST /hit response : {}", response);
-        } catch (ConnectException e) {
-            log.error("ConnectException - {}", e.getMessage(), e);
-        }
-
-        Map<Long, Long> requests = requestService.getCountRequestsByListEventIds(
-                events.stream()
-                        .map(EventShortEntity::getEventId)
-                        .collect(Collectors.toList())
-        );
-
+        //отправка статистики
+        sendHits(req);
+        //подготовка ответа
+        Map<Long, Long> requests = requestService.getCountRequestsByListEvents(events);
+        Map<String, Long> views = getHits(events);
+        Boolean finalHasNeedSortByViews = hasNeedSortByViews;
         return events.stream()
                 .map(eventMapper::shortResponseFromShortEntity)
                 .peek(it -> it.setConfirmedRequest(requests.getOrDefault(it.getId(), 0L)))
+                .peek(it -> it.setViews(views.getOrDefault("/events/" + it.getId(), 0L)))
+                .sorted((k1, k2) -> {
+                            if (finalHasNeedSortByViews) {
+                                return Long.compare(k2.getViews(), k1.getViews());
+                            } else {
+                                return 0;
+                            }
+                        }
+                )
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public EventFullResponse getPublishedEventById(Long eventId, HttpServletRequest req)
-            throws IOException, InterruptedException {
+    public EventFullResponse getPublishedEventById(Long eventId, HttpServletRequest req) {
+        //проверки
         EventEntity event = checkEventIsExistAndGet(eventId);
         if (event.getState() != EventState.PUBLISHED) {
             throw new NoSuchElementException("Event with id=" + eventId + " was not found");
         }
-
-        log.info("Вызов сервиса статистики POST /hit with {}, {}, {}", req.getRequestURI(),
-                req.getRemoteAddr(), LocalDateTime.now());
-        try {
-            HttpResponse<String> response = client.addHit(req.getRequestURI(), req.getRemoteAddr(), LocalDateTime.now());
-            log.info("POST /hit response : {}", response);
-        } catch (ConnectException e) {
-            log.error("ConnectException - {}", e.getMessage(), e);
-        }
-
+        //логика
         EventFullResponse response = eventMapper.responseFromEntity(event);
         response.setConfirmedRequest(requestService.getParticipantCountForEvent(eventId));
+        response.setViews(getHits(List.of(event)).getOrDefault("/events/" + event.getEventId(), 0L));
+        //отправка статистики
+        sendHits(req);
         return response;
     }
 
@@ -344,6 +340,44 @@ public class EventService {
     public void checkUserIsEventInitiator(Long userId, EventEntity event) {
         if (!event.getInitiator().getUserId().equals(userId)) {
             throw new NoSuchElementException("Event with id=" + event.getEventId() + " was not found");
+        }
+    }
+
+    private Map<String, Long> getHits(Collection<? extends EventEntity> events) {
+        Map<String, Long> hits = new HashMap<>();
+        log.info("Вызов сервиса статистики GET /stats");
+        try {
+            HttpResponse<String> statResponse = statisticClient.getStatistics(
+                    LocalDateTime.now().minusYears(10L),
+                    LocalDateTime.now().plusDays(1L),
+                    events.stream()
+                            .map(EventEntity::getEventId)
+                            .map(it -> "/events/" + it)
+                            .collect(Collectors.toList()),
+                    true
+            );
+            log.info("GET /stats response : {}", statResponse);
+
+            HitResponse[] hitResponse = mapper.readValue(statResponse.body(), HitResponse[].class);
+            hits = Arrays.stream(hitResponse)
+                    .collect(Collectors.toMap(HitResponse::getUri, HitResponse::getHits));
+        } catch (Exception e) {
+            log.error("Exception - {}", e.getMessage(), e);
+        }
+        return hits;
+    }
+
+    private void sendHits(HttpServletRequest req) {
+        //отправка статистики
+        log.info("Вызов сервиса статистики POST /hit with {}, {}, {}", req.getRequestURI(),
+                req.getRemoteAddr(), LocalDateTime.now());
+        try {
+            HttpResponse<String> response = statisticClient.addHit(req.getRequestURI(), req.getRemoteAddr(), LocalDateTime.now());
+            log.info("POST /hit response : {}", response);
+        } catch (ConnectException e) {
+            log.error("ConnectException - {}", e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Exception - {}", e.getMessage(), e);
         }
     }
 

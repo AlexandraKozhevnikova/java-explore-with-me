@@ -156,7 +156,10 @@ public class RequestService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Long, Long> getCountRequestsByListEventIds(Collection<Long> eventIds) {
+    public Map<Long, Long> getCountRequestsByListEvents(Collection<? extends EventEntity> events) {
+        Collection<Long> eventIds = events.stream()
+                .map(EventEntity::getEventId)
+                .collect(Collectors.toList());
         return requestRepository.findAll(
                         QRequestEntity.requestEntity.event.eventId.in(eventIds)
                                 .and(QRequestEntity.requestEntity.state.eq(RequestState.CONFIRMED)))

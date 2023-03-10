@@ -23,6 +23,7 @@ import ru.practicum.main_service.service.RequestService;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -54,7 +55,7 @@ public class EventPrivateController {
 
     @GetMapping("/{eventId}")
     public EventFullResponse getUserEventById(@PathVariable Long userId,
-                                              @PathVariable Long eventId) {
+                                              @PathVariable Long eventId) throws IOException, InterruptedException {
         return eventService.getUserEventById(userId, eventId);
     }
 

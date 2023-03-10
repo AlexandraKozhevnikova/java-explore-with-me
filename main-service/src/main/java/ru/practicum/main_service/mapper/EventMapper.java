@@ -58,7 +58,8 @@ public interface EventMapper {
     @Mapping(target = "location.lat", source = "lat")
     @Mapping(target = "category.id", source = "category.catId")
     @Mapping(target = "initiator.id", source = "initiator.userId")
-    @Mapping(target = "confirmedRequest",  constant = "0L")
+    @Mapping(target = "confirmedRequest", constant = "0L")
+    @Mapping(target = "views", constant = "0L")
     EventFullResponse responseFromEntity(EventEntity entity);
 
     @Mapping(target = "id", source = "eventId")

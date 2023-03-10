@@ -13,7 +13,16 @@ public class EventShortResponse {
     private LocalDateTime eventDate;
     private InitiatorDto initiator;
     private Boolean paid;
-    //private Long views; todo
+
+    public Long getViews() {
+        return views;
+    }
+
+    public void setViews(Long views) {
+        this.views = views;
+    }
+
+    private Long views;
 
 
     public Long getConfirmedRequest() {

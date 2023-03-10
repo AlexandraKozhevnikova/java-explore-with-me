@@ -276,10 +276,9 @@ class MainServiceApplicationTests {
                 .body("publishedOn", nullValue())
                 .body("requestModeration", is(true))
                 .body("title", is("Сплав на байдарках"))
-                // todo  .body("views", is())
-                //   .body("confirmedRequests", is())
+                .body("views", is(0))
+                .body("confirmedRequest", is(0))
                 .body("state", is("PENDING"));
-
     }
 
     @Test
@@ -327,8 +326,8 @@ class MainServiceApplicationTests {
                 .body("publishedOn", nullValue())
                 .body("requestModeration", is(false))
                 .body("title", is("Сап прогулки по рекам и каналам"))
-                // todo  .body("views", is())
-                //   .body("confirmedRequests", is())
+                .body("views", is(0))
+                .body("confirmedRequest", is(0))
                 .body("state", is("CANCELED"));
 
     }
@@ -375,8 +374,8 @@ class MainServiceApplicationTests {
                 .body("publishedOn", nullValue())
                 .body("requestModeration", is(false))
                 .body("title", is("Сап прогулки по рекам и каналам"))
-                // todo  .body("views", is())
-                //   .body("confirmedRequests", is())
+                .body("views", is(0))
+                .body("confirmedRequest", is(0))
                 .body("state", is("PENDING"));
     }
 

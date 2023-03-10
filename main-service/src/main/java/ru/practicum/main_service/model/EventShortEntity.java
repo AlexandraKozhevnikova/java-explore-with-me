@@ -2,7 +2,7 @@ package ru.practicum.main_service.model;
 
 import java.time.LocalDateTime;
 
-public class EventShortEntity {
+public class EventShortEntity extends EventEntity {
     private Long eventId;
     private String title;
     private CategoryEntity category;

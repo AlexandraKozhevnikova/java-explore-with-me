@@ -21,8 +21,16 @@ public class EventFullResponse {
     private Boolean requestModeration;
     private LocalDateTime publishedOn;
     private EventState state;
-    //private Long views; todo
 
+    private Long views;
+
+    public Long getViews() {
+        return views;
+    }
+
+    public void setViews(Long views) {
+        this.views = views;
+    }
 
     public Long getConfirmedRequest() {
         return confirmedRequest;
