@@ -10,6 +10,7 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 @Mapper(componentModel = SPRING, uses = {UserMapper.class})
 public interface BillMapper {
 
+    @Mapping(target = "id", source = "billId")
     @Mapping(target = "amount.total", source = "amount")
     @Mapping(target = "amount.currency", source = "currency.title")
     @Mapping(target = "event.id", source = "event.eventId")

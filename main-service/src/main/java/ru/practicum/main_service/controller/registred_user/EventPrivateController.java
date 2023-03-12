@@ -1,5 +1,7 @@
 package ru.practicum.main_service.controller.registred_user;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Tag(name = "Private: События", description = "Создавать, обновлять и получать созданные события")
 @RestController
 @Validated
 @RequestMapping("/users/{userId}/events")
@@ -40,6 +43,10 @@ public class EventPrivateController {
         this.requestService = requestService;
     }
 
+    @Operation(
+            summary = "Создание события",
+            description = "Добавлены параметры для стоимости участия в событии."
+    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullResponse createEvent(@RequestBody @Valid NewEventRequest request,
@@ -61,6 +68,10 @@ public class EventPrivateController {
     }
 
     @PatchMapping("/{eventId}")
+    @Operation(
+            summary = "Обновление события",
+            description = "Обновлять стоимость события нельзя"
+    )
     public EventFullResponse updateUserEvent(@PathVariable Long userId,
                                              @PathVariable Long eventId,
                                              @RequestBody @Valid UpdateEventRequest request) {

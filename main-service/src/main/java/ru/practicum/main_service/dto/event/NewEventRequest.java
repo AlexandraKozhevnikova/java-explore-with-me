@@ -1,5 +1,8 @@
 package ru.practicum.main_service.dto.event;
 
+import ru.practicum.main_service.dto.AmountDto;
+import ru.practicum.main_service.validation.AmountForPaid;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -7,7 +10,8 @@ import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-public class NewEventRequest { //todo добавить прием суммы
+@AmountForPaid
+public class NewEventRequest {
     @NotBlank
     @Size(min = 3, max = 120)
     private String title;
@@ -27,8 +31,18 @@ public class NewEventRequest { //todo добавить прием суммы
     @PositiveOrZero
     private Integer participantLimit;
     private Boolean isPaid;
+    @Valid
+    private AmountDto amount;
 
     private Boolean requestModeration;
+
+    public AmountDto getAmount() {
+        return amount;
+    }
+
+    public void setAmount(AmountDto amount) {
+        this.amount = amount;
+    }
 
     public String getTitle() {
         return title;

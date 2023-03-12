@@ -1,25 +1,24 @@
 package ru.practicum.main_service.dto;
 
 import ru.practicum.main_service.dto.event.EventForBillResponse;
-import ru.practicum.main_service.dto.event.EventShortResponse;
 import ru.practicum.main_service.model.BillState;
 
 import java.time.LocalDateTime;
 
 public class BillResponse {
-    private Long billId;
+    private Long id;
     private UserResponse participant;
     private EventForBillResponse event;
     private AmountDto amount;
     private BillState state;
     private LocalDateTime createdOn;
 
-    public Long getBillId() {
-        return billId;
+    public Long getId() {
+        return id;
     }
 
-    public void setBillId(Long billId) {
-        this.billId = billId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public UserResponse getParticipant() {

@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS event (
     created_on         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     published_on       TIMESTAMP,
     total              NUMERIC,
-    currency_id        BIGINT REFERENCES currency(currency_id) ON DELETE RESTRICT,
+    currency_id        BIGINT REFERENCES currency (currency_id) ON DELETE RESTRICT,
 
     CONSTRAINT title_length CHECK (char_length(title) >= 3),
     CONSTRAINT annotation_length CHECK (char_length(annotation) >= 20),

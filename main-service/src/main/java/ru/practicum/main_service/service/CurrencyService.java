@@ -12,7 +12,23 @@ public class CurrencyService {
         this.currencyRepository = currencyRepository;
     }
 
-    public CurrencyEntity getCurrencyRub(){
+    public CurrencyEntity getCurrencyRub() {
         return currencyRepository.findById(1l).get();
+    }
+
+    public CurrencyEntity getCurrencyUsd() {
+        return currencyRepository.findById(2l).get();
+    }
+
+    public CurrencyEntity getCurrencyByTitle(String title) {
+        switch (title) {
+            case "RUB":
+                return getCurrencyRub();
+
+            case "USD":
+                return getCurrencyUsd();
+            default:
+                throw new IllegalArgumentException(title + " - is unknown currency");
+        }
     }
 }

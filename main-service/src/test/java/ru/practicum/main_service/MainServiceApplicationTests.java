@@ -282,6 +282,40 @@ class MainServiceApplicationTests {
     }
 
     @Test
+    void createEvent_whenAmountIsExistButPaidIsFalse_thanReturn400() {
+        createUser();
+        createCategory();
+
+        given().contentType(ContentType.JSON)
+                .body(
+                        "{\n" + "  \"annotation\": \"Сплав на байдарках похож на полет.\",\n" +
+                                "  \"category\": 1,\n" +
+                                "  \"description\": \"Сплав  дарит чувство обновления, феерические эмоции, яркие впечатления.\",\n" +
+                                "  \"eventDate\": \"2023-12-31 15:10:05\",\n" +
+                                "  \"location\": {\n" +
+                                "    \"lat\": 55.754167,\n" +
+                                "    \"lon\": 37.62\n" +
+                                "  },\n" +
+                                "  \"paid\":  false,\n" +
+                                "  \"amount\": {\n" +
+                                "        \"total\": 110,\n" +
+                                "        \"currency\": \"RUB\"\n" +
+                                "    }," +
+                                "  \"title\": \"Сплав на байдарках\" \n" +
+                                "}"
+                )
+                .pathParam("userId", 1L)
+                .when()
+                .post(PRIVATE_EVENT)
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("status", is("BAD_REQUEST"))
+                .body("reason", is("Incorrectly made request."))
+                .body("message", is("Object: newEventRequest. Error: 'amount' is possible only for " +
+                        "paid events. Value: 'paid' and 'amount'"));
+    }
+
+    @Test
     void createEvent_whenEventDateIsEarlyThan2HoursFromNow_thanReturn409() {
         given().contentType(ContentType.JSON)
                 .body("{\n" + "  \"annotation\": \"Сплав на байдарках похож на полет.\",\n" + "  \"category\": 1,\n" + "  \"description\": \"Сплав  дарит чувство обновления, феерические эмоции, яркие впечатления.\",\n" + "  \"eventDate\": \"2020-12-31 15:10:05\",\n" + "  \"location\": {\n" + "    \"lat\": 55.754167,\n" + "    \"lon\": 37.62\n" + "  },\n" + "  \"title\": \"Сплав на байдарках\" \n" + "}")

@@ -64,8 +64,9 @@ public class BillService {
     }
 
     private void checkThatEvenIsPaid(EventEntity event) {
-        if (!event.getPaid()) {
-            throw new IllegalArgumentException("Нельзя выставить счет на бесплатное мероприятие");
+        if (!event.getPaid() || (event.getPaid() && event.getAmount().compareTo(BigDecimal.valueOf(0)) <= 0)) {
+            throw new IllegalArgumentException("Нельзя выставить счет на бесплатное мероприятие, " +
+                    "у платного мероприятия должна быть стоимость");
         }
     }
 }

@@ -66,7 +66,7 @@ public class EventEntity {
     private LocalDateTime publishedOn;
     @Column(name = "total")
     private BigDecimal amount;
-    @JoinColumn(name="currency_id")
+    @JoinColumn(name = "currency_id")
     @ManyToOne
     private CurrencyEntity currency;
 
