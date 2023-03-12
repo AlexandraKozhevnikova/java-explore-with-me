@@ -7,7 +7,7 @@ import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-public class NewEventRequest {
+public class NewEventRequest { //todo добавить прием суммы
     @NotBlank
     @Size(min = 3, max = 120)
     private String title;

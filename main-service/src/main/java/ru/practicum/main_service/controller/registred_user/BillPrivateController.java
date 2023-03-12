@@ -23,7 +23,7 @@ public class BillPrivateController {
                                     @RequestParam Long eventId){
         return billService.createBill(userId, eventId);
     }
-
+// свагер
 
     //гет свои и гетр по ИД для собственника или участника или админа
 }
