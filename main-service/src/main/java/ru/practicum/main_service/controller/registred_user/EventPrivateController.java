@@ -1,6 +1,7 @@
 package ru.practicum.main_service.controller.registred_user;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +24,10 @@ import ru.practicum.main_service.service.RequestService;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.io.IOException;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/users/{userId}/events")
 public class EventPrivateController {
 
@@ -55,7 +56,7 @@ public class EventPrivateController {
 
     @GetMapping("/{eventId}")
     public EventFullResponse getUserEventById(@PathVariable Long userId,
-                                              @PathVariable Long eventId) throws IOException, InterruptedException {
+                                              @PathVariable Long eventId) {
         return eventService.getUserEventById(userId, eventId);
     }
 

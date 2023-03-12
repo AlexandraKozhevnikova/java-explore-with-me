@@ -3,8 +3,8 @@ package ru.practicum.main_service.dto;
 import java.util.List;
 
 public class RequestBulkUpdateResponse {
-    List<RequestResponse> confirmedRequests;
-    List<RequestResponse> rejectedRequests;
+    private List<RequestResponse> confirmedRequests;
+    private List<RequestResponse> rejectedRequests;
 
     public List<RequestResponse> getConfirmedRequests() {
         return confirmedRequests;

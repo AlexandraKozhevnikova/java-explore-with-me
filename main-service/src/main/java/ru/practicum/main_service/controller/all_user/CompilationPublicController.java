@@ -1,5 +1,6 @@
 package ru.practicum.main_service.controller.all_user;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/compilations")
+@Validated
 public class CompilationPublicController {
 
     private final CompilationService compilationService;
