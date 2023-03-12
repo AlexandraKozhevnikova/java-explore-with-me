@@ -419,4 +419,54 @@ class MainServiceApplicationTests {
                 .body("state", is("PUBLISHED"))
                 .body("publishedOn", notNullValue());
     }
+
+    @Test
+    void getCategories_whenFromIsLessThenZero_thenReturn404() {
+        given()
+                .queryParam("from", "0")
+                .when()
+                .get("/categories")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("status", is("BAD_REQUEST"))
+                .body("reason", is("Incorrectly made request."))
+                .body("message", is("getCategories.from: must be greater than 0"))
+                .body("timestamp", is(notNullValue()));
+    }
+
+    @Test
+    void updateEvent_whenDescriptionIsBlank_return404() {
+        given().contentType(ContentType.JSON)
+                .pathParam("userId", 1)
+                .pathParam("eventId", 1)
+                .body("{\n" + "  \"description\": \"                        \"\n" + "}")
+                .when()
+                .patch(PRIVATE_EVENT + "/{eventId}")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("reason", is("Incorrectly made request."))
+                .body("message", is("Field: description. Error: size must be between 20 and 7000. Value: "));
+    }
+
+    @Test
+    void updateCompilation_whenTitleIsBlank() {
+        given().contentType(ContentType.JSON)
+                .body("{\n" + "  \"title\": \"12345678901234567890\"\n" + "}")
+                .when()
+                .post("/admin/compilations")
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .body("id", is(1));
+
+        given().contentType(ContentType.JSON)
+                .body("{\n" + "  \"title\": \"                             \"\n" + "}")
+                .when()
+                .patch("/admin/compilations/{compId}", 1)
+                .then()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .body("reason", is("Integrity constraint has been violated."))
+                .body("message", is("could not execute statement; SQL [n/a]; constraint [null]; nested" +
+                        " exception is org.hibernate.exception.ConstraintViolationException: could not" +
+                        " execute statement"));
+    }
 }

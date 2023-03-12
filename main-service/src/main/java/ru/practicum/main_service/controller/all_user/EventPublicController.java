@@ -12,7 +12,6 @@ import ru.practicum.main_service.service.EventService;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,15 +37,13 @@ public class EventPublicController {
             @RequestParam(defaultValue = "EVENT_DATE") String sort,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size,
-            HttpServletRequest req
-    ) throws IOException, InterruptedException {
+            HttpServletRequest req) {
         return eventService.getPublishedEvents(text, categoryIds, isPaid, isOnlyAvailable, rangeStart, rangeEnd,
                 sort, from, size, req);
     }
 
     @GetMapping("/{id}")
-    public EventFullResponse getPublishedEventById(@PathVariable(name = "id") Long eventId, HttpServletRequest req)
-            throws IOException, InterruptedException {
+    public EventFullResponse getPublishedEventById(@PathVariable(name = "id") Long eventId, HttpServletRequest req) {
         return eventService.getPublishedEventById(eventId, req);
     }
 }

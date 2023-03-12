@@ -39,7 +39,7 @@ public class CompilationService {
         CompilationEntity compilationNewEntity = compilationMapper.entityFromRequest(request);
 
         Set<EventEntity> events;
-        if (!request.getEvents().isEmpty()) {
+        if (request.getEvents() != null && !request.getEvents().isEmpty()) {
             events = new HashSet<>(eventService.checkListEventsIsExistAndGet(request.getEvents()));
             if (events.isEmpty()) {
                 throw new NoSuchElementException("event " + request.getEvents() + " does not exist.");
