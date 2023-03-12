@@ -423,14 +423,14 @@ class MainServiceApplicationTests {
     @Test
     void getCategories_whenFromIsLessThenZero_thenReturn404() {
         given()
-                .queryParam("from", "0")
+                .queryParam("from", "-1")
                 .when()
                 .get("/categories")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", is("BAD_REQUEST"))
                 .body("reason", is("Incorrectly made request."))
-                .body("message", is("getCategories.from: must be greater than 0"))
+                .body("message", is("getCategories.from: must be greater than or equal to 0"))
                 .body("timestamp", is(notNullValue()));
     }
 
