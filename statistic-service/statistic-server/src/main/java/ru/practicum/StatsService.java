@@ -15,6 +15,7 @@ import statisticcommon.HitResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StatsService {
@@ -40,14 +41,25 @@ public class StatsService {
     public AppEntity createAppIfNotExist(String name) {
         Optional<AppEntity> app = Optional.ofNullable(appRepository.getAppEntityByName(name));
         return app.orElseGet(() -> {
-                log.info("created new app: " + app);
-                return appRepository.save(new AppEntity(name));
-            }
-        );
+            log.info("created new app: {}", app);
+            return appRepository.save(new AppEntity(name));
+        });
     }
 
     @Transactional(readOnly = true)
     public List<HitResponse> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        return hitRepository.getSummaryHits(start, end, uris, unique);
+        List<HitResponse> response = hitRepository.getSummaryHits(start, end, uris, unique);
+
+        if (uris != null && !uris.isEmpty()) {
+            uris.stream()
+                    .filter(it -> !response
+                            .stream()
+                            .map(HitResponse::getUri)
+                            .collect(Collectors.toList())
+                            .contains(it)
+                    )
+                    .forEach(it -> response.add(new HitResponse("unknownAppName", it, 0L)));
+        }
+        return response;
     }
 }

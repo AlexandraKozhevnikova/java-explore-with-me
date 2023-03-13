@@ -2,7 +2,7 @@ version: '3.1'
 services:
   stats-server:
     build: statistic-service/statistic-server/
-    container_name: stats-server
+    container_name: stats-server-container
     ports:
       - "9090:9090"
     environment:
@@ -13,7 +13,7 @@ services:
       - stats-db
 
   stats-db:
-    container_name: stats-db
+    container_name: stats-db-container
     image: postgres:14-alpine
     ports:
       - "6545:5432"
@@ -26,20 +26,22 @@ services:
 
   ewm-service:
     build: main-service/
-    container_name: emv-service
+    container_name: emv-service-container
     ports:
       - "8080:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db/main_prod
       - POSTGRES_USER=main
       - POSTGRES_PASSWORD=main
+      - STATISTIC_SERVER_URL=http://stats-server:9090
+
     depends_on:
       - stats-server
       - ewm-db
 
   ewm-db:
     image: postgres:14-alpine
-    container_name: ewm-db
+    container_name: ewm-db-container
     ports:
       - "6555:5432"
     environment:

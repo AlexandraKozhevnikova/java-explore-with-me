@@ -24,6 +24,8 @@
         <querydsl.version>5.0.0</querydsl.version>
         <statistic-common.version>0.0.1-SNAPSHOT</statistic-common.version>
         <statistic-client.version>0.0.1-SNAPSHOT</statistic-client.version>
+        <logbook-spring-boot-starter.version>2.15.0</logbook-spring-boot-starter.version>
+        <rest-assured.version>5.3.0</rest-assured.version>
     </properties>
 
     <modules>
@@ -33,6 +35,17 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.zalando</groupId>
+                <artifactId>logbook-spring-boot-starter</artifactId>
+                <version>${logbook-spring-boot-starter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>rest-assured</artifactId>
+                <version>${rest-assured.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>

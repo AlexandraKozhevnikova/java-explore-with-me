@@ -3,6 +3,8 @@ package ru.practicum.statisticclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import statisticcommon.HitRequest;
 
 import java.io.IOException;
@@ -21,6 +23,8 @@ public class StatisticClient {
     private final HttpClient client;
     public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd+HH:mm:ss");
     private final String appName;
+    private static final Logger log = LogManager.getLogger(StatisticClient.class);
+
 
     public StatisticClient(String serverUrl, String app) {
         this.serverUrl = serverUrl;
@@ -32,7 +36,7 @@ public class StatisticClient {
     }
 
     public HttpResponse<String> addHit(String uri, String ip, LocalDateTime timestamp)
-        throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
         HitRequest body = new HitRequest();
         body.setApp(appName);
         body.setUri(uri);
@@ -40,19 +44,21 @@ public class StatisticClient {
         body.setTimestamp(timestamp);
 
         HttpRequest request = HttpRequest.newBuilder()
-            .POST(HttpRequest.BodyPublishers.ofString(jsonMapper.writeValueAsString(body)))
-            .uri(URI.create(serverUrl + "/hit"))
-            .version(HttpClient.Version.HTTP_1_1)
-            .header("Content-Type", "application/json")
-            .header("Accept", "application/json")
-            .build();
+                .POST(HttpRequest.BodyPublishers.ofString(jsonMapper.writeValueAsString(body)))
+                .uri(URI.create(serverUrl + "/hit"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .build();
+
+        log.info("sent request: {}", request);
 
         return client.send(request, handler);
     }
 
     public HttpResponse<String> getStatistics(LocalDateTime start, LocalDateTime end, List<String> uris,
                                               Boolean unique)
-        throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
 
         if (start == null || end == null || start.isAfter(end)) {
             throw new IllegalArgumentException("'start'  and/or 'end' not valid");
@@ -76,11 +82,13 @@ public class StatisticClient {
         }
 
         HttpRequest request = HttpRequest.newBuilder()
-            .GET()
-            .uri(URI.create(uriBuilder.toString()))
-            .version(HttpClient.Version.HTTP_1_1)
-            .header("Accept", "application/json")
-            .build();
+                .GET()
+                .uri(URI.create(uriBuilder.toString()))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build();
+
+        log.info("sent request: {}", request);
 
         return client.send(request, handler);
     }

@@ -1,6 +1,6 @@
 package ru.practicum.repository;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.SimpleExpression;
@@ -24,34 +24,31 @@ public class CustomStatsRepositoryImpl implements CustomStatsRepository {
     public List<HitResponse> getSummaryHits(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         QHitEntity hit = QHitEntity.hitEntity;
 
-        BooleanExpression byUri;
-        if (uris == null || uris.isEmpty()) {
-            byUri = Expressions.TRUE.isTrue();
-        } else {
-            byUri = hit.uri.in(uris);
+        BooleanBuilder booleanBuilder = new BooleanBuilder(hit.dateTime.between(start, end));
+
+        if (uris != null && !uris.isEmpty()) {
+            booleanBuilder.and(hit.uri.in(uris));
         }
 
         NumberPath<Long> aliasCount = Expressions.numberPath(Long.class, "aliasCount");
 
         SimpleExpression<?> distinctIpPredicate = unique
-            ? hit.ip.countDistinct().as(aliasCount)
-            : hit.ip.count().as(aliasCount);
+                ? hit.ip.countDistinct().as(aliasCount)
+                : hit.ip.count().as(aliasCount);
 
         return query
-            .select(hit.app.name, hit.uri, distinctIpPredicate)
-            .from(hit)
-            .where(hit.dateTime.between(start, end))
-            .where(byUri)
-            .groupBy(hit.app.name, hit.uri)
-            .orderBy(aliasCount.desc())
-            .fetch()
-            .stream()
-            .map(it -> new HitResponse(
-                it.get(hit.app.name),
-                it.get(hit.uri),
-                it.get(aliasCount)
-            ))
-            .collect(Collectors.toList());
+                .select(hit.app.name, hit.uri, distinctIpPredicate)
+                .from(hit)
+                .where(booleanBuilder)
+                .groupBy(hit.app.name, hit.uri)
+                .orderBy(aliasCount.desc())
+                .fetch()
+                .stream()
+                .map(it -> new HitResponse(
+                        it.get(hit.app.name),
+                        it.get(hit.uri),
+                        it.get(aliasCount)
+                ))
+                .collect(Collectors.toList());
     }
-
 }
