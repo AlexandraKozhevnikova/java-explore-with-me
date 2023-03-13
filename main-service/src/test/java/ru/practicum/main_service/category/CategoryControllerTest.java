@@ -108,7 +108,7 @@ public class CategoryControllerTest {
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.status", is("BAD_REQUEST")))
                 .andExpect(jsonPath("$.reason", is("Incorrectly made request.")))
-                .andExpect(jsonPath("$.message", is("Field: name. Error: must not be blank. Value: ")))
+                .andExpect(jsonPath("$.message", is("Field: name. Error: must not be blank. Value:   ")))
                 .andExpect(jsonPath("$.timestamp").value(notNullValue()));
     }
 

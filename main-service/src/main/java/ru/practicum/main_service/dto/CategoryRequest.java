@@ -15,7 +15,6 @@ public class CategoryRequest {
     }
 
     public void setName(String name) {
-        name = name.trim();
         this.name = name;
     }
 

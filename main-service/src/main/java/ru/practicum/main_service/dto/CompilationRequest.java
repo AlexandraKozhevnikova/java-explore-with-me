@@ -16,7 +16,7 @@ public class CompilationRequest {
     }
 
     public void setTitle(String title) {
-        this.title = title.trim();
+        this.title = title;
     }
 
     public Boolean getPinned() {

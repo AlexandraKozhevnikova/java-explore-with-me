@@ -1,6 +1,7 @@
 package ru.practicum.main_service.service;
 
 import com.querydsl.core.BooleanBuilder;
+import io.micrometer.core.instrument.util.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import ru.practicum.main_service.model.EventEntity;
 import ru.practicum.main_service.model.QCompilationEntity;
 import ru.practicum.main_service.repository.CompilationRepository;
 
+import javax.validation.ValidationException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +62,11 @@ public class CompilationService {
 
     @Transactional
     public CompilationResponse updateCompilation(Long compId, CompilationRequest request) {
+        if (request.getTitle() != null) {
+            if (StringUtils.isBlank(request.getTitle())) {
+                throw new ValidationException("title must not be blank");
+            }
+        }
         CompilationEntity savedCompilationEntity = checkCompilationIsExistAndGetBasic(compId);
 
         if (request.getEvents() != null) {

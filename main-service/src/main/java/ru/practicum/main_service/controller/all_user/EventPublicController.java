@@ -1,5 +1,6 @@
 package ru.practicum.main_service.controller.all_user;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/events")
+@Validated
 public class EventPublicController {
 
     private final EventService eventService;

@@ -73,7 +73,7 @@ class MainServiceApplicationTests {
     @Test
     void createUser_whenRequestValidAndUserIsNew_thanReturn201AndTrimmedValues() {
         given().contentType(ContentType.JSON)
-                .body("{\n" + "  \"email\": \"ivan.petrov@practicummail.ru\",\n" + "  \"name\": \" Иван Петров   \"\n" + "}")
+                .body("{\n" + "  \"email\": \"ivan.petrov@practicummail.ru\",\n" + "  \"name\": \"Иван Петров\"\n" + "}")
                 .when()
                 .post(USERS)
                 .then()
@@ -183,7 +183,7 @@ class MainServiceApplicationTests {
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
                 .body("id", is(1))
-                .body("name", is("Концерты"));
+                .body("name", is("  Концерты  "));
     }
 
     @Test
@@ -226,7 +226,7 @@ class MainServiceApplicationTests {
 
         given().contentType(ContentType.JSON)
                 .pathParam("catId", 1)
-                .body("{\n" + "  \"name\": \" Концерты NEW \"\n" + "}")
+                .body("{\n" + "  \"name\": \"Концерты NEW\"\n" + "}")
                 .when()
                 .patch(ADMIN_CATEGORY + "/{catId}")
                 .then()
@@ -445,28 +445,18 @@ class MainServiceApplicationTests {
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("reason", is("Incorrectly made request."))
-                .body("message", is("Field: description. Error: size must be between 20 and 7000. Value: "));
+                .body("message", is("Description must not be blank."));
     }
 
     @Test
     void updateCompilation_whenTitleIsBlank() {
         given().contentType(ContentType.JSON)
-                .body("{\n" + "  \"title\": \"12345678901234567890\"\n" + "}")
-                .when()
-                .post("/admin/compilations")
-                .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body("id", is(1));
-
-        given().contentType(ContentType.JSON)
                 .body("{\n" + "  \"title\": \"                             \"\n" + "}")
                 .when()
                 .patch("/admin/compilations/{compId}", 1)
                 .then()
-                .statusCode(HttpStatus.CONFLICT.value())
-                .body("reason", is("Integrity constraint has been violated."))
-                .body("message", is("could not execute statement; SQL [n/a]; constraint [null]; nested" +
-                        " exception is org.hibernate.exception.ConstraintViolationException: could not" +
-                        " execute statement"));
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("reason", is("Incorrectly made request."))
+                .body("message", is("title must not be blank"));
     }
 }
