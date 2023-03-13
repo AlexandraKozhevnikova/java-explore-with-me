@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "206cc061-9e92-42fa-98f5-e606c2b5ccfc",
-    "name": "Учет оплат участия в мероприятии",
+    "name": "Учет оплат учатия в мероприятии",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "26308714"
   },
@@ -52,11 +52,31 @@
           "item": [
             {
               "name": "Не передан eventId",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 40\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});",
+                      "",
+                      "pm.test(\" body\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "      pm.expect(jsonData.reason).to.eql(\"Incorrectly made request.\");",
+                      "      pm.expect(jsonData.message).to.eql(\"Required request parameter 'eventId' for method parameter type Long is not present\");",
+                      "});",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/users/:userId/bills?eventId=1",
+                  "raw": "{{baseUrl}}/users/:userId/bills",
                   "host": [
                     "{{baseUrl}}"
                   ],
@@ -68,7 +88,8 @@
                   "query": [
                     {
                       "key": "eventId",
-                      "value": "1"
+                      "value": "1",
+                      "disabled": true
                     }
                   ],
                   "variable": [
@@ -83,11 +104,31 @@
             },
             {
               "name": "eventId не число",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 40\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});",
+                      "",
+                      "pm.test(\" body\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "      pm.expect(jsonData.reason).to.eql(\"Incorrectly made request.\");",
+                      "      pm.expect(jsonData.message).to.eql(\"Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; nested exception is java.lang.NumberFormatException: For input string: \\\"qwerrt\\\"\");",
+                      "});",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/users/:userId/bills?eventId=1",
+                  "raw": "{{baseUrl}}/users/:userId/bills?eventId=qwerrt",
                   "host": [
                     "{{baseUrl}}"
                   ],
@@ -99,7 +140,7 @@
                   "query": [
                     {
                       "key": "eventId",
-                      "value": "1"
+                      "value": "qwerrt"
                     }
                   ],
                   "variable": [
@@ -114,6 +155,26 @@
             },
             {
               "name": "userId не число",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 40\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});",
+                      "",
+                      "pm.test(\" body\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "      pm.expect(jsonData.reason).to.eql(\"Incorrectly made request.\");",
+                      "      pm.expect(jsonData.message).to.eql(\"Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; nested exception is java.lang.NumberFormatException: For input string: \\\"qwer\\\"\");",
+                      "});",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [],
@@ -136,73 +197,10 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "1"
+                      "value": "qwer"
                     }
                   ]
                 }
-              },
-              "response": []
-            },
-            {
-              "name": "Создание бесплатного события с указанной суммой",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status code is 400\", function () {",
-                      "    pm.response.to.have.status(400);",
-                      "});",
-                      "",
-                      "pm.test(\"Id object\", function () {",
-                      "    var jsonData = pm.response.json();",
-                      "    pm.expect(jsonData.message).to.eql(\"Object: newEventRequest. Error: 'amount' is possible only for paid events. Value: 'paid' and 'amount'\");",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n    \"lat\": 55.754167,\n    \"lon\": 37.62\n  },\n  \"title\": \"Сплав на байдарках\",\n  \"paid\": false,\n  \"participantLimit\": 1000,\n  \"requestModeration\": true,\n  \"amount\" : {\n      \"total\": 110.20,\n      \"currency\": \"RUB\"\n  }\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/users/:userId/events",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "users",
-                    ":userId",
-                    "events"
-                  ],
-                  "variable": [
-                    {
-                      "key": "userId",
-                      "value": "1",
-                      "description": "(Required) id текущего пользователя"
-                    }
-                  ]
-                },
-                "description": "Обратите внимание: дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента"
               },
               "response": []
             }
@@ -1121,8 +1119,7 @@
                       "      pm.expect(jsonData.state).to.eql(\"CREATED\");",
                       "      pm.expect(jsonData.event.amount.total).to.eql(120.11);",
                       "      pm.expect(jsonData.id).to.eql(1);",
-                      "        pm.expect(jsonData.createdOn).to.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
-                      "",
+                      "    pm.expect(jsonData.createdOn).to.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
                       "",
                       "});",
                       "",
@@ -1162,7 +1159,7 @@
               "response": []
             },
             {
-              "name": "6 Повторное добавление счета через минуту",
+              "name": "6 Повторное добавление счета через минуту, когда предыдущий счет протух",
               "event": [
                 {
                   "listen": "test",
@@ -1177,9 +1174,68 @@
                       "      pm.expect(jsonData.state).to.eql(\"CREATED\");",
                       "      pm.expect(jsonData.event.amount.total).to.eql(120.11);",
                       "      pm.expect(jsonData.id).to.eql(2);",
-                      "        pm.expect(jsonData.createdOn).to.not.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
+                      "});",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "setTimeout(function(){}, 60000);",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/users/:userId/bills?eventId=3",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    ":userId",
+                    "bills"
+                  ],
+                  "query": [
+                    {
+                      "key": "eventId",
+                      "value": "3"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "2"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "TD - Успешная оплата счета:2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
                       "",
-                      "",
+                      "pm.test(\" body\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "      pm.expect(jsonData.state).to.eql(\"PAID\");",
+                      "      pm.expect(jsonData.event.amount.total).to.eql(120.11);",
+                      "      pm.expect(jsonData.id).to.eql(2);",
                       "});",
                       "",
                       ""
@@ -1191,7 +1247,74 @@
                   "listen": "prerequest",
                   "script": {
                     "exec": [
-                      "setTimeout(function(){}, 60000);",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/users/:userId/bills/:billId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    ":userId",
+                    "bills",
+                    ":billId"
+                  ],
+                  "query": [
+                    {
+                      "key": "billId",
+                      "value": "31",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "2"
+                    },
+                    {
+                      "key": "billId",
+                      "value": "2"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "7 Выставление счета если счет на это мероприятие был уже оплачен",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 409\", function () {",
+                      "    pm.response.to.have.status(409);",
+                      "});",
+                      "",
+                      "pm.test(\" body\", function () {",
+                      "    var jsonData = pm.response.json();",
+                      "      pm.expect(jsonData.reason).to.eql(\"Значение параметра не отвечает бизнес требованиям\");",
+                      "      pm.expect(jsonData.message).to.eql(\"this bill already paid. Bill id = 2\");",
+                      "});",
+                      "",
+                      "",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
                       ""
                     ],
                     "type": "text/javascript"
@@ -1241,18 +1364,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
                   "});",
                   "",
                   "pm.test(\" body\", function () {",
                   "    var jsonData = pm.response.json();",
-                  "      pm.expect(jsonData.state).to.eql(\"CREATED\");",
-                  "      pm.expect(jsonData.event.amount.total).to.eql(120.11);",
-                  "      pm.expect(jsonData.id).to.eql(2);",
-                  "        pm.expect(jsonData.createdOn).to.not.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
-                  "",
-                  "",
+                  "      pm.expect(jsonData.reason).to.eql(\"Значение параметра не отвечает бизнес требованиям\");",
+                  "      pm.expect(jsonData.message).to.eql(\"bill is not CREATED\");",
                   "});",
                   "",
                   ""
@@ -1305,18 +1424,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
                   "});",
                   "",
                   "pm.test(\" body\", function () {",
                   "    var jsonData = pm.response.json();",
-                  "      pm.expect(jsonData.state).to.eql(\"CREATED\");",
-                  "      pm.expect(jsonData.event.amount.total).to.eql(120.11);",
-                  "      pm.expect(jsonData.id).to.eql(2);",
-                  "        pm.expect(jsonData.createdOn).to.not.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
-                  "",
-                  "",
+                  "      pm.expect(jsonData.reason).to.eql(\"Значение параметра не отвечает бизнес требованиям\");",
+                  "      pm.expect(jsonData.message).to.eql(\"user has not access to this bill\");",
                   "});",
                   "",
                   ""
@@ -1338,28 +1453,220 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/:userId/bills?billId=31",
+              "raw": "{{baseUrl}}/users/:userId/bills/:billId",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "users",
                 ":userId",
-                "bills"
+                "bills",
+                ":billId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                },
+                {
+                  "key": "billId",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TD - Добавление события:4 от user:1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Id object\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(4);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"annotation\": \"Сплав на байдарках похож на полет.\",\n  \"category\": 1,\n  \"description\": \"Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления.\",\n  \"eventDate\": \"2024-12-31 15:10:05\",\n  \"location\": {\n    \"lat\": 55.754167,\n    \"lon\": 37.62\n  },\n  \"title\": \"Сплав на байдарках\",\n  \"paid\": true,\n  \"participantLimit\": 0,\n  \"requestModeration\": false,\n  \"amount\": {\n      \"total\": 120.11,\n      \"currency\": \"RUB\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":userId",
+                "events"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "1",
+                  "description": "(Required) id текущего пользователя"
+                }
+              ]
+            },
+            "description": "Обратите внимание: дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента"
+          },
+          "response": []
+        },
+        {
+          "name": "TD - Публикация события:4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Id object\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(4);",
+                  "});",
+                  "",
+                  "pm.test(\"state\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.state).to.eql(\"PUBLISHED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stateAction\": \"PUBLISH_EVENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/events/:eventId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "events",
+                ":eventId"
+              ],
+              "variable": [
+                {
+                  "key": "eventId",
+                  "value": "4",
+                  "description": "(Required) id события"
+                }
+              ]
+            },
+            "description": "Редактирование данных любого события администратором. Валидация данных не требуется.\nОбратите внимание:\n - дата начала изменяемого события должна быть не ранее чем за час от даты публикации. (Ожидается код ошибки 409)\n- событие можно публиковать, только если оно в состоянии ожидания публикации (Ожидается код ошибки 409)\n- событие можно отклонить, только если оно еще не опубликовано (Ожидается код ошибки 409)"
+          },
+          "response": []
+        },
+        {
+          "name": "TD - Добавление запроса:2 от юзера:2 на участие в событии:4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Id object\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(2);",
+                  "});",
+                  "",
+                  "pm.test(\"state\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"CONFIRMED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId/requests?eventId=4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":userId",
+                "requests"
               ],
               "query": [
                 {
-                  "key": "billId",
-                  "value": "31"
+                  "key": "eventId",
+                  "value": "4",
+                  "description": "(Required) id события"
                 }
               ],
               "variable": [
                 {
                   "key": "userId",
-                  "value": "2"
+                  "value": "2",
+                  "description": "(Required) id текущего пользователя"
                 }
               ]
-            }
+            },
+            "description": "Обратите внимание:\n- нельзя добавить повторный запрос  (Ожидается код ошибки 409)\n- инициатор события не может добавить запрос на участие в своём событии (Ожидается код ошибки 409)\n- нельзя участвовать в неопубликованном событии (Ожидается код ошибки 409)\n- если у события достигнут лимит запросов на участие - необходимо вернуть ошибку  (Ожидается код ошибки 409)\n- если для события отключена пре-модерация запросов на участие, то запрос должен автоматически перейти в состояние подтвержденного"
           },
           "response": []
         },
@@ -1378,10 +1685,7 @@
                   "    var jsonData = pm.response.json();",
                   "      pm.expect(jsonData.state).to.eql(\"CREATED\");",
                   "      pm.expect(jsonData.event.amount.total).to.eql(120.11);",
-                  "      pm.expect(jsonData.id).to.eql(2);",
-                  "        pm.expect(jsonData.createdOn).to.not.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
-                  "",
-                  "",
+                  "      pm.expect(jsonData.id).to.eql(3);",
                   "});",
                   "",
                   ""
@@ -1403,7 +1707,7 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/:userId/bills?eventId=3",
+              "raw": "{{baseUrl}}/users/:userId/bills?eventId=4",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1415,38 +1719,94 @@
               "query": [
                 {
                   "key": "eventId",
+                  "value": "4"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Успешная оплата счета:3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\" body\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "      pm.expect(jsonData.state).to.eql(\"PAID\");",
+                  "      pm.expect(jsonData.event.amount.total).to.eql(120.11);",
+                  "      pm.expect(jsonData.id).to.eql(3);",
+                  "});",
+                  "",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId/bills/:billId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":userId",
+                "bills",
+                ":billId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "2"
+                },
+                {
+                  "key": "billId",
                   "value": "3"
                 }
-              ],
-              "variable": [
-                {
-                  "key": "userId",
-                  "value": "2"
-                }
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Успешная оплата",
+          "name": "Оплата оплаченного счете",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
                   "});",
                   "",
-                  "pm.test(\" body\", function () {",
+                  "pm.test(\"Error message\", function () {",
                   "    var jsonData = pm.response.json();",
-                  "      pm.expect(jsonData.state).to.eql(\"CREATED\");",
-                  "      pm.expect(jsonData.event.amount.total).to.eql(120.11);",
-                  "      pm.expect(jsonData.id).to.eql(2);",
-                  "        pm.expect(jsonData.createdOn).to.not.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
-                  "",
-                  "",
+                  "    pm.expect(jsonData.message).to.eql(\"bill is not CREATED\");",
                   "});",
                   "",
                   ""
@@ -1468,24 +1828,163 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/:userId/bills?billId=31",
+              "raw": "{{baseUrl}}/users/:userId/bills/:billId",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "users",
                 ":userId",
-                "bills"
+                "bills",
+                ":billId"
               ],
               "query": [
                 {
                   "key": "billId",
-                  "value": "31"
+                  "value": "31",
+                  "disabled": true
                 }
               ],
               "variable": [
                 {
                   "key": "userId",
+                  "value": "2"
+                },
+                {
+                  "key": "billId",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Получение события с суммой",
+      "item": [
+        {
+          "name": "Получение полной информации о событии добавленном текущим пользователем",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Аmount\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.amount.total).to.eql(120.11);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId/events/:eventId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":userId",
+                "events",
+                ":eventId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "1",
+                  "description": "(Required) id текущего пользователя"
+                },
+                {
+                  "key": "eventId",
+                  "value": "3",
+                  "description": "(Required) id события"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Получение счета по ИД",
+      "item": [
+        {
+          "name": "Просмотр счета участником",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\" body\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "      pm.expect(jsonData.state).to.eql(\"PAID\");",
+                  "      pm.expect(jsonData.event.amount.total).to.eql(120.11);",
+                  "      pm.expect(jsonData.id).to.eql(2);",
+                  "});",
+                  "",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId/bills/:billId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":userId",
+                "bills",
+                ":billId"
+              ],
+              "query": [
+                {
+                  "key": "billId",
+                  "value": "31",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "2"
+                },
+                {
+                  "key": "billId",
                   "value": "2"
                 }
               ]
@@ -1494,22 +1993,21 @@
           "response": []
         },
         {
-          "name": "Оплата  оплаченного счета Copy",
+          "name": "Просмотр счета не участником",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
                   "});",
                   "",
                   "pm.test(\" body\", function () {",
                   "    var jsonData = pm.response.json();",
-                  "      pm.expect(jsonData.state).to.eql(\"CREATED\");",
-                  "      pm.expect(jsonData.event.amount.total).to.eql(120.11);",
-                  "      pm.expect(jsonData.id).to.eql(2);",
-                  "        pm.expect(jsonData.createdOn).to.not.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
+                  "      pm.expect(jsonData.reason).to.eql(\"Значение параметра не отвечает бизнес требованиям\");",
+                  "      pm.expect(jsonData.message).to.eql(\"user has not access to this bill\");",
+                  "",
                   "",
                   "",
                   "});",
@@ -1530,10 +2028,84 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/:userId/bills?billId=31",
+              "raw": "{{baseUrl}}/users/:userId/bills/:billId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":userId",
+                "bills",
+                ":billId"
+              ],
+              "query": [
+                {
+                  "key": "billId",
+                  "value": "31",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                },
+                {
+                  "key": "billId",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Просмотр всех доступных счетов",
+      "item": [
+        {
+          "name": "Просмотр всех своих счетов c фильтрами",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\" body\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "      pm.expect(jsonData[0].state).to.eql(\"EXPIRED\");",
+                  "      pm.expect(jsonData[0].event.amount.total).to.eql(120.11);",
+                  "      pm.expect(jsonData[0].id).to.eql(1);",
+                  "        pm.expect(jsonData[0].createdOn).to.not.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
+                  "});",
+                  "",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId/bills?pageFrom=0&pageSize=1&state=EXPIRED",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1544,14 +2116,152 @@
               ],
               "query": [
                 {
-                  "key": "billId",
-                  "value": "31"
+                  "key": "pageFrom",
+                  "value": "0"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "1"
+                },
+                {
+                  "key": "state",
+                  "value": "EXPIRED"
                 }
               ],
               "variable": [
                 {
                   "key": "userId",
                   "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Просмотр всех своих счетов без фильтров",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"3 bills\", function () {",
+                  "pm.expect(pm.response.json().length).to.be.eql(3);",
+                  "});",
+                  "",
+                  "",
+                  "",
+                  "",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId/bills",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":userId",
+                "bills"
+              ],
+              "query": [
+                {
+                  "key": "pageFrom",
+                  "value": "0",
+                  "disabled": true
+                },
+                {
+                  "key": "pageSize",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "state",
+                  "value": "EXPIRED",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Просмотр отчета об оплатах по событиям для инициатора",
+      "item": [
+        {
+          "name": "Просмотр отчета об оплатах",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Body\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData[0].eventId).to.eql(3);",
+                  "    pm.expect(jsonData[0].totalAmount).to.eql(120.11);",
+                  "    pm.expect(jsonData[0].paymentsCount).to.eql(1);",
+                  "    pm.expect(jsonData[0].averagePayment).to.eql(120.11);",
+                  "",
+                  "     pm.expect(jsonData[1].eventId).to.eql(4);",
+                  "    pm.expect(jsonData[1].totalAmount).to.eql(120.11);",
+                  "    pm.expect(jsonData[1].paymentsCount).to.eql(1);",
+                  "    pm.expect(jsonData[1].averagePayment).to.eql(120.11);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId/events/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":userId",
+                "events",
+                "payments"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "1"
                 }
               ]
             }

@@ -1,5 +1,6 @@
 package ru.practicum.main_service.controller.registred_user;
 
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,14 +23,16 @@ import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
+
 @Validated
+@Tag(name = "Private:  Счета на оплату",
+        description = "Счета на оплату могут быть выставлены, оплачены и просмотрены. Счета " +
+                "имеют следующие стадии: " + "\n" +
+                " - создан (активен для оплаты), " + "\n" +
+                " - оплачен, " + "\n" +
+                " - протух (не возможен для оплаты - нужно создать новый счет). Через 1 минуту счет протухает")// todo
 @RequestMapping("/users/{userId}/bills")
-@Tag(name = "Private:  Счета на оплату", description = "Счета на оплату могут быть выставлены, оплачены и просмотрены. Счета " +
-        "имеют следующие стадии: " + "\n" +
-        " - создан (активен для оплаты), " + "\n" +
-        " - оплачен, " + "\n" +
-        " - протух (не возможен для оплаты - нужно создать новый счет). Через 1 минуту счет протухает")// todo
+@RestController
 public class BillPrivateController {
     private final BillService billService;
 
@@ -43,11 +46,12 @@ public class BillPrivateController {
                     " - для мероприятия с признаком 'paid = true' и указанной суммой ," + "\n" +
                     " - для мероприятия с указанной  стоимостью мероприятия 'amount'," + "\n" +
                     " - для пользователя с подтвержденным запросом на участие," + "\n" +
-                    " - для уникального пользователя - мероприятия, иначе отдается существующий счет."
+                    " - для уникального пользователя - мероприятия, если счет найден и он  в статусе Создан - вернуть его." +
+                    "если в статусе Протух - создать новый. Если в статусе оплачен - вернуть ошибку"
     )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private BillResponse createBill(
+    public BillResponse createBill(
             @PathVariable("userId")
             @Parameter(description = "Идентификатор пользователя", required = true, example = "3")
             Long userId,
@@ -65,7 +69,7 @@ public class BillPrivateController {
     public BillResponse payBill(
             @Parameter(description = "Идентификатор пользователя", required = true, example = "2")
             @PathVariable("userId") Long userId,
-            @RequestParam @Parameter(description = "Идентификатор счета", required = true, example = "1")
+            @Parameter(description = "Идентификатор счета", required = true, example = "1")
             @PathVariable("billId") Long billId) {
         return billService.payBill(userId, billId);
     }
@@ -77,7 +81,7 @@ public class BillPrivateController {
     public BillResponse getBillById(
             @Parameter(description = "Идентификатор пользователя", required = true, example = "2")
             @PathVariable("userId") Long userId,
-            @RequestParam @Parameter(description = "Идентификатор счета", required = true, example = "1")
+            @Parameter(description = "Идентификатор счета", required = true, example = "1")
             @PathVariable("billId") Long billId) {
         return billService.getBillById(userId, billId);
     }

@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.main_service.dto.RequestBulkUpdateRequest;
 import ru.practicum.main_service.dto.RequestBulkUpdateResponse;
 import ru.practicum.main_service.dto.RequestResponse;
+import ru.practicum.main_service.dto.event.EvenPaymentsReport;
 import ru.practicum.main_service.dto.event.EventFullResponse;
 import ru.practicum.main_service.dto.event.EventShortResponse;
 import ru.practicum.main_service.dto.event.NewEventRequest;
 import ru.practicum.main_service.dto.event.UpdateEventRequest;
+import ru.practicum.main_service.service.BillService;
 import ru.practicum.main_service.service.EventService;
 import ru.practicum.main_service.service.RequestService;
 
@@ -37,10 +39,12 @@ public class EventPrivateController {
     private final EventService eventService;
 
     private final RequestService requestService;
+    private final BillService billService;
 
-    public EventPrivateController(EventService eventService, RequestService requestService) {
+    public EventPrivateController(EventService eventService, RequestService requestService, BillService billService) {
         this.eventService = eventService;
         this.requestService = requestService;
+        this.billService = billService;
     }
 
     @Operation(
@@ -89,6 +93,11 @@ public class EventPrivateController {
                                                      @PathVariable Long eventId,
                                                      @RequestBody @Valid RequestBulkUpdateRequest body) {
         return requestService.approveRequestOfEvent(userId, eventId, body);
+    }
+
+    @GetMapping("/payments")
+    public List<EvenPaymentsReport> getEventsPayments(@PathVariable Long userId) {
+        return billService.getEventsPayments(userId);
     }
 
 }

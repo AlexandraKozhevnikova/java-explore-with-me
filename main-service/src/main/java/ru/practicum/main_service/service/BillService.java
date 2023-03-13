@@ -1,17 +1,20 @@
 package ru.practicum.main_service.service;
 
+
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_service.dto.BillResponse;
+import ru.practicum.main_service.dto.event.EvenPaymentsReport;
 import ru.practicum.main_service.mapper.BillMapper;
 import ru.practicum.main_service.model.BillEntity;
 import ru.practicum.main_service.model.BillState;
 import ru.practicum.main_service.model.EventEntity;
 import ru.practicum.main_service.model.QBillEntity;
-import ru.practicum.main_service.model.RequestEntity;
+import ru.practicum.main_service.model.QEventEntity;
 import ru.practicum.main_service.model.UserEntity;
 import ru.practicum.main_service.repository.BillRepository;
 
@@ -22,16 +25,15 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static ru.practicum.main_service.model.BillState.CREATED;
+
 @Service
 public class BillService {
-
     private final BillMapper billMapper;
     private final UserService userService;
     private final EventService eventService;
     private final RequestService requestService;
-
     private final CurrencyService currencyService;
-
     private final BillRepository billRepository;
 
     public BillService(BillMapper billMapper, UserService userService, EventService eventService,
@@ -49,27 +51,29 @@ public class BillService {
         UserEntity participant = userService.checkUserIsExistAndGetById(userId);
         EventEntity event = eventService.checkEventIsExistAndGet(eventId);
         checkThatEvenIsPaid(event);
-        RequestEntity request = requestService.checkUserGetConfirmedRequestOnEvent(participant, event);
+        requestService.checkUserGetConfirmedRequestOnEvent(participant, event);
 
         Optional<BillEntity> existBill = billRepository.findOne(QBillEntity.billEntity.event.eventId.eq(eventId)
                 .and(QBillEntity.billEntity.participant.userId.eq(participant.getUserId()))
-                .and(QBillEntity.billEntity.state.eq(BillState.CREATED))
+                .and(QBillEntity.billEntity.state.in(CREATED, BillState.PAID))
         );
 
         if (existBill.isPresent()) {
-            BillEntity bill = checkBillIsExistAndActualStatusAndGet(existBill.get().getBillId());
-            if (bill.getState() == BillState.CREATED) {
-                return billMapper.responseFromEntity(existBill.get());
+            BillEntity bill = checkBillIsExistAndActualStatusAndGet(existBill.get().getBillId()); //todo
+            switch (bill.getState()) {
+                case CREATED:
+                    return billMapper.responseFromEntity(existBill.get());
+                case PAID:
+                    throw new IllegalArgumentException("this bill already paid. Bill id = " + existBill.get().getBillId());
             }
         }
 
         BillEntity billEntity = new BillEntity();
         billEntity.setEvent(event);
         billEntity.setParticipant(participant);
-        billEntity.setAmount(BigDecimal.valueOf(1000L)); //todo
+        billEntity.setAmount(event.getAmount());
         billEntity.setCurrency(currencyService.getCurrencyRub());
-        billEntity.setState(BillState.CREATED);
-
+        billEntity.setState(CREATED);
 
         return billMapper.responseFromEntity(billRepository.save(billEntity));
     }
@@ -80,7 +84,7 @@ public class BillService {
         BillEntity bill = checkBillIsExistAndActualStatusAndGet(billId);
         checkUserIsParticipant(participant, bill);
 
-        if (bill.getState() == BillState.CREATED) {
+        if (bill.getState() == CREATED) {
             bill.setState(BillState.PAID);
         } else {
             throw new IllegalArgumentException("bill is not CREATED");
@@ -93,11 +97,11 @@ public class BillService {
     public BillEntity checkBillIsExistAndActualStatusAndGet(Long billId) {
         BillEntity bill = billRepository.findById(billId)
                 .orElseThrow(() -> new NoSuchElementException("Bill with id=" + billId + " does not exist."));
-        if (bill.getState() == BillState.CREATED) {
-            if (bill.getCreatedOn().plusMinutes(1L).isBefore(LocalDateTime.now())) {
-                bill.setState(BillState.EXPIRED);
-            }
+        if (bill.getState() == CREATED &&
+                bill.getCreatedOn().plusMinutes(1L).isBefore(LocalDateTime.now())) {
+            bill.setState(BillState.EXPIRED);
         }
+
         return bill;
     }
 
@@ -109,6 +113,7 @@ public class BillService {
         return billMapper.responseFromEntity(bill);
     }
 
+    @Transactional
     public List<BillResponse> getBills(Long userId, Optional<BillState> state, Integer pageFrom, Integer pageSize) {
         BooleanBuilder booleanBuilder = new BooleanBuilder(QBillEntity.billEntity.participant.userId.eq(userId));
         state.ifPresent(it -> booleanBuilder.and(QBillEntity.billEntity.state.eq(it)));
@@ -116,6 +121,21 @@ public class BillService {
         return billRepository.findAll(booleanBuilder, QPageRequest.of(pageFrom, pageSize)).stream()
                 .peek(it -> checkBillIsExistAndActualStatusAndGet(it.getBillId()))
                 .map(billMapper::responseFromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<EvenPaymentsReport> getEventsPayments(Long userId) {
+        userService.checkUserIsExistAndGetById(userId);
+        List<Tuple> list = billRepository.getEventPaymentsReport(userId);
+        return list.stream()
+                .map(it -> new EvenPaymentsReport(
+                                it.get(QEventEntity.eventEntity.eventId),
+                                it.get(1, BigDecimal.class),
+                                it.get(2, Long.class),
+                                it.get(3, Double.class)
+                        )
+                )
                 .collect(Collectors.toList());
     }
 
@@ -128,7 +148,7 @@ public class BillService {
 
     private void checkUserIsParticipant(UserEntity user, BillEntity bill) {
         if (!bill.getParticipant().getUserId().equals(user.getUserId())) {
-            throw new IllegalArgumentException("user can not pay for other bill");
+            throw new IllegalArgumentException("user has not access to this bill");
         }
     }
 }
