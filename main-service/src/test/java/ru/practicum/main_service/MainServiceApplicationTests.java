@@ -57,7 +57,18 @@ class MainServiceApplicationTests {
 
     private void createEvent() {
         given().contentType(ContentType.JSON)
-                .body("{\n" + "  \"annotation\": \"Сплав на байдарках похож на полет.\",\n" + "  \"category\": 1,\n" + "  \"description\": \"Сплав  дарит чувство обновления, феерические эмоции, яркие впечатления.\",\n" + "  \"eventDate\": \"2023-12-31 15:10:05\",\n" + "  \"location\": {\n" + "    \"lat\": 55.754167,\n" + "    \"lon\": 37.62\n" + "  },\n" + "  \"title\": \"Сплав на байдарках\" \n" + "}")
+                .body("{\n" +
+                        "  \"annotation\": \"Сплав на байдарках похож на полет.\",\n" +
+                        "  \"category\": 1,\n" +
+                        "  \"description\": \"Сплав  дарит чувство обновления, феерические эмоции, яркие " +
+                        "впечатления.\",\n" +
+                        "  \"eventDate\": \"2023-12-31 15:10:05\",\n" +
+                        "  \"location\": {\n" +
+                        "    \"lat\": 55.754167,\n" +
+                        "    \"lon\": 37.62\n" +
+                        "  },\n" +
+                        "  \"title\": \"Сплав на байдарках\" \n" +
+                        "}")
                 .pathParam("userId", 1L)
                 .when()
                 .post(PRIVATE_EVENT)
@@ -73,7 +84,7 @@ class MainServiceApplicationTests {
     @Test
     void createUser_whenRequestValidAndUserIsNew_thanReturn201AndTrimmedValues() {
         given().contentType(ContentType.JSON)
-                .body("{\n" + "  \"email\": \"ivan.petrov@practicummail.ru\",\n" + "  \"name\": \" Иван Петров   \"\n" + "}")
+                .body("{\n" + "  \"email\": \"ivan.petrov@practicummail.ru\",\n" + "  \"name\": \"Иван Петров\"\n" + "}")
                 .when()
                 .post(USERS)
                 .then()
@@ -183,7 +194,7 @@ class MainServiceApplicationTests {
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
                 .body("id", is(1))
-                .body("name", is("Концерты"));
+                .body("name", is("  Концерты  "));
     }
 
     @Test
@@ -226,7 +237,7 @@ class MainServiceApplicationTests {
 
         given().contentType(ContentType.JSON)
                 .pathParam("catId", 1)
-                .body("{\n" + "  \"name\": \" Концерты NEW \"\n" + "}")
+                .body("{\n" + "  \"name\": \"Концерты NEW\"\n" + "}")
                 .when()
                 .patch(ADMIN_CATEGORY + "/{catId}")
                 .then()
@@ -387,7 +398,16 @@ class MainServiceApplicationTests {
         given().contentType(ContentType.JSON)
                 .pathParam("userId", 1)
                 .pathParam("eventId", 1)
-                .body("{\n" + "  \"description\": \"От английского SUP - Stand Up Paddle — гавайская разновидность сёрфинга.\",\n" + "  \"eventDate\": \"2024-10-11 23:10:05\",\n" + "  \"location\": {\n" + "    \"lat\": 24.754167,\n" + "    \"lon\": 24.62\n" + "  },\n" + "  \"paid\": true,\n" + "  \"participantLimit\": 24,\n" + "  \"requestModeration\": false,\n" + "  \"stateAction\": \"SEND_TO_REVIEW\",\n" + "  \"title\": \"Сап прогулки по рекам и каналам\"\n" + "}")
+                .body("{\n" + "  \"description\": \"От английского SUP - Stand Up Paddle — гавайская разновидность сёрфинга.\",\n" +
+                        "  \"eventDate\": \"2024-10-11 23:10:05\",\n" +
+                        "  \"location\": {\n" +
+                        "    \"lat\": 24.754167,\n" +
+                        "    \"lon\": 24.62\n" +
+                        "  },\n" + "  \"paid\": true,\n" +
+                        "  \"participantLimit\": 24,\n" +
+                        "  \"requestModeration\": false,\n" +
+                        "  \"stateAction\": \"SEND_TO_REVIEW\",\n" +
+                        "  \"title\": \"Сап прогулки по рекам и каналам\"\n" + "}")
                 .when()
                 .patch(PRIVATE_EVENT + "/{eventId}")
                 .then()
@@ -469,38 +489,66 @@ class MainServiceApplicationTests {
     }
 
     @Test
-    void updateEvent_whenDescriptionIsBlank_return404() {
+    void updateEvent_whenDescriptionIsBlankAndMoreThan20symbols_return200AndUpdateOnlyValidFields() {
+        createUser();
+        createCategory();
+        createEvent();
         given().contentType(ContentType.JSON)
                 .pathParam("userId", 1)
                 .pathParam("eventId", 1)
-                .body("{\n" + "  \"description\": \"                        \"\n" + "}")
+                .body("{\n" +
+                        "  \"annotation\": \"                                      \",\n" +
+                        "  \"description\": \"                                    \",\n" +
+                        "  \"eventDate\": \"2028-05-05 23:10:05\",\n" +
+                        "  \"title\": \"   \"\n" +
+                        "}")
                 .when()
                 .patch(PRIVATE_EVENT + "/{eventId}")
                 .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("reason", is("Incorrectly made request."))
-                .body("message", is("Field: description. Error: size must be between 20 and 7000. Value: "));
+                .statusCode(HttpStatus.OK.value())
+                .body("title", is("Сплав на байдарках"))
+                .body("annotation", is("Сплав на байдарках похож на полет."))
+                .body("description", is("Сплав  дарит чувство обновления, феерические эмоции, " +
+                        "яркие впечатления."))
+                .body("eventDate", is("2028-05-05 23:10:05"));
     }
 
     @Test
-    void updateCompilation_whenTitleIsBlank() {
+    void updateCompilation_whenTitleIsBlank_thanReturn200andUpdateOnlyValidFields() {
         given().contentType(ContentType.JSON)
-                .body("{\n" + "  \"title\": \"12345678901234567890\"\n" + "}")
+                .body("{\n" +
+                        "  \"title\": \"Подборка Новый Год\",\n" +
+                        " \"pinned\": false" +
+                        "}")
                 .when()
                 .post("/admin/compilations")
                 .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body("id", is(1));
+                .statusCode(HttpStatus.CREATED.value());
+
 
         given().contentType(ContentType.JSON)
-                .body("{\n" + "  \"title\": \"                             \"\n" + "}")
+                .body("{\n" +
+                        "  \"title\": \"                             \",\n" +
+                        " \"pinned\": true" +
+                        "}")
                 .when()
                 .patch("/admin/compilations/{compId}", 1)
                 .then()
-                .statusCode(HttpStatus.CONFLICT.value())
-                .body("reason", is("Integrity constraint has been violated."))
-                .body("message", is("could not execute statement; SQL [n/a]; constraint [null]; nested" +
-                        " exception is org.hibernate.exception.ConstraintViolationException: could not" +
-                        " execute statement"));
+                .statusCode(HttpStatus.OK.value())
+                .body("pinned", is(true))
+                .body("title", is("Подборка Новый Год"));
+    }
+
+    @Test
+    void updateCompilation_whenTitleIsMoreThan120symbols_then______() {
+        given().contentType(ContentType.JSON)
+                .body("{\n" + "  \"title\": \" 123456789012345678901234567890123456789012345678901234567890" +
+                        "12345678901234567890123456789012345678901234567890123456789012345678901234567890\"\n" + "}")
+                .when()
+                .patch("/admin/compilations/{compId}", 1)
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("reason", is("Incorrectly made request."))
+                .body("message", is("title must not be more than 120 symbols"));
     }
 }

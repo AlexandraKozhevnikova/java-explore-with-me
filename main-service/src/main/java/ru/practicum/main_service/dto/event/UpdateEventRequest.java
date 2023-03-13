@@ -25,7 +25,7 @@ public class UpdateEventRequest {
     }
 
     public void setTitle(String title) {
-        this.title = title.trim();
+        this.title = title;
     }
 
     public String getAnnotation() {
@@ -33,7 +33,7 @@ public class UpdateEventRequest {
     }
 
     public void setAnnotation(String annotation) {
-        this.annotation = annotation.trim();
+        this.annotation = annotation;
     }
 
     public Long getCategory() {
@@ -49,7 +49,7 @@ public class UpdateEventRequest {
     }
 
     public void setDescription(String description) {
-        this.description = description.trim();
+        this.description = description;
     }
 
     public LocalDateTime getEventDate() {

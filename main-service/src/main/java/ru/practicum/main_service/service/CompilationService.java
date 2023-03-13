@@ -12,6 +12,7 @@ import ru.practicum.main_service.model.EventEntity;
 import ru.practicum.main_service.model.QCompilationEntity;
 import ru.practicum.main_service.repository.CompilationRepository;
 
+import javax.validation.ValidationException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +61,11 @@ public class CompilationService {
 
     @Transactional
     public CompilationResponse updateCompilation(Long compId, CompilationRequest request) {
+        if (request.getTitle() != null) {
+            if (request.getTitle().length() > 121) {
+                throw new ValidationException("title must not be more than 120 symbols");
+            }
+        }
         CompilationEntity savedCompilationEntity = checkCompilationIsExistAndGetBasic(compId);
 
         if (request.getEvents() != null) {

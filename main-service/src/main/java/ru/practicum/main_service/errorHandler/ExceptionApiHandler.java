@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -97,7 +98,8 @@ public class ExceptionApiHandler {
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class,
-            MissingServletRequestParameterException.class, ConstraintViolationException.class})
+            MissingServletRequestParameterException.class, ConstraintViolationException.class,
+            ValidationException.class})
     public ResponseEntity<ErrorResponse> handleValidationRequestException(
             Exception e) {
         log.error(e.getMessage(), e);

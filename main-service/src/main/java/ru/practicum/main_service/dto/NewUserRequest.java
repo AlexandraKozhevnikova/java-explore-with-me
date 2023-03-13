@@ -19,12 +19,10 @@ public class NewUserRequest {
     }
 
     public void setName(String name) {
-        name = name.trim();
         this.name = name;
     }
 
     public String getEmail() {
-        email = email.trim();
         return email;
     }
 
