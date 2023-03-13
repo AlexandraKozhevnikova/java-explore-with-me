@@ -13,11 +13,11 @@ public class CurrencyService {
     }
 
     public CurrencyEntity getCurrencyRub() {
-        return currencyRepository.findById(1l).get();
+        return currencyRepository.findById(1L).get();
     }
 
     public CurrencyEntity getCurrencyUsd() {
-        return currencyRepository.findById(2l).get();
+        return currencyRepository.findById(2L).get();
     }
 
     public CurrencyEntity getCurrencyByTitle(String title) {
