@@ -1,6 +1,8 @@
 package ru.practicum.main_service.mapper;
 
+import io.micrometer.core.instrument.util.StringUtils;
 import org.mapstruct.BeanMapping;
+import org.mapstruct.Condition;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -47,6 +49,11 @@ public interface EventMapper {
     @Mapping(target = "lat", source = "request.location.lat")
     @Mapping(target = "category", source = "category")
     EventEntity entityFromUpdateRequest(UpdateEventRequest request, CategoryEntity category);
+
+    @Condition
+    default boolean isNotEmpty(String value) {
+        return StringUtils.isNotBlank(value);
+    }
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(EventEntity request, @MappingTarget EventEntity entity);

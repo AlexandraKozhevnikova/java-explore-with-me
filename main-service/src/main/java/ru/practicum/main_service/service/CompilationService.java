@@ -1,7 +1,6 @@
 package ru.practicum.main_service.service;
 
 import com.querydsl.core.BooleanBuilder;
-import io.micrometer.core.instrument.util.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,8 +62,8 @@ public class CompilationService {
     @Transactional
     public CompilationResponse updateCompilation(Long compId, CompilationRequest request) {
         if (request.getTitle() != null) {
-            if (StringUtils.isBlank(request.getTitle())) {
-                throw new ValidationException("title must not be blank");
+            if (request.getTitle().length() > 121) {
+                throw new ValidationException("title must not be more than 120 symbols");
             }
         }
         CompilationEntity savedCompilationEntity = checkCompilationIsExistAndGetBasic(compId);

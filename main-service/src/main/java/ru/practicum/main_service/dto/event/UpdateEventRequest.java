@@ -33,7 +33,7 @@ public class UpdateEventRequest {
     }
 
     public void setAnnotation(String annotation) {
-        this.annotation = annotation.trim();
+        this.annotation = annotation;
     }
 
     public Long getCategory() {

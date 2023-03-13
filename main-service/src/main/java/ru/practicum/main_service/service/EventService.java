@@ -5,7 +5,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
-import io.micrometer.core.instrument.util.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Lazy;
@@ -33,7 +32,6 @@ import ru.practicum.statisticclient.StatisticClient;
 import statisticcommon.HitResponse;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ValidationException;
 import java.net.ConnectException;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
@@ -119,7 +117,6 @@ public class EventService {
     @Transactional
     public EventFullResponse updateUserEvent(Long userId, Long eventId, UpdateEventRequest request) {
         //проверки
-        validateNonBlankFields(request);
         userService.checkUserIsExistAndGetById(userId);
         EventEntity event = checkEventIsExistAndGet(eventId);
         checkEventDateStartTime(event.getEventDate(), 2L);
@@ -161,7 +158,6 @@ public class EventService {
     @Transactional
     public EventFullResponse updateUserEventForAdmin(Long eventId, UpdateEventRequest request) {
         //проверки
-        validateNonBlankFields(request);
         EventEntity event = checkEventIsExistAndGet(eventId);
         checkEventDateStartTime(event.getEventDate(), 1L);
         checkThatEventIsAvailableForUpdate(event);
@@ -411,24 +407,6 @@ public class EventService {
             return QEventEntity.eventEntity.eventDate.before(rangeStart.get()).not();
         } else {
             return QEventEntity.eventEntity.eventDate.after(rangeEnd.get()).not();
-        }
-    }
-
-    private void validateNonBlankFields(UpdateEventRequest request) {
-        if (request.getDescription() != null) {
-            if (StringUtils.isBlank(request.getDescription())) {
-                throw new ValidationException("Description must not be blank.");
-            }
-        }
-        if (request.getAnnotation() != null) {
-            if (StringUtils.isBlank(request.getAnnotation())) {
-                throw new ValidationException("Annotation must not be blank.");
-            }
-        }
-        if (request.getTitle() != null) {
-            if (StringUtils.isBlank(request.getTitle())) {
-                throw new ValidationException("Title must not be blank.");
-            }
         }
     }
 }
