@@ -23,7 +23,6 @@ public class NewUserRequest {
     }
 
     public String getEmail() {
-        email = email;
         return email;
     }
 
