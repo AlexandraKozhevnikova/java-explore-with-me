@@ -19,10 +19,12 @@ import ru.practicum.main_service.model.UserEntity;
 import ru.practicum.main_service.repository.BillRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static ru.practicum.main_service.model.BillState.CREATED;
@@ -59,8 +61,7 @@ public class BillService {
         );
 
         if (existBill.isPresent()) {
-            BillEntity bill = checkBillIsExistAndActualStatusAndGet(existBill.get().getBillId()); //todo
-            switch (bill.getState()) {
+            switch (existBill.get().getState()) {
                 case CREATED:
                     return billMapper.responseFromEntity(existBill.get());
                 case PAID:
@@ -75,13 +76,28 @@ public class BillService {
         billEntity.setCurrency(currencyService.getCurrencyRub());
         billEntity.setState(CREATED);
 
-        return billMapper.responseFromEntity(billRepository.save(billEntity));
+        BillEntity newBill = billRepository.save(billEntity);
+
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        service.schedule(
+                () -> {
+                    BillEntity thisBill = checkBillIsExistAndGet(newBill.getBillId());
+                    if (thisBill.getState() == CREATED) {
+                        thisBill.setState(BillState.EXPIRED);
+                    }
+                    billRepository.save(thisBill);
+                },
+                1L,
+                TimeUnit.MINUTES);
+        service.shutdown();
+
+        return billMapper.responseFromEntity(newBill);
     }
 
     @Transactional
     public BillResponse payBill(Long userId, Long billId) {
         UserEntity participant = userService.checkUserIsExistAndGetById(userId);
-        BillEntity bill = checkBillIsExistAndActualStatusAndGet(billId);
+        BillEntity bill = checkBillIsExistAndGet(billId);
         checkUserIsParticipant(participant, bill);
 
         if (bill.getState() == CREATED) {
@@ -94,21 +110,15 @@ public class BillService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public BillEntity checkBillIsExistAndActualStatusAndGet(Long billId) {
-        BillEntity bill = billRepository.findById(billId)
+    public BillEntity checkBillIsExistAndGet(Long billId) {
+        return billRepository.findById(billId)
                 .orElseThrow(() -> new NoSuchElementException("Bill with id=" + billId + " does not exist."));
-        if (bill.getState() == CREATED &&
-                bill.getCreatedOn().plusMinutes(1L).isBefore(LocalDateTime.now())) {
-            bill.setState(BillState.EXPIRED);
-        }
-
-        return bill;
     }
 
     @Transactional(readOnly = true)
     public BillResponse getBillById(Long userId, Long billId) {
         UserEntity user = userService.checkUserIsExistAndGetById(userId);
-        BillEntity bill = checkBillIsExistAndActualStatusAndGet(billId);
+        BillEntity bill = checkBillIsExistAndGet(billId);
         checkUserIsParticipant(user, bill);
         return billMapper.responseFromEntity(bill);
     }
@@ -119,7 +129,6 @@ public class BillService {
         state.ifPresent(it -> booleanBuilder.and(QBillEntity.billEntity.state.eq(it)));
 
         return billRepository.findAll(booleanBuilder, QPageRequest.of(pageFrom, pageSize)).stream()
-                .peek(it -> checkBillIsExistAndActualStatusAndGet(it.getBillId()))
                 .map(billMapper::responseFromEntity)
                 .collect(Collectors.toList());
     }

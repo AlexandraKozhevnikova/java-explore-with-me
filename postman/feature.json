@@ -2083,7 +2083,7 @@
                   "      pm.expect(jsonData[0].state).to.eql(\"EXPIRED\");",
                   "      pm.expect(jsonData[0].event.amount.total).to.eql(120.11);",
                   "      pm.expect(jsonData[0].id).to.eql(1);",
-                  "        pm.expect(jsonData[0].createdOn).to.not.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
+                  "        pm.expect(jsonData[0].createdOn).to.eql(pm.collectionVariables.get(\"time_create_bill_1\"));",
                   "});",
                   "",
                   ""
