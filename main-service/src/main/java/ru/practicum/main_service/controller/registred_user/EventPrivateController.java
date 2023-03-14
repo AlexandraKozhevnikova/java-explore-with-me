@@ -1,5 +1,7 @@
 package ru.practicum.main_service.controller.registred_user;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.main_service.dto.RequestBulkUpdateRequest;
 import ru.practicum.main_service.dto.RequestBulkUpdateResponse;
 import ru.practicum.main_service.dto.RequestResponse;
+import ru.practicum.main_service.dto.event.EvenPaymentsReport;
 import ru.practicum.main_service.dto.event.EventFullResponse;
 import ru.practicum.main_service.dto.event.EventShortResponse;
 import ru.practicum.main_service.dto.event.NewEventRequest;
 import ru.practicum.main_service.dto.event.UpdateEventRequest;
+import ru.practicum.main_service.service.BillService;
 import ru.practicum.main_service.service.EventService;
 import ru.practicum.main_service.service.RequestService;
 
@@ -26,6 +30,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Tag(name = "Private: События", description = "Создавать, обновлять и получать созданные события")
 @RestController
 @Validated
 @RequestMapping("/users/{userId}/events")
@@ -34,12 +39,18 @@ public class EventPrivateController {
     private final EventService eventService;
 
     private final RequestService requestService;
+    private final BillService billService;
 
-    public EventPrivateController(EventService eventService, RequestService requestService) {
+    public EventPrivateController(EventService eventService, RequestService requestService, BillService billService) {
         this.eventService = eventService;
         this.requestService = requestService;
+        this.billService = billService;
     }
 
+    @Operation(
+            summary = "Создание события",
+            description = "Добавлены параметры для стоимости участия в событии."
+    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullResponse createEvent(@RequestBody @Valid NewEventRequest request,
@@ -61,6 +72,10 @@ public class EventPrivateController {
     }
 
     @PatchMapping("/{eventId}")
+    @Operation(
+            summary = "Обновление события",
+            description = "Обновлять стоимость события нельзя"
+    )
     public EventFullResponse updateUserEvent(@PathVariable Long userId,
                                              @PathVariable Long eventId,
                                              @RequestBody @Valid UpdateEventRequest request) {
@@ -78,6 +93,11 @@ public class EventPrivateController {
                                                      @PathVariable Long eventId,
                                                      @RequestBody @Valid RequestBulkUpdateRequest body) {
         return requestService.approveRequestOfEvent(userId, eventId, body);
+    }
+
+    @GetMapping("/payments")
+    public List<EvenPaymentsReport> getEventsPayments(@PathVariable Long userId) {
+        return billService.getEventsPayments(userId);
     }
 
 }

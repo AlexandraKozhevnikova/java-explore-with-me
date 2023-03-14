@@ -167,6 +167,14 @@ public class RequestService {
                 .collect(Collectors.groupingBy(request -> request.getEvent().getEventId(), Collectors.counting()));
     }
 
+    @Transactional(readOnly = true)
+    public RequestEntity checkUserGetConfirmedRequestOnEvent(UserEntity participant, EventEntity event) {
+        return requestRepository.findOne(QRequestEntity.requestEntity.event.eventId.eq(event.getEventId())
+                .and(QRequestEntity.requestEntity.participant.userId.eq(participant.getUserId())
+                        .and(QRequestEntity.requestEntity.state.eq(RequestState.CONFIRMED)))
+        ).orElseThrow(() -> new IllegalArgumentException("Отсутствует подтвержденный запрос от участника"));
+    }
+
     private void checkEventIsAvailableForAddParticipant(EventEntity event) {
         if (event.getState() != EventState.PUBLISHED) {
             throw new IllegalArgumentException("Event is not PUBLISHED");

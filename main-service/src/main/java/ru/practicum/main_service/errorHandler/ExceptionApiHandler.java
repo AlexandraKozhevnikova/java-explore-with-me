@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,25 +27,45 @@ public class ExceptionApiHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationArgumentException(MethodArgumentNotValidException e) {
-        List<FieldError> listError = e.getBindingResult().getFieldErrors();
+        List<FieldError> listFieldError = e.getBindingResult().getFieldErrors();
+        List<ObjectError> listGlobalError = e.getBindingResult().getGlobalErrors();
         log.error(e.getMessage(), e);
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(
-                        listError.stream()
-                                .map(it ->
-                                        new ErrorResponseBuilder()
-                                                .setStatus(HttpStatus.BAD_REQUEST.name())
-                                                .setReason("Incorrectly made request.")
-                                                .setMessage("Field: " + it.getField() +
-                                                        ". Error: " + it.getDefaultMessage() +
-                                                        ". Value: " + it.getRejectedValue())
-                                                .createErrorResponse()
+        if (!listFieldError.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(
+                            listFieldError.stream()
+                                    .map(it ->
+                                            new ErrorResponseBuilder()
+                                                    .setStatus(HttpStatus.BAD_REQUEST.name())
+                                                    .setReason("Incorrectly made request.")
+                                                    .setMessage("Field: " + it.getField() +
+                                                            ". Error: " + it.getDefaultMessage() +
+                                                            ". Value: " + it.getRejectedValue())
+                                                    .createErrorResponse()
 
-                                )
-                                .collect(Collectors.toList()).stream().findFirst().get()
-                );
+                                    )
+                                    .collect(Collectors.toList()).stream().findFirst().get()
+                    );
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(
+                            listGlobalError.stream()
+                                    .map(it ->
+                                            new ErrorResponseBuilder()
+                                                    .setStatus(HttpStatus.BAD_REQUEST.name())
+                                                    .setReason("Incorrectly made request.")
+                                                    .setMessage("Object: " + it.getObjectName() +
+                                                            ". Error: " + it.getDefaultMessage() +
+                                                            ". Value: " + "'paid' and 'amount'")
+                                                    .createErrorResponse()
+
+                                    )
+                                    .collect(Collectors.toList()).stream().findFirst().get()
+                    );
+        }
     }
 
     @ExceptionHandler(value = {StartTimeEventException.class, IllegalStateEventException.class})

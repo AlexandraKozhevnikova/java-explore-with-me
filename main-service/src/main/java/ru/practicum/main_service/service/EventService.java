@@ -18,6 +18,7 @@ import ru.practicum.main_service.errorHandler.IllegalStateEventException;
 import ru.practicum.main_service.errorHandler.StartTimeEventException;
 import ru.practicum.main_service.mapper.EventMapper;
 import ru.practicum.main_service.model.CategoryEntity;
+import ru.practicum.main_service.model.CurrencyEntity;
 import ru.practicum.main_service.model.EventEntity;
 import ru.practicum.main_service.model.EventShortEntity;
 import ru.practicum.main_service.model.QEventEntity;
@@ -52,19 +53,22 @@ public class EventService {
     private final CategoryService categoryService;
     private final RequestService requestService;
     private final StatisticClient statisticClient;
+
+    private final CurrencyService currencyService;
     private final ObjectMapper mapper;
     private static final Logger log = LogManager.getLogger(EventService.class);
 
 
     public EventService(EventMapper eventMapper, EventRepository eventRepository, UserService userService,
                         CategoryService categoryService, @Lazy RequestService requestService, StatisticClient client,
-                        ObjectMapper mapper) {
+                        CurrencyService currencyService, ObjectMapper mapper) {
         this.eventMapper = eventMapper;
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.categoryService = categoryService;
         this.requestService = requestService;
         this.statisticClient = client;
+        this.currencyService = currencyService;
         this.mapper = mapper;
     }
 
@@ -74,8 +78,12 @@ public class EventService {
         checkEventDateStartTime(request.getEventDate(), 2L);
         UserEntity user = userService.checkUserIsExistAndGetById(userId);
         CategoryEntity category = categoryService.checkCategoryIsExistAndGet(request.getCategory());
+        CurrencyEntity currency = null;
+        if (request.getAmount() != null) {
+            currency = currencyService.getCurrencyByTitle(request.getAmount().getCurrency());
+        }
         //логика
-        EventEntity newEventEntity = eventMapper.entityFromNewRequest(request, user, category);
+        EventEntity newEventEntity = eventMapper.entityFromNewRequest(request, user, category, currency);
         StateMachine machine = new StateMachine(EventState.CREATED);
         machine.getEventState().sentToReview(machine);
         newEventEntity.setState(machine.getEventState());
@@ -339,6 +347,7 @@ public class EventService {
 
     public void checkUserIsEventInitiator(Long userId, EventEntity event) {
         if (!event.getInitiator().getUserId().equals(userId)) {
+            log.warn("user id = {} is not initiator event id = {}", userId, event.getInitiator().getUserId());
             throw new NoSuchElementException("Event with id=" + event.getEventId() + " was not found");
         }
     }

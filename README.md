@@ -2,4 +2,7 @@
 
 Template repository for ExploreWithMe project.
 
-Проект БД для основного сервиса - https://dbdiagram.io/d/63f90e33296d97641d8396d3
+Структура БД для основного сервиса - https://dbdiagram.io/d/63f90e33296d97641d8396d3
+
+Свагер документация для основного сервиса в тч и фичи
+http://localhost:8080/swagger-ui/index.html#/
