@@ -1290,7 +1290,7 @@
                 "method": "POST",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/users/:userId/bills?eventId=3",
+                  "raw": "{{baseUrl}}/users/:userId/bills?eventId={{event_id}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
@@ -1302,7 +1302,7 @@
                   "query": [
                     {
                       "key": "eventId",
-                      "value": "3"
+                      "value": "{{event_id}}"
                     }
                   ],
                   "variable": [
@@ -1453,11 +1453,6 @@
                   "    pm.response.to.have.status(201);",
                   "});",
                   "",
-                  "pm.test(\"Id object\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.id).to.eql(4);",
-                  "});",
-                  "",
                   "pm.collectionVariables.set(\"event_4\", pm.response.json().id);"
                 ],
                 "type": "text/javascript"
@@ -1520,7 +1515,8 @@
                   "",
                   "pm.test(\"Id object\", function () {",
                   "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.id).to.eql(4);",
+                  "    pm.expect(jsonData.id).to.eql(",
+                  "        pm.collectionVariables.get(\"event_4\"))",
                   "});",
                   "",
                   "pm.test(\"state\", function () {",
@@ -1586,11 +1582,6 @@
                 "exec": [
                   "pm.test(\"Status code is 200\", function () {",
                   "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test(\"Id object\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.id).to.eql(2);",
                   "});",
                   "",
                   "pm.test(\"state\", function () {",
@@ -2198,12 +2189,14 @@
                   "",
                   "pm.test(\"Body\", function () {",
                   "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData[0].eventId).to.eql(3);",
+                  "    pm.expect(jsonData[0].eventId).to.eql(",
+                  "        pm.collectionVariables.get(\"event_id\"))",
                   "    pm.expect(jsonData[0].totalAmount).to.eql(120.11);",
                   "    pm.expect(jsonData[0].paymentsCount).to.eql(1);",
                   "    pm.expect(jsonData[0].averagePayment).to.eql(120.11);",
                   "",
-                  "     pm.expect(jsonData[1].eventId).to.eql(4);",
+                  "    pm.expect(jsonData[1].eventId).to.eql(",
+                  "        pm.collectionVariables.get(\"event_4\"))",
                   "    pm.expect(jsonData[1].totalAmount).to.eql(120.11);",
                   "    pm.expect(jsonData[1].paymentsCount).to.eql(1);",
                   "    pm.expect(jsonData[1].averagePayment).to.eql(120.11);",
