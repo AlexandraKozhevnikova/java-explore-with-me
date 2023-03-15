@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.main_service.config.LocalDataTimeRegisterConfig;
 import ru.practicum.main_service.controller.registred_user.EventPrivateController;
 import ru.practicum.main_service.errorHandler.ExceptionApiHandler;
+import ru.practicum.main_service.service.BillService;
 import ru.practicum.main_service.service.EventService;
 import ru.practicum.main_service.service.RequestService;
 
@@ -43,6 +44,8 @@ public class EventControllerTest {
     EventService eventService;
     @MockBean
     RequestService requestService;
+    @MockBean
+    BillService billService;
     @Autowired
     JavaTimeModule module;
 

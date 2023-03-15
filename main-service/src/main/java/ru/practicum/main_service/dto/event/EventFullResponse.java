@@ -1,5 +1,6 @@
 package ru.practicum.main_service.dto.event;
 
+import ru.practicum.main_service.dto.AmountDto;
 import ru.practicum.main_service.dto.CategoryResponse;
 import ru.practicum.main_service.model.eventStateMachine.EventState;
 
@@ -21,6 +22,15 @@ public class EventFullResponse {
     private Boolean requestModeration;
     private LocalDateTime publishedOn;
     private EventState state;
+    private AmountDto amount;
+
+    public AmountDto getAmount() {
+        return amount;
+    }
+
+    public void setAmount(AmountDto amount) {
+        this.amount = amount;
+    }
 
     private Long views;
 
