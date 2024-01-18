@@ -1,6 +1,6 @@
 # java-explore-with-me
 
-Дипломный проект по курсу бекенда
+Дипломный проект по курсу Яндекс Практикума «Java-разработчик» https://practicum.yandex.ru/java-developer/
 
 Структура БД для основного сервиса - https://dbdiagram.io/d/63f90e33296d97641d8396d3
 
